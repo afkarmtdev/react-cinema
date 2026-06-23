@@ -1,0 +1,23 @@
+{
+  "enabledPlugins": {
+    "expo@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm ci)",
+      "Bash(npm run typecheck)",
+      "Bash(npm start)",
+      "Bash(npm run android)",
+      "Bash(npm run ios)",
+      "Bash(npm run web)",
+      "Bash(npx tsc:*)",
+      "Bash(npx expo:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)"
+    ]
+  }
+}
