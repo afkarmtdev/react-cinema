@@ -3,7 +3,7 @@ import { fetchMovieById } from '../api/movies';
 import type { Movie } from '../types/movie';
 
 // Loads a single movie by id for the detail screen.
-export function useMovieDetail(id: number) {
+export function useMovieDetail(id: string) {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

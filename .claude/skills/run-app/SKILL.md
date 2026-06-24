@@ -7,7 +7,7 @@ description: Launch, typecheck, or bundle this Expo + TypeScript cinema app (Cin
 
 ## Environment gotcha (important)
 
-This machine's **default `node` is v14**, which is too old for Expo SDK 56.
+This machine's **default `node` is v14**, which is too old for Expo SDK 54.
 A working **node v24** is installed via nvm. Run all npm/expo/node commands
 through **PowerShell** (where `node` resolves to v24), not the Bash tool
 (where it resolves to v14).
@@ -55,5 +55,6 @@ Remove-Item -Recurse -Force dist-verify
 
 - Dependencies are pinned to exact versions (no `^`/`~`); `.npmrc` has
   `save-exact=true`. Prefer `npm ci --ignore-scripts` for reproducible installs.
-- The app reads movies from FreeTestAPI; it needs network on the device/emulator,
+- The app reads movies from the OMDb API (key in `.env`, see `.env.example`);
+  it needs network on the device/emulator,
   but the bundle/typecheck steps above work offline.

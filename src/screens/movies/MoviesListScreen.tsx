@@ -1,13 +1,12 @@
+import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
-  LayoutAnimation,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
-  UIManager,
   View,
 } from 'react-native';
 import { Screen } from '../../components/ui/Screen';
@@ -15,23 +14,15 @@ import { SearchBar } from '../../components/SearchBar';
 import { MovieCard } from '../../components/MovieCard';
 import { MovieCardSkeleton } from '../../components/ui/Skeleton';
 import { BrandHeader } from '../../components/BrandHeader';
+import { FilterSheet } from '../../components/FilterSheet';
 import { EmptyView, ErrorView } from '../../components/ui/StateViews';
 import { useMovies } from '../../hooks/useMovies';
+import type { MovieFilters } from '../../api/movies';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { useLanguage } from '../../context/LanguageContext';
 import { colors, radius, spacing, typography } from '../../theme';
 import type { Movie } from '../../types/movie';
 import type { MoviesStackParamList } from '../../navigation/types';
-
-// Enable smooth list re-layout on Android.
-if (
-  Platform.OS === 'android' &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
-const MAX_ITEMS = 20; // Optional requirement: cap the list at 20 items.
 
 type Props = NativeStackScreenProps<MoviesStackParamList, 'MoviesList'>;
 
@@ -40,11 +31,18 @@ type Segment = 'now' | 'advance';
 export function MoviesListScreen({ navigation }: Props) {
   const [query, setQuery] = useState('');
   const [segment, setSegment] = useState<Segment>('now');
+  const [filters, setFilters] = useState<MovieFilters>({});
+  const [filterOpen, setFilterOpen] = useState(false);
   const debouncedQuery = useDebouncedValue(query);
-  const { movies, loading, error, refetch } = useMovies(debouncedQuery);
+  const { movies, loading, loadingMore, error, refetch, loadMore } = useMovies(
+    debouncedQuery,
+    filters,
+  );
   const { t } = useLanguage();
 
-  // Derive the displayed list: order by segment, then cap to 20.
+  const hasActiveFilters = !!filters.year || filters.type === 'series';
+
+  // Derive the displayed list: order by the selected segment.
   const displayed = useMemo(() => {
     const sorted = [...movies];
     if (segment === 'advance') {
@@ -52,13 +50,8 @@ export function MoviesListScreen({ navigation }: Props) {
     } else {
       sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     }
-    return sorted.slice(0, MAX_ITEMS);
+    return sorted;
   }, [movies, segment]);
-
-  // Animate whenever the rendered set changes (search / segment switch).
-  useEffect(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-  }, [displayed]);
 
   const openDetail = (movie: Movie) =>
     navigation.navigate('MovieDetail', {
@@ -73,11 +66,28 @@ export function MoviesListScreen({ navigation }: Props) {
     <View style={styles.header}>
       <BrandHeader align="left" />
       <Text style={styles.heading}>{t('moviesHeading')}</Text>
-      <SearchBar
-        value={query}
-        onChangeText={setQuery}
-        placeholder={t('searchPlaceholder')}
-      />
+      <View style={styles.searchRow}>
+        <View style={styles.searchFlex}>
+          <SearchBar
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t('searchPlaceholder')}
+          />
+        </View>
+        <Pressable
+          onPress={() => setFilterOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={t('filters')}
+          style={[styles.filterBtn, hasActiveFilters && styles.filterBtnActive]}
+        >
+          <Ionicons
+            name="options-outline"
+            size={22}
+            color={hasActiveFilters ? colors.primary : colors.textSecondary}
+          />
+          {hasActiveFilters && <View style={styles.filterDot} />}
+        </Pressable>
+      </View>
       <View style={styles.segments}>
         <SegmentButton
           label={t('nowShowing')}
@@ -123,6 +133,13 @@ export function MoviesListScreen({ navigation }: Props) {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          loadingMore ? (
+            <ActivityIndicator style={styles.footer} color={colors.primary} />
+          ) : null
+        }
         ListEmptyComponent={
           <EmptyView
             icon="search-outline"
@@ -142,6 +159,15 @@ export function MoviesListScreen({ navigation }: Props) {
     <Screen padded>
       {header}
       <View style={styles.content}>{content}</View>
+      <FilterSheet
+        visible={filterOpen}
+        filters={filters}
+        onApply={(next) => {
+          setFilters(next);
+          setFilterOpen(false);
+        }}
+        onClose={() => setFilterOpen(false)}
+      />
     </Screen>
   );
 }
@@ -168,6 +194,28 @@ function SegmentButton({
 const styles = StyleSheet.create({
   header: { paddingTop: spacing.sm, gap: spacing.lg, marginBottom: spacing.md },
   heading: { ...typography.h1, color: colors.text },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  searchFlex: { flex: 1 },
+  filterBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterBtnActive: { borderColor: colors.primary },
+  filterDot: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.primary,
+  },
   segments: { flexDirection: 'row', gap: spacing.xl },
   segment: { gap: spacing.sm },
   segmentLabel: { ...typography.h3, color: colors.textMuted },
@@ -181,6 +229,7 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   column: { gap: spacing.sm },
   listContent: { flexGrow: 1, paddingBottom: spacing.xxl },
+  footer: { paddingVertical: spacing.lg },
   skeletonGrid: { flexDirection: 'row', flexWrap: 'wrap' },
   skeletonCol: { width: '50%' },
 });

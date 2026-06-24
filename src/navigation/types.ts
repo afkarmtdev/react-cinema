@@ -7,7 +7,7 @@ export type AuthStackParamList = {
 
 export type MoviesStackParamList = {
   MoviesList: undefined;
-  MovieDetail: { movieId: number; title: string; poster?: string };
+  MovieDetail: { movieId: string; title: string; poster?: string };
 };
 
 export type TabParamList = {

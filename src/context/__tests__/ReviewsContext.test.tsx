@@ -25,7 +25,7 @@ async function mountWithUser() {
 }
 
 const toyStory = {
-  movieId: 1,
+  movieId: 'tt1',
   movieTitle: 'Toy Story',
   rating: 5,
   text: 'Great',
@@ -42,7 +42,7 @@ describe('ReviewsContext', () => {
       await result.current.reviews.saveReview(toyStory);
     });
 
-    const reviews = result.current.reviews.getMovieReviews(1);
+    const reviews = result.current.reviews.getMovieReviews('tt1');
     expect(reviews).toHaveLength(1);
     expect(reviews[0]).toMatchObject({
       rating: 5,
@@ -64,8 +64,8 @@ describe('ReviewsContext', () => {
       });
     });
 
-    expect(result.current.reviews.getMovieReviews(1)).toHaveLength(1);
-    expect(result.current.reviews.getMyReview(1)?.rating).toBe(3);
+    expect(result.current.reviews.getMovieReviews('tt1')).toHaveLength(1);
+    expect(result.current.reviews.getMyReview('tt1')?.rating).toBe(3);
   });
 
   it('removes a review', async () => {
@@ -73,12 +73,12 @@ describe('ReviewsContext', () => {
     await act(async () => {
       await result.current.reviews.saveReview(toyStory);
     });
-    const id = result.current.reviews.getMyReview(1)!.id;
+    const id = result.current.reviews.getMyReview('tt1')!.id;
 
     await act(async () => {
       await result.current.reviews.removeReview(id);
     });
 
-    expect(result.current.reviews.getMovieReviews(1)).toHaveLength(0);
+    expect(result.current.reviews.getMovieReviews('tt1')).toHaveLength(0);
   });
 });

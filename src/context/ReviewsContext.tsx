@@ -11,7 +11,7 @@ import { useAuth } from './AuthContext';
 
 export interface Review {
   id: string;
-  movieId: number;
+  movieId: string;
   movieTitle: string;
   moviePoster?: string;
   userId: string;
@@ -22,7 +22,7 @@ export interface Review {
 }
 
 export interface NewReview {
-  movieId: number;
+  movieId: string;
   movieTitle: string;
   moviePoster?: string;
   rating: number;
@@ -31,9 +31,9 @@ export interface NewReview {
 
 interface ReviewsContextValue {
   /** Reviews authored by every user, for a given movie (newest first). */
-  getMovieReviews: (movieId: number) => Review[];
+  getMovieReviews: (movieId: string) => Review[];
   /** The current user's own review for a movie, if any. */
-  getMyReview: (movieId: number) => Review | undefined;
+  getMyReview: (movieId: string) => Review | undefined;
   /** All reviews authored by the current user (newest first). */
   myReviews: Review[];
   /** Create or update the current user's review for a movie. */
@@ -66,7 +66,7 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const getMovieReviews = useCallback(
-    (movieId: number) =>
+    (movieId: string) =>
       reviews
         .filter((r) => r.movieId === movieId)
         .sort((a, b) => b.createdAt - a.createdAt),
@@ -74,7 +74,7 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
   );
 
   const getMyReview = useCallback(
-    (movieId: number) =>
+    (movieId: string) =>
       reviews.find((r) => r.movieId === movieId && r.userId === user?.id),
     [reviews, user],
   );

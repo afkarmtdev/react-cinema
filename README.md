@@ -27,13 +27,17 @@ instead of a silent failure. The password field has a show/hide toggle, and your
 session is saved on the device, so you stay logged in after closing the app.
 While that saved session loads at startup, there's a short branded splash screen.
 
-**Movies.** The home screen pulls the movie list from the API and lays it out as
-a poster grid (capped at 20). Each card shows the title, year, and director. The
-search box filters by title through the API's `?search=` parameter and updates as
-you type. Tapping a movie opens a detail screen with the synopsis, cast, runtime,
-and the rest. Anywhere the app fetches data it handles the three states you'd
-want: a loading placeholder, an error state with a retry button, and an empty
-state.
+**Movies.** The home screen pulls a movie list from OMDb and lays it out as a
+poster grid that pages in more as you scroll (OMDb returns 10 per page, and the
+list requests the next page when you near the bottom). Each card shows the title
+and year (OMDb's search
+results are lightweight, so the rating and director come from the detail screen).
+The search box filters by title and updates as you type, and the filter button
+next to it opens a sheet to narrow results by year or type (movie/series), which
+map to OMDb's own `y=` and `type=` parameters. Tapping a movie opens a detail
+screen with the rating, director, synopsis, cast, and runtime. Anywhere the app
+fetches data it handles the three states you'd want: a loading placeholder, an
+error state with a retry button, and an empty state.
 
 **Reviews.** This is the part that ties the two halves together. A signed-in user
 can rate a movie one to five stars and write a short review. Everyone gets one
@@ -49,7 +53,7 @@ launches.
 
 | Concern     | Choice                                                                        |
 | ----------- | ----------------------------------------------------------------------------- |
-| Framework   | Expo SDK 56 (managed) + TypeScript                                            |
+| Framework   | Expo SDK 54 (managed) + TypeScript                                            |
 | Navigation  | React Navigation 7 (native-stack + bottom-tabs)                               |
 | State       | React Context API + hooks (`useState`, `useEffect`, `useMemo`, `useCallback`) |
 | i18n        | A small `LanguageContext` + `t()` dictionary (English / Malay)                |
@@ -83,6 +87,17 @@ src/
 You'll need Node.js 18 or newer (I built this on Node 24) and the Expo Go app on
 your phone, or an Android emulator / iOS simulator.
 
+The app reads movie data from OMDb, which needs a free API key. Grab one (1,000
+requests/day) at https://www.omdbapi.com/apikey.aspx, then put it in a `.env`
+file:
+
+```bash
+cp .env.example .env
+# open .env and set EXPO_PUBLIC_OMDB_API_KEY=your_key
+```
+
+Then install and run:
+
 ```bash
 npm install
 npm start          # then scan the QR code with Expo Go
@@ -91,6 +106,9 @@ npm run android
 npm run ios        # macOS only
 npm run web
 ```
+
+If you change `.env` while the server is running, restart it with `npx expo
+start -c` so the new value is picked up.
 
 Other useful scripts:
 
@@ -107,18 +125,27 @@ same way for everyone, and VS Code applies it on save (see `.vscode/`).
 
 ## How the API calls work
 
-The data comes from FreeTestAPI:
+The data comes from the OMDb API over https:
 
-| Use    | Request                      |
-| ------ | ---------------------------- |
-| List   | `GET /movies`                |
-| Search | `GET /movies?search=<query>` |
-| Detail | `GET /movies/{id}`           |
+| Use    | Request                                |
+| ------ | -------------------------------------- |
+| Search | `GET ?apikey=KEY&type=movie&s=<query>` |
+| Detail | `GET ?apikey=KEY&i=<imdbID>&plot=full` |
 
-Search is debounced so it isn't firing on every keystroke. And because a few
+A few things worth knowing about OMDb:
+
+- It only searches by a term, so the home screen seeds the list with a default
+  query when the search box is empty.
+- Search results are lightweight (title, year, poster, imdb id). The **rating,
+  director, cast, and plot come from the detail endpoint**, so they show on the
+  movie's detail screen rather than on the list cards. The id is OMDb's
+  `imdbID`, which is why movie ids are strings.
+
+Search is debounced so it isn't firing on every keystroke. Because a few
 requests can be in flight at once when you type quickly, the hook ignores any
 response that's no longer the most recent one, so the list never flickers back to
-stale results.
+stale results. The request layer also has a timeout, so a hung connection fails
+into the error state instead of loading forever.
 
 ## A note on the authentication
 
@@ -129,7 +156,7 @@ one.
 
 ## Tests
 
-`npm test` runs 20 tests across four files:
+`npm test` runs 23 tests across four files:
 
 | File                     | What it checks                                                               |
 | ------------------------ | ---------------------------------------------------------------------------- |
@@ -138,7 +165,7 @@ one.
 | `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password       |
 | `context/ReviewsContext` | creating, updating (not duplicating), and deleting a review                  |
 
-One thing to know if you touch the test setup: `jest-expo@56` targets the Jest 29
+One thing to know if you touch the test setup: `jest-expo@54` targets the Jest 29
 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the runner.
 AsyncStorage is swapped for a small in-memory mock in `jest.setup.js`.
 
@@ -154,14 +181,14 @@ My Reviews, and the profile/logout.
 
 Movie app:
 
-- [x] Movie list with `FlatList`, capped at 20
+- [x] Movie list with `FlatList` + infinite scroll (paginated)
 - [x] Title, year, and director on each item
-- [x] Search through the `?search=` parameter, updating live
-- [x] Detail screen via `/movies/{id}`
+- [x] Search by title, updating live
+- [x] Filter results by year and type (movie/series)
+- [x] Detail screen for the selected movie
 - [x] Loading, error, and empty states
 - [x] Built on `useState` / `useEffect` / `useMemo`
 - [x] React Navigation, with reusable components
-- [x] Animated list updates (bonus)
 
 Authentication app:
 

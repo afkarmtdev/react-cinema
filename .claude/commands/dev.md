@@ -8,7 +8,7 @@ Requested target: **"$ARGUMENTS"** (if empty, default to starting the app).
 
 ## Environment (important, do this first)
 
-- This machine's default `node` is **v14**, which is too old for Expo SDK 56.
+- This machine's default `node` is **v14**, which is too old for Expo SDK 54.
   A working **node v24** is installed via nvm.
 - Run all npm / expo / node commands through the **PowerShell** tool (where
   `node` resolves to v24), NOT the Bash tool (v14). If a command reports an old

@@ -19,12 +19,12 @@ npx jest -t "duplicate"  # tests matching a name
 ## Stack (and a version constraint that matters)
 
 - **jest-expo** is the preset (handles the Expo/RN transform + mocks).
-- **`jest-expo@56` is built for the jest 29 line**, so `jest` is pinned to
-  `29.7.0`. Do NOT bump jest to 30; `jest-expo@56` pulls jest-29 environment
+- **`jest-expo@54` is built for the jest 29 line**, so `jest` is pinned to
+  `29.7.0`. Do NOT bump jest to 30; `jest-expo@54` pulls jest-29 environment
   packages, and mixing in jest-30's runtime crashes with
   `this._moduleMocker.clearMocksOnScope is not a function`.
 - `@testing-library/react-native@13.2.0` (jest-29 + React-19 compatible) with
-  `react-test-renderer@19.2.3`.
+  `react-test-renderer@19.1.0`.
 - All test deps are pinned to exact versions ≥7 days old, like the rest of the
   project.
 
