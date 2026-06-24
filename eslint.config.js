@@ -36,9 +36,6 @@ module.exports = defineConfig([
       // catch a stray `import React` that's only there for legacy JSX.
       'react/react-in-jsx-scope': 'off',
       'react/jsx-uses-react': 'off',
-      // This React-Compiler rule flags the standard "set loading/error before a
-      // fetch" effect as a false positive; the rest of react-hooks stays on.
-      'react-hooks/set-state-in-effect': 'off',
     },
   },
   {
