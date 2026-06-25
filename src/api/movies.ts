@@ -82,8 +82,11 @@ export async function fetchMovies(
   page = 1,
 ): Promise<Movie[]> {
   const query = search?.trim() || DEFAULT_QUERY;
-  const type = filters.type ?? 'movie';
-  let url = `${BASE_URL}?apikey=${API_KEY}&type=${type}&page=${page}&s=${encodeURIComponent(query)}`;
+  let url = `${BASE_URL}?apikey=${API_KEY}&page=${page}&s=${encodeURIComponent(query)}`;
+  // type is optional in OMDb: omit it to return all types (movies and series).
+  if (filters.type) {
+    url += `&type=${filters.type}`;
+  }
   if (filters.year && /^\d{4}$/.test(filters.year)) {
     url += `&y=${filters.year}`;
   }
@@ -92,9 +95,12 @@ export async function fetchMovies(
   if (data.Response === 'False') {
     // "Movie not found!" just means no matches, which is an empty list.
     if (data.Error === 'Movie not found!') {
-      console.log('[movies] no results for', query);
+      console.log('[movies] received 0 items (no matches for', `"${query}")`);
       return [];
     }
+    // Other errors are genuine failures, including OMDb's own server glitches
+    // on some search/year/type combos. Surface the raw message and fail.
+    console.warn('[movies] OMDb error:', data.Error);
     throw new Error(data.Error ?? 'Search failed');
   }
 
