@@ -33,6 +33,7 @@ export function MoviesListScreen({ navigation }: Props) {
   const [segment, setSegment] = useState<Segment>('now');
   const [filters, setFilters] = useState<MovieFilters>({});
   const [filterOpen, setFilterOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const debouncedQuery = useDebouncedValue(query);
   const { movies, loading, loadingMore, error, refetch, loadMore } = useMovies(
     debouncedQuery,
@@ -40,7 +41,7 @@ export function MoviesListScreen({ navigation }: Props) {
   );
   const { t } = useLanguage();
 
-  const hasActiveFilters = !!filters.year || filters.type === 'series';
+  const hasActiveFilters = !!filters.year || !!filters.type;
 
   // Derive the displayed list: order by the selected segment.
   const displayed = useMemo(() => {
@@ -99,7 +100,32 @@ export function MoviesListScreen({ navigation }: Props) {
           active={segment === 'advance'}
           onPress={() => setSegment('advance')}
         />
+        <Pressable
+          onPress={() => setInfoOpen((v) => !v)}
+          accessibilityRole="button"
+          accessibilityLabel={t('segmentInfo')}
+          hitSlop={8}
+          style={styles.infoBtn}
+        >
+          <Ionicons
+            name="information-circle-outline"
+            size={20}
+            color={infoOpen ? colors.primary : colors.textMuted}
+          />
+        </Pressable>
       </View>
+      {infoOpen && (
+        <View style={styles.tooltip}>
+          <Text style={styles.tooltipRow}>
+            <Text style={styles.tooltipLabel}>{t('nowShowing')}: </Text>
+            {t('nowShowingDesc')}
+          </Text>
+          <Text style={styles.tooltipRow}>
+            <Text style={styles.tooltipLabel}>{t('advanceSales')}: </Text>
+            {t('advanceSalesDesc')}
+          </Text>
+        </View>
+      )}
     </View>
   );
 
@@ -216,8 +242,19 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: colors.primary,
   },
-  segments: { flexDirection: 'row', gap: spacing.xl },
+  segments: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
   segment: { gap: spacing.sm },
+  infoBtn: { marginLeft: 'auto', padding: spacing.xs },
+  tooltip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  tooltipRow: { ...typography.caption, color: colors.textSecondary },
+  tooltipLabel: { ...typography.bodyStrong, color: colors.text },
   segmentLabel: { ...typography.h3, color: colors.textMuted },
   segmentLabelActive: { color: colors.text },
   segmentBar: {
