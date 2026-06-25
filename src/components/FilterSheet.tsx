@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import {
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -29,20 +32,20 @@ export function FilterSheet({
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const [year, setYear] = useState(filters.year ?? '');
-  const [type, setType] = useState<'movie' | 'series'>(filters.type ?? 'movie');
+  const [type, setType] = useState<MovieFilters['type']>(filters.type);
 
   // Sync the draft with the active filters whenever the sheet opens.
   useEffect(() => {
     if (visible) {
       setYear(filters.year ?? '');
-      setType(filters.type ?? 'movie');
+      setType(filters.type);
     }
   }, [visible, filters]);
 
   const apply = () => onApply({ year: year.trim() || undefined, type });
   const clear = () => {
     setYear('');
-    setType('movie');
+    setType(undefined);
     onApply({});
   };
 
@@ -53,9 +56,13 @@ export function FilterSheet({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.root}>
+      <KeyboardAvoidingView
+        style={styles.root}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <Pressable style={styles.backdrop} onPress={onClose} />
-        <View
+        <Pressable
+          onPress={Keyboard.dismiss}
           style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}
         >
           <View style={styles.handle} />
@@ -68,11 +75,18 @@ export function FilterSheet({
             placeholder={t('filterYearHint')}
             placeholderTextColor={colors.textMuted}
             keyboardType="number-pad"
+            returnKeyType="done"
+            onSubmitEditing={Keyboard.dismiss}
             style={styles.input}
           />
 
           <Text style={styles.label}>{t('filterType')}</Text>
           <View style={styles.typeRow}>
+            <TypeOption
+              label={t('filterAll')}
+              active={type === undefined}
+              onPress={() => setType(undefined)}
+            />
             <TypeOption
               label={t('filterMovie')}
               active={type === 'movie'}
@@ -98,8 +112,8 @@ export function FilterSheet({
               style={styles.actionBtn}
             />
           </View>
-        </View>
-      </View>
+        </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
