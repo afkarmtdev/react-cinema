@@ -6,9 +6,10 @@ A signed-in user keeps a personal library of films, series, and books, typed
 in by hand (title, year, director or author, cover link, description, tags,
 status, a score from 1.0 to 10.0, notes), and finished entries appear in a
 diary. Scoring a 10 triggers a warning by design (see src/lib/score.ts). Accounts and
-the library live either on a PocketBase server (when EXPO_PUBLIC_POCKETBASE_URL
-is set, so the library follows the user across devices) or on the device in
-AsyncStorage. OMDb is only used, when a key is present, to prefill the add form
+the library live either on a PocketBase server (so the library follows the
+user across devices) or on the device in AsyncStorage; the user picks in the
+Storage setting at runtime, and EXPO_PUBLIC_POCKETBASE_URL only sets the
+first-launch default. OMDb is only used, when a key is present, to prefill the add form
 for a film or series.
 
 ## Expo is pinned to SDK 54
@@ -67,9 +68,10 @@ as the Shai-Hulud worm. The rules:
   `node -v` prints something older, stop and report it rather than working
   around it.
 - `.env` (copy `.env.example`, git-ignored) has two optional values.
-  `EXPO_PUBLIC_POCKETBASE_URL` switches accounts and the library to a
-  PocketBase server (setup in pocketbase/README.md); without it everything
-  stays on the device. `EXPO_PUBLIC_OMDB_API_KEY` only enables the "Fill from
+  `EXPO_PUBLIC_POCKETBASE_URL` makes a fresh install start on that
+  PocketBase server (setup in pocketbase/README.md); without it the app starts
+  on the device. The Storage setting in the app can switch either way later
+  and its saved choice wins. `EXPO_PUBLIC_OMDB_API_KEY` only enables the "Fill from
   OMDb" button in the add form.
 - The PocketBase server is not part of npm. The binary and its pb_data folder
   live in pocketbase/ and are git-ignored; only the migration is committed.
@@ -82,7 +84,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (52 tests in 8 files)
+npm test            Jest, runs once (60 tests in 9 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 ```
@@ -95,16 +97,17 @@ Run typecheck, lint, and test before calling a change done.
 src/api          movies.ts: optional OMDb search and detail, used only to
                  prefill the add form when a key is configured
 src/hooks        useDebouncedValue
-src/context      AuthContext, LibraryContext, LanguageContext, ThemeContext, and
-                 their tests
+src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
+                 ThemeContext, and their tests
 src/components   ItemCard, KindPicker, StatusPicker, TagInput, FilterSheet,
-                 OmdbLookupSheet, SearchBar, BrandHeader, MultiProvider, and
-                 ui/ primitives (Button, TextField, Chip, StarRating, ...)
+                 OmdbLookupSheet, SearchBar, BrandHeader, StorageSettings,
+                 MultiProvider, and ui/ primitives (Button, TextField, Chip,
+                 StarRating, ...)
 src/screens      SplashScreen, auth/, library/ (Library, ItemDetail, ItemForm),
                  DiaryScreen, ProfileScreen
 src/navigation   RootNavigator, AuthStack, MainTabs, LibraryStack, types
 src/i18n         translations.ts (English and Malay), used through t()
-src/lib          backend (picks PocketBase or local at startup), auth
+src/lib          backend (builds the PocketBase or local pair), auth
                  (AuthBackend + local accounts), libraryStore (LibraryStore +
                  local entries), pocketbase (both, against the SDK), storage,
                  score (1 to 10 scale, the 10 rule), tags, labels, validation
@@ -114,9 +117,13 @@ src/theme        three colour themes (cinema, paperback, viceCity) as
 src/types        library.ts (LibraryItem, ItemKind, ItemStatus), movie.ts
 ```
 
-Contexts never touch storage directly. `src/lib/backend.ts` hands them a
-`LibraryStore` (list, create, update, remove) and an `AuthBackend` (restore,
-signup, login, logout); tests always get the local pair. The `pocketbase`
+Contexts never touch storage directly. `StorageContext` owns the saved
+Storage setting and has `src/lib/backend.ts` build a `LibraryStore` (list,
+create, update, remove) and an `AuthBackend` (restore, signup, login, logout)
+for it; AuthProvider and LibraryProvider read that pair, and fall back to the
+local pair outside a StorageProvider, which is what the tests get. Changing
+the setting swaps the pair and both contexts start over (the user is signed
+out first). The `pocketbase`
 package is on the exact-pin, 10-day rule like everything else, and Jest maps
 it to its ES build in jest.config.js because the default entry is .mjs.
 

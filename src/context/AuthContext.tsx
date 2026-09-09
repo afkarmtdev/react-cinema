@@ -7,8 +7,8 @@ import React, {
   useState,
 } from 'react';
 import { AuthError, type AuthBackend, type User } from '../lib/auth';
-import { authBackend as defaultBackend } from '../lib/backend';
 import { isValidEmail, isValidPassword } from '../lib/validation';
+import { useStorageBackend } from './StorageContext';
 
 export { AuthError, type User } from '../lib/auth';
 
@@ -25,18 +25,27 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({
   children,
-  backend = defaultBackend,
+  backend: backendProp,
 }: {
   children: React.ReactNode;
-  /** Injectable for tests; defaults to whatever `src/lib/backend` picked. */
+  /**
+   * Injectable for tests; otherwise the one the Storage setting picked (or
+   * the local one outside a StorageProvider).
+   */
   backend?: AuthBackend;
 }) {
+  const chosen = useStorageBackend().auth;
+  const backend = backendProp ?? chosen;
   const [user, setUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(true);
 
-  // Restore the persisted session on first launch.
+  // Restore the persisted session on first launch, and again whenever the
+  // Storage setting swaps the backend: sessions belong to one store, so the
+  // app starts over from the new one.
   useEffect(() => {
     let active = true;
+    setUser(null);
+    setInitializing(true);
     backend
       .restore()
       .catch(() => null)

@@ -3,14 +3,17 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { MultiProvider } from './src/components/MultiProvider';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { LanguageProvider } from './src/context/LanguageContext';
+import { StorageProvider } from './src/context/StorageContext';
 import { AuthProvider } from './src/context/AuthContext';
 import { LibraryProvider } from './src/context/LibraryContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
-// Outermost first. Auth must sit above Library (Library reads the auth state).
+// Outermost first. Storage hands Auth and Library their stores, and Auth
+// must sit above Library (Library reads the auth state).
 const providers = [
   ThemeProvider,
   LanguageProvider,
+  StorageProvider,
   AuthProvider,
   LibraryProvider,
 ];

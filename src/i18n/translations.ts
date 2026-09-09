@@ -156,9 +156,24 @@ export const translations: Record<Language, Record<string, string>> = {
     themeCinema: 'Cinema',
     themePaperback: 'Paperback',
     themeViceCity: 'Vice City',
+    advanced: 'Advanced',
     storage: 'Storage',
     storageCloud: 'Synced with PocketBase at {url}',
     storageLocal: 'Kept on this device only',
+    storageDevice: 'This device',
+    storageServer: 'PocketBase server',
+    storageNote:
+      'Where accounts and your library are kept. A PocketBase server lets the same library follow you across devices.',
+    serverAddress: 'Server address',
+    errServerUrl: 'Enter an address starting with http:// or https://.',
+    testConnection: 'Test connection',
+    connectionOk: 'Server reachable.',
+    connectionFailed: 'No PocketBase server answered at that address.',
+    storageApply: 'Switch storage',
+    storageSwitchTitle: 'Switch storage?',
+    storageSwitchBody:
+      'You will be signed out. Accounts and entries stay where they were made, nothing is deleted. Sign in again, or sign up, on the other side.',
+    storageSwitchConfirm: 'Sign out and switch',
 
     // Shared states
     somethingWrong: 'Something went wrong',
@@ -319,9 +334,24 @@ export const translations: Record<Language, Record<string, string>> = {
     themeCinema: 'Cinema',
     themePaperback: 'Paperback',
     themeViceCity: 'Vice City',
+    advanced: 'Lanjutan',
     storage: 'Storan',
     storageCloud: 'Disegerakkan dengan PocketBase di {url}',
     storageLocal: 'Disimpan pada peranti ini sahaja',
+    storageDevice: 'Peranti ini',
+    storageServer: 'Pelayan PocketBase',
+    storageNote:
+      'Tempat akaun dan koleksi anda disimpan. Pelayan PocketBase membolehkan koleksi yang sama mengikut anda merentas peranti.',
+    serverAddress: 'Alamat pelayan',
+    errServerUrl: 'Masukkan alamat yang bermula dengan http:// atau https://.',
+    testConnection: 'Uji sambungan',
+    connectionOk: 'Pelayan dapat dihubungi.',
+    connectionFailed: 'Tiada pelayan PocketBase menjawab di alamat itu.',
+    storageApply: 'Tukar storan',
+    storageSwitchTitle: 'Tukar storan?',
+    storageSwitchBody:
+      'Anda akan dilog keluar. Akaun dan entri kekal di tempat ia dibuat, tiada yang dipadam. Log masuk semula, atau daftar, di sebelah sana.',
+    storageSwitchConfirm: 'Log keluar dan tukar',
 
     // Shared states
     somethingWrong: 'Sesuatu tidak kena',

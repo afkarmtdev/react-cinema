@@ -19,6 +19,7 @@
     --muted: #7a7a7a;
     --star: #ffc42e;
     --error: #ff5a5f;
+    --success: #34c759;
     --overlay: rgba(0, 0, 0, 0.55);
   }
   @media (prefers-color-scheme: dark) {
@@ -341,6 +342,12 @@
   .opt { flex: 1; text-align: center; padding: 9px 0; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-2); font-weight: 600; font-size: 12px; }
   .opt.on { border-color: var(--primary); color: var(--primary); }
   .storage { display: flex; gap: 8px; align-items: center; background: var(--surface); border-radius: 10px; padding: 10px; color: var(--text-2); font-size: 11px; }
+  .opt.icon { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .opt.icon svg { font-size: 15px; }
+  .ok { display: flex; align-items: center; gap: 4px; color: var(--text-2); font-size: 10.5px; flex: 1; }
+  .ok svg { color: var(--success); font-size: 13px; }
+  .adv { display: flex; align-items: center; justify-content: center; gap: 4px; color: var(--text-2); font-size: 10.5px; margin: 18px 0 10px; }
+  .adv svg { font-size: 12px; }
 
   .err { color: var(--error); font-size: 11px; }
   .score { display: inline-flex; align-items: center; gap: 3px; background: var(--overlay); border-radius: 999px; padding: 2px 7px; font-size: 10px; color: var(--text); font-variant-numeric: tabular-nums; }
@@ -406,13 +413,17 @@
     <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 4H5v16h5M14 8l4 4-4 4M8 12h10"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16v1" stroke="#0b0b0b" stroke-width="2"/></symbol>
     <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-chevup" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol>
+    <symbol id="i-cloud-o" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4 4 0 0 1 0 9z"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke="#0b0b0b" stroke-width="2"/></symbol>
   </defs>
 </svg>
 
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v3 · mirrors the code as of 9 Sep 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v4 · mirrors the code as of 9 Sep 2026 · <a href="#changes">changes</a></p>
       <h1>The revamped CineReact, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -439,11 +450,22 @@
             <div><p class="label">Password</p><div class="field focus"><span style="flex:1;letter-spacing:2px">&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;</span><svg style="font-size:16px;color:var(--text-2)"><use href="#i-eye"/></svg></div></div>
             <div class="btn">Log in</div>
           </div>
-          <div style="margin-top:150px;text-align:center;color:var(--text-2);font-size:11px">Don't have an account?</div>
+          <div class="adv"><svg><use href="#i-chevup"/></svg>Advanced</div>
+          <p class="label">Storage</p>
+          <div class="stack" style="gap:8px">
+            <div class="storage"><svg style="font-size:16px"><use href="#i-phone"/></svg><span>Kept on this device only</span></div>
+            <div class="row"><div class="opt icon"><svg><use href="#i-phone"/></svg>This device</div><div class="opt icon on"><svg><use href="#i-cloud-o"/></svg>PocketBase server</div></div>
+            <div><p class="label">Server address</p><div class="field focus" style="font-size:11px">http://192.168.1.20:8090</div></div>
+            <div class="row"><div class="btn outline" style="flex:1;height:34px;font-size:12px">Test connection</div><div class="ok"><svg class="fill"><use href="#i-ok"/></svg>Server reachable.</div></div>
+            <p class="tiny" style="margin:0 0 0 3px;line-height:1.5">Where accounts and your library are kept. A PocketBase server lets the same library follow you across devices.</p>
+            <div class="btn">Switch storage</div>
+          </div>
+          <div style="margin-top:22px;text-align:center;color:var(--text-2);font-size:11px">Don't have an account?</div>
           <div class="btn ghost" style="height:36px">Go to Signup</div>
+          <div style="height:12px"></div>
         </div>
       </div></div>
-      <figcaption><p class="name">Login</p><p class="note">Unchanged flow. With a PocketBase URL set, the account lives on the server; without one it stays on the device. The wording now talks about watching and reading.</p></figcaption>
+      <figcaption><p class="name">Login</p><p class="note">Below the form, a small Advanced link opens the Storage setting, drawn expanded here, so a fresh install can pick "PocketBase server", type the address, and test it before anyone signs up. Nobody is signed in yet, so the switch happens straight away.</p></figcaption>
     </figure>
 
     <!-- 2. Library -->
@@ -699,8 +721,18 @@
           </div>
           <p class="label" style="margin-top:14px">Language</p>
           <div class="row"><div class="opt on">English</div><div class="opt">Bahasa Melayu</div></div>
-          <p class="label" style="margin-top:18px">Storage</p>
-          <div class="storage"><svg style="font-size:16px"><use href="#i-cloud"/></svg><span>Synced with PocketBase at http://192.168.1.20:8090</span></div>
+          <p class="h3" style="margin-top:22px">Advanced</p>
+          <p class="label" style="margin-top:12px">Storage</p>
+          <div class="stack" style="gap:8px">
+            <div class="storage"><svg style="font-size:16px"><use href="#i-cloud"/></svg><span>Synced with PocketBase at http://192.168.1.20:8090</span></div>
+            <div class="row"><div class="opt icon on"><svg><use href="#i-phone"/></svg>This device</div><div class="opt icon"><svg><use href="#i-cloud-o"/></svg>PocketBase server</div></div>
+            <p class="tiny" style="margin:0 0 0 3px;line-height:1.5">Where accounts and your library are kept. A PocketBase server lets the same library follow you across devices.</p>
+            <div class="warn">
+              <div class="t"><svg class="fill"><use href="#i-alert"/></svg>Switch storage?</div>
+              <p class="p">You will be signed out. Accounts and entries stay where they were made, nothing is deleted. Sign in again, or sign up, on the other side.</p>
+              <div class="row"><div class="btn ghost" style="flex:1;height:34px;font-size:12px">Cancel</div><div class="btn" style="flex:1;height:34px;font-size:12px">Sign out and switch</div></div>
+            </div>
+          </div>
           <div style="height:24px"></div>
           <div class="btn outline"><svg style="font-size:15px"><use href="#i-logout"/></svg>Log out</div>
           <div style="height:16px"></div>
@@ -711,7 +743,7 @@
           <div class="tab on"><svg><use href="#i-person"/></svg>Me</div>
         </div>
       </div></div>
-      <figcaption><p class="name">Me</p><p class="note">Counts of finished films, series, and books plus your average score out of 10, then Settings: Appearance (Cinema, Paperback, Vice City), Language, and the Storage line that says whether this install syncs with PocketBase. The whole screen scrolls.</p></figcaption>
+      <figcaption><p class="name">Me</p><p class="note">Counts of finished films, series, and books plus your average score out of 10, then Settings: Appearance (Cinema, Paperback, Vice City) and Language. An Advanced group holds the Storage picker: the status line says where things live now, the two options are a draft, and picking the other one brings up the confirmation drawn here, since switching signs you out. The server address field and Test connection appear when PocketBase server is selected (see Login). The whole screen scrolls.</p></figcaption>
     </figure>
 
   </div>
@@ -732,6 +764,13 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v4</b>9 Sep 2026</div>
+        <ul>
+          <li>Storage is now a runtime setting instead of a build-time env value: pick This device or PocketBase server, enter the address, Test connection, Switch storage. Redrawn: Me (Advanced group with the sign-out confirmation), Login (the Advanced link, drawn expanded, with the address field and a successful test).</li>
+          <li>The env value only sets the first-launch default now; the saved choice wins after that.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v3</b>9 Sep 2026</div>
         <ul>

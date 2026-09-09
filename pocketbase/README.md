@@ -25,15 +25,18 @@ PocketBase is a single binary with SQLite inside; nothing else to install.
    `entries` collection. Check the dashboard: you should see `users` and
    `entries` under Collections. If `entries` is missing, run
    `./pocketbase migrate up` once and restart.
-5. Put the server address in the app's `.env` (copy `.env.example` if you do
-   not have one), using the LAN IP of the machine running PocketBase:
+5. In the app, open the Storage setting: on the Login screen tap "Advanced",
+   or when signed in go to the Me tab, Settings, Advanced. Choose "PocketBase
+   server" and enter the address using the LAN IP of the machine running
+   PocketBase, for example `http://192.168.1.20:8090`. Find the IP with
+   `ipconfig` (Windows) or `ifconfig` / `ip addr` (macOS, Linux). Tap "Test
+   connection" to check the phone can reach it, then "Switch storage". If you
+   were signed in, the app signs you out first.
 
-   ```
-   EXPO_PUBLIC_POCKETBASE_URL=http://192.168.1.20:8090
-   ```
-
-   Find the IP with `ipconfig` (Windows) or `ifconfig` / `ip addr` (macOS,
-   Linux). Restart Metro with `npx expo start -c` after changing `.env`.
+   To make a fresh install start in server mode without visiting the
+   setting, put the address in `.env` as `EXPO_PUBLIC_POCKETBASE_URL` (copy
+   `.env.example`) and restart Metro with `npx expo start -c`. That value is
+   only the first-launch default; a choice saved in the app wins over it.
 
 6. Sign up in the app. Accounts now live in PocketBase's `users` collection,
    so a login from another device sees the same library.
@@ -63,9 +66,9 @@ in `src/lib/pocketbase.ts`.
 
 ## Moving your existing device-only library
 
-Entries saved before switching are still in the app's local storage on that
-device, but the app reads from PocketBase once the URL is set. There is no
-automatic upload yet; re-add them, or ask for an import step.
+Entries saved in device mode are still in the app's local storage on that
+device, and switching back to "This device" shows them again. There is no
+automatic upload to the server yet; re-add them, or ask for an import step.
 
 ## Running it somewhere permanent
 

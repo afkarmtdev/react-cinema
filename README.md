@@ -89,7 +89,7 @@ src/
 │  └─ __tests__/   tests for the auth and library contexts
 ├─ i18n/           translations.ts (English / Malay dictionaries)
 ├─ hooks/          useDebouncedValue
-├─ lib/            backend (picks PocketBase or local), auth, libraryStore,
+├─ lib/            backend (builds PocketBase or local), auth, libraryStore,
 │                  pocketbase, storage, tags, labels, validation
 ├─ navigation/     RootNavigator, AuthStack, MainTabs, LibraryStack, types
 ├─ screens/        SplashScreen, auth/(Login, Signup),
@@ -115,7 +115,7 @@ Copy `.env.example` to `.env`. Both values in it are optional:
 
 ```bash
 cp .env.example .env
-# EXPO_PUBLIC_POCKETBASE_URL: your PocketBase server, for sync across devices
+# EXPO_PUBLIC_POCKETBASE_URL: a PocketBase server to start on (optional, see below)
 #   (see pocketbase/README.md). Leave empty to keep everything on the device.
 # EXPO_PUBLIC_OMDB_API_KEY: enables the OMDb lookup in the add form. Free at
 #   https://www.omdbapi.com/apikey.aspx (1,000 requests/day).
@@ -170,29 +170,39 @@ supply-chain attacks, this project is careful about what it pulls in:
 
 ## Where the data lives
 
-There are two modes, picked at startup by whether `EXPO_PUBLIC_POCKETBASE_URL`
-is set in `.env`.
+There are two modes, and the app switches between them at runtime from the
+Storage setting: under Settings, Advanced on the Me tab, or behind the
+"Advanced" link on the Login screen so a fresh install can point at a server
+before signing in. Pick "This device" or "PocketBase server", type the
+server address, and use "Test connection" (it calls the server's
+`/api/health` endpoint) before switching. Switching signs you out, because
+accounts and entries stay in the store they were made in; nothing is deleted,
+and switching back brings the old side back. The choice is saved on the
+device. `EXPO_PUBLIC_POCKETBASE_URL` in `.env` only sets the first-launch
+default; once a choice has been saved it wins.
 
 **PocketBase (sync across devices).** Accounts live in PocketBase's `users`
 collection and the library in an `entries` collection, so signing in on
 another phone shows the same library. PocketBase is a single binary with
 SQLite inside. Setup takes a few minutes and is written up in
 [pocketbase/README.md](pocketbase/README.md): download the binary, run it,
-let the included migration create the collection, and put the server's LAN
-address in `.env`. The session token is cached on the device so the app
+let the included migration create the collection, and enter the server's LAN
+address in the Storage setting. The session token is cached on the device so the app
 opens straight into your library, and if the server is unreachable you stay
 signed in and see an error with a retry.
 
-**On the device (no server).** Without the URL everything stays in
+**On the device (no server).** In device mode everything stays in
 AsyncStorage: accounts, the session, the language choice, and the library as
 one JSON array of entries tagged with the owning account's id. The first time
 this version runs on a device that had the old OMDb-only app, any reviews it
 finds are carried over as "watched" film entries.
 
 Either way `LibraryContext` and `AuthContext` do not know which mode is on.
-`src/lib/backend.ts` picks a `LibraryStore` (list, create, update, remove)
-and an `AuthBackend` (restore, signup, login, logout); the local versions are
-in `libraryStore.ts` and `auth.ts`, the server versions in `pocketbase.ts`.
+`StorageContext` reads the saved choice and asks `src/lib/backend.ts` for a
+`LibraryStore` (list, create, update, remove) and an `AuthBackend` (restore,
+signup, login, logout) to match; the local versions are in `libraryStore.ts`
+and `auth.ts`, the server versions in `pocketbase.ts`. When the choice
+changes, both contexts start over against the new pair.
 
 ## The optional OMDb lookup
 
@@ -219,7 +229,7 @@ that server beyond your Wi-Fi.
 
 ## Tests
 
-`npm test` runs 52 tests across eight files:
+`npm test` runs 60 tests across nine files:
 
 | File                     | What it checks                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------------ |
@@ -231,6 +241,7 @@ that server beyond your Wi-Fi.
 | `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password               |
 | `context/LibraryContext` | add, validate, update, finish dates, remove, tag ordering, per-user split, migration |
 | `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles    |
+| `context/StorageContext` | device default, switching to a server and persisting, bad saved values, health check |
 
 One thing to know if you touch the test setup: `jest-expo@54` targets the Jest 29
 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the runner.

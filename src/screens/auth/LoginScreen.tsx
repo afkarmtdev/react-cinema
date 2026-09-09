@@ -1,8 +1,10 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,22 +14,26 @@ import { Screen } from '../../components/ui/Screen';
 import { Button } from '../../components/ui/Button';
 import { TextField } from '../../components/ui/TextField';
 import { BrandHeader } from '../../components/BrandHeader';
+import { StorageSettings } from '../../components/StorageSettings';
 import { AuthError, useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { spacing, typography, type ThemeColors } from '../../theme';
 import type { AuthStackParamList } from '../../navigation/types';
-import { useThemedStyles } from '../../context/ThemeContext';
+import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export function LoginScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { login } = useAuth();
   const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Storage picker, so a fresh install can point at a server before signing in.
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const onSubmit = async () => {
     setError(null);
@@ -84,6 +90,29 @@ export function LoginScreen({ navigation }: Props) {
             />
           </View>
 
+          <View style={styles.advanced}>
+            <Pressable
+              onPress={() => setAdvancedOpen((open) => !open)}
+              accessibilityRole="button"
+              accessibilityState={{ expanded: advancedOpen }}
+              style={styles.advancedToggle}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={advancedOpen ? 'chevron-up' : 'chevron-down'}
+                size={16}
+                color={colors.textSecondary}
+              />
+              <Text style={styles.advancedText}>{t('advanced')}</Text>
+            </Pressable>
+            {advancedOpen && (
+              <View style={styles.advancedBody}>
+                <Text style={styles.fieldLabel}>{t('storage')}</Text>
+                <StorageSettings />
+              </View>
+            )}
+          </View>
+
           <View style={styles.footer}>
             <Text style={styles.footerText}>{t('noAccount')}</Text>
             <Button
@@ -106,6 +135,20 @@ const makeStyles = (colors: ThemeColors) =>
     subtitle: { ...typography.body, color: colors.textSecondary },
     form: { gap: spacing.lg, marginTop: spacing.xl },
     error: { ...typography.caption, color: colors.error },
+    advanced: { marginTop: spacing.xl, gap: spacing.md },
+    advancedToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+    },
+    advancedText: { ...typography.caption, color: colors.textSecondary },
+    advancedBody: { gap: spacing.sm },
+    fieldLabel: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginLeft: spacing.xs,
+    },
     footer: { marginTop: 'auto', alignItems: 'center' },
     footerText: { ...typography.caption, color: colors.textSecondary },
   });

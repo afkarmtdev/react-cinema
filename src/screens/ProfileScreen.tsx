@@ -3,10 +3,10 @@ import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/ui/Screen';
 import { Button } from '../components/ui/Button';
+import { StorageSettings } from '../components/StorageSettings';
 import { useAuth } from '../context/AuthContext';
 import { useLibrary } from '../context/LibraryContext';
 import { useLanguage } from '../context/LanguageContext';
-import { pocketbaseUrl } from '../lib/backend';
 import { KIND_ICON } from '../lib/labels';
 import { formatScore } from '../lib/score';
 import {
@@ -121,22 +121,11 @@ export function ProfileScreen() {
           </View>
         </View>
 
+        <Text style={styles.groupHeading}>{t('advanced')}</Text>
+
         <View style={styles.storageBlock}>
           <Text style={styles.languageLabel}>{t('storage')}</Text>
-          <View style={styles.storageRow}>
-            <Ionicons
-              name={
-                pocketbaseUrl ? 'cloud-done-outline' : 'phone-portrait-outline'
-              }
-              size={18}
-              color={colors.textSecondary}
-            />
-            <Text style={styles.storageText}>
-              {pocketbaseUrl
-                ? t('storageCloud', { url: pocketbaseUrl })
-                : t('storageLocal')}
-            </Text>
-          </View>
+          <StorageSettings />
         </View>
 
         <View style={styles.spacer} />
@@ -312,19 +301,11 @@ const makeStyles = (colors: ThemeColors) =>
     langOptionActive: { borderColor: colors.primary },
     langText: { ...typography.bodyStrong, color: colors.textSecondary },
     langTextActive: { color: colors.primary },
+    groupHeading: {
+      ...typography.h3,
+      color: colors.text,
+      marginTop: spacing.xxl,
+    },
     storageBlock: { marginTop: spacing.lg, gap: spacing.sm },
-    storageRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      backgroundColor: colors.surface,
-      borderRadius: radius.md,
-      padding: spacing.md,
-    },
-    storageText: {
-      ...typography.caption,
-      color: colors.textSecondary,
-      flex: 1,
-    },
     spacer: { flex: 1, minHeight: spacing.xl },
   });

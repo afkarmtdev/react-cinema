@@ -6,12 +6,12 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { libraryStore as defaultStore } from '../lib/backend';
 import type { LibraryStore } from '../lib/libraryStore';
 import { clampScore } from '../lib/score';
 import { uniqueTags } from '../lib/tags';
 import type { LibraryItem, LibraryItemInput } from '../types/library';
 import { useAuth } from './AuthContext';
+import { useStorageBackend } from './StorageContext';
 
 interface LibraryContextValue {
   /** True once the library has been read from storage or the server. */
@@ -57,12 +57,17 @@ function sanitise(input: Partial<LibraryItemInput>): Partial<LibraryItemInput> {
 
 export function LibraryProvider({
   children,
-  store = defaultStore,
+  store: storeProp,
 }: {
   children: React.ReactNode;
-  /** Injectable for tests; defaults to whatever `src/lib/backend` picked. */
+  /**
+   * Injectable for tests; otherwise the one the Storage setting picked (or
+   * the local one outside a StorageProvider).
+   */
   store?: LibraryStore;
 }) {
+  const chosen = useStorageBackend().library;
+  const store = storeProp ?? chosen;
   const { user } = useAuth();
   const [all, setAll] = useState<LibraryItem[]>([]);
   const [ready, setReady] = useState(false);
