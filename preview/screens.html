@@ -412,7 +412,7 @@
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v2 · mirrors the code as of 9 Sep 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v3 · mirrors the code as of 9 Sep 2026 · <a href="#changes">changes</a></p>
       <h1>The revamped CineReact, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -690,11 +690,18 @@
             <div class="stat"><svg><use href="#i-book"/></svg><span class="v">5</span><span class="l">Books</span></div>
             <div class="stat"><svg class="fill"><use href="#i-star"/></svg><span class="v">8.6</span><span class="l">Avg score</span></div>
           </div>
-          <p class="label" style="margin-top:18px">Language</p>
+          <p class="h2" style="margin-top:22px">Settings</p>
+          <p class="label" style="margin-top:12px">Appearance</p>
+          <div class="row">
+            <div class="opt on" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0"><span style="width:34px;height:34px;border-radius:999px;background:#0b0b0b;border:1px solid var(--border);display:flex;align-items:center;justify-content:center"><span style="width:14px;height:14px;border-radius:999px;background:#fce300"></span></span>Cinema</div>
+            <div class="opt" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0"><span style="width:34px;height:34px;border-radius:999px;background:#f4efe5;border:1px solid var(--border);display:flex;align-items:center;justify-content:center"><span style="width:14px;height:14px;border-radius:999px;background:#b23a2e"></span></span>Paperback</div>
+            <div class="opt" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0"><span style="width:34px;height:34px;border-radius:999px;background:#140a24;border:1px solid var(--border);display:flex;align-items:center;justify-content:center"><span style="width:14px;height:14px;border-radius:999px;background:#ff3e9a"></span></span>Vice City</div>
+          </div>
+          <p class="label" style="margin-top:14px">Language</p>
           <div class="row"><div class="opt on">English</div><div class="opt">Bahasa Melayu</div></div>
           <p class="label" style="margin-top:18px">Storage</p>
           <div class="storage"><svg style="font-size:16px"><use href="#i-cloud"/></svg><span>Synced with PocketBase at http://192.168.1.20:8090</span></div>
-          <div style="height:120px"></div>
+          <div style="height:24px"></div>
           <div class="btn outline"><svg style="font-size:15px"><use href="#i-logout"/></svg>Log out</div>
           <div style="height:16px"></div>
         </div>
@@ -704,7 +711,7 @@
           <div class="tab on"><svg><use href="#i-person"/></svg>Me</div>
         </div>
       </div></div>
-      <figcaption><p class="name">Me</p><p class="note">Counts of finished films, series, and books plus your average score out of 10. The Storage line says whether this install syncs with a PocketBase server or keeps everything on the device.</p></figcaption>
+      <figcaption><p class="name">Me</p><p class="note">Counts of finished films, series, and books plus your average score out of 10, then Settings: Appearance (Cinema, Paperback, Vice City), Language, and the Storage line that says whether this install syncs with PocketBase. The whole screen scrolls.</p></figcaption>
     </figure>
 
   </div>
@@ -725,6 +732,13 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v3</b>9 Sep 2026</div>
+        <ul>
+          <li>Me gains a Settings group with an Appearance picker: Cinema, Paperback, Vice City. Redrawn: Me.</li>
+          <li>Every other screen now follows the chosen theme in the app. The phones here stay in Cinema; the theme board artifact shows the other two palettes on the Library and detail screens.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v2</b>9 Sep 2026</div>
         <ul>

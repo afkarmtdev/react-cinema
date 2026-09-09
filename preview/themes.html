@@ -1,0 +1,286 @@
+<title>CineReact Theme Board</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,900;1,900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --page: #ecede9;
+    --page-ink: #1b1b18;
+    --page-ink-2: #5d5d56;
+    --page-line: #d3d3cb;
+    --page-card: #f6f6f2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #141413; --page-ink: #ecece6; --page-ink-2: #a2a29a; --page-line: #2c2c29; --page-card: #1c1c1a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #141413; --page-ink: #ecece6; --page-ink-2: #a2a29a; --page-line: #2c2c29; --page-card: #1c1c1a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--page-ink); font-family: "Archivo", "Helvetica Neue", Arial, sans-serif; font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 40px 28px 72px; }
+  .eyebrow { font-family: "IBM Plex Mono", "Courier New", monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--page-ink-2); margin: 0 0 10px; }
+  h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 12px; text-wrap: balance; }
+  .lead { max-width: 64ch; margin: 0; color: var(--page-ink-2); }
+  header.intro { padding-bottom: 24px; border-bottom: 1px solid var(--page-line); margin-bottom: 8px; }
+  nav.jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 8px; }
+  nav.jump a { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--page-ink); text-decoration: none; border: 1px solid var(--page-line); border-radius: 999px; padding: 5px 12px; display: inline-flex; align-items: center; gap: 7px; }
+  nav.jump a:focus-visible { outline: 2px solid var(--page-ink); outline-offset: 2px; }
+  nav.jump .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); }
+
+  section.theme { display: grid; grid-template-columns: minmax(280px, 1fr) auto; gap: 28px 40px; padding: 40px 0; border-bottom: 1px solid var(--page-line); align-items: start; }
+  @media (max-width: 900px) { section.theme { grid-template-columns: 1fr; } }
+  .theme h2 { font-size: 26px; font-weight: 900; letter-spacing: -0.015em; margin: 0 0 4px; }
+  .theme .kicker { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--page-ink-2); margin: 0 0 10px; }
+  .theme .story { margin: 0 0 18px; color: var(--page-ink-2); max-width: 56ch; }
+  .theme .story b { color: var(--page-ink); font-weight: 600; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .sw { border-radius: 10px; overflow: hidden; border: 1px solid var(--page-line); background: var(--page-card); }
+  .sw .chip { height: 44px; }
+  .sw .n { font-size: 11px; font-weight: 600; padding: 6px 8px 0; }
+  .sw .v { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--page-ink-2); padding: 0 8px 7px; }
+  pre.tokens { margin: 0; background: var(--page-card); border: 1px solid var(--page-line); border-radius: 10px; padding: 14px 16px; font-family: "IBM Plex Mono", monospace; font-size: 12px; line-height: 1.55; overflow-x: auto; color: var(--page-ink); }
+  pre.tokens .k { color: var(--page-ink-2); }
+
+  .phones { display: flex; gap: 20px; }
+  .phone { width: 250px; height: 520px; border-radius: 32px; background: #050505; padding: 9px; border: 1px solid #2a2a2a; box-shadow: 0 20px 40px -24px rgba(0,0,0,0.6); }
+  .screen { position: relative; height: 100%; border-radius: 24px; background: var(--bg); color: var(--text); overflow: hidden; display: flex; flex-direction: column; font-size: 11px; line-height: 1.35; }
+  .status { display: flex; justify-content: space-between; padding: 10px 18px 2px; font-size: 10px; font-weight: 600; flex: none; }
+  .scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  .pad { padding: 0 13px; }
+  .brand { display: flex; align-items: center; gap: 5px; margin: 8px 0 8px; }
+  .brand .tile { background: var(--primary); color: var(--on-primary); font-weight: 900; font-style: italic; font-size: 15px; padding: 1px 8px; border-radius: 4px; transform: skewX(-8deg); }
+  .brand .tag { font-size: 9px; font-weight: 700; letter-spacing: 0.25em; color: var(--text-2); }
+  .h1 { font-size: 19px; font-weight: 800; margin: 0; }
+  .h2 { font-size: 14px; font-weight: 700; margin: 0; }
+  .tiny { color: var(--muted); font-size: 9.5px; }
+  .row { display: flex; gap: 6px; align-items: center; }
+  .search { flex: 1; height: 32px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; gap: 5px; padding: 0 10px; color: var(--muted); font-size: 10.5px; }
+  .iconbtn { width: 32px; height: 32px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-2); }
+  .segments { display: flex; gap: 14px; margin: 10px 0 8px; }
+  .seg { font-size: 12px; font-weight: 700; color: var(--muted); padding-bottom: 5px; border-bottom: 3px solid transparent; }
+  .seg.on { color: var(--text); border-color: var(--primary); }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card { display: flex; flex-direction: column; gap: 3px; }
+  .poster { position: relative; aspect-ratio: 2/3; border-radius: 9px; overflow: hidden; background: var(--surface); display: flex; align-items: center; justify-content: center; padding: 8px; text-align: center; }
+  .poster .big { font-weight: 900; font-size: 13px; color: var(--text); line-height: 1.1; }
+  .poster.a1 { background: var(--art1); }
+  .poster.a2 { background: var(--art2); }
+  .poster.a3 { background: var(--art3); }
+  .badge { position: absolute; display: inline-flex; align-items: center; gap: 3px; background: var(--overlay); border-radius: 999px; padding: 3px 6px; font-size: 9px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .badge.tl { top: 5px; left: 5px; padding: 4px; }
+  .badge.tr { top: 5px; right: 5px; }
+  .badge.bl { bottom: 5px; left: 5px; }
+  .badge.done { background: var(--primary); color: var(--on-primary); }
+  .badge svg.st { color: var(--star); }
+  .badge.done svg.st { color: var(--on-primary); }
+  .card .t { font-weight: 600; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .m { color: var(--text-2); font-size: 9.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fab { position: absolute; right: 12px; bottom: 56px; width: 42px; height: 42px; border-radius: 999px; background: var(--primary); color: var(--on-primary); display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 6px 14px rgba(0,0,0,0.45); }
+  .tabs { flex: none; display: flex; justify-content: space-around; align-items: center; height: 48px; background: var(--surface); border-top: 1px solid var(--border); color: var(--muted); font-size: 9px; font-weight: 500; }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .tab svg { font-size: 16px; }
+  .tab.on { color: var(--primary); }
+  svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  svg.fill { fill: currentColor; stroke: none; }
+  .navbar { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; color: var(--primary); font-size: 14px; }
+  .navbar .title { color: var(--text); font-weight: 600; font-size: 12px; }
+  .hero { position: relative; height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; padding: 12px; text-align: center; }
+  .hero::before { content: ""; position: absolute; inset: 0; background: var(--hero); opacity: 0.75; }
+  .hero > * { position: relative; }
+  .hero .poster { width: 84px; border: 2px solid var(--primary); }
+  .facts { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+  .fact { display: inline-flex; align-items: center; gap: 4px; background: var(--surface); border-radius: 999px; padding: 3px 9px; font-size: 10px; }
+  .fact svg { color: var(--primary); }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-2); font-size: 10px; font-weight: 600; }
+  .chip.on { border-color: var(--primary); color: var(--primary); }
+  .p { color: var(--text-2); font-size: 11px; line-height: 1.5; margin: 0; }
+  .score-big { font-size: 24px; font-weight: 800; color: var(--star); font-variant-numeric: tabular-nums; }
+  .score-big small { font-size: 10px; font-weight: 500; color: var(--muted); }
+  .cells { display: flex; gap: 3px; }
+  .cell { flex: 1; height: 22px; border-radius: 5px; border: 1.5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; color: var(--text-2); }
+  .cell.on { border-color: var(--primary); color: var(--primary); background: var(--surface-alt); }
+  .cell.ten { border-style: dashed; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .btn { height: 36px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 600; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+  .btn.outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
+
+  .notes { max-width: 70ch; color: var(--page-ink-2); font-size: 14px; padding-top: 32px; }
+  .notes b { color: var(--page-ink); font-weight: 600; }
+  .notes ul { padding-left: 18px; margin: 8px 0 0; }
+  .notes li { margin-bottom: 6px; }
+  .notes code { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; }
+</style>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></symbol>
+    <symbol id="i-tv" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 19a2 2 0 0 1 2-2h14"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.5l-6 3.3 1.3-6.7-5-4.6 6.8-.8z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+    <symbol id="i-options" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 12h2M10 12h10M4 17h8M16 17h4"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></symbol>
+    <symbol id="i-albums" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M6 5h12M8 2h8"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/><path d="M12.5 7.5l4 4"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  </defs>
+</svg>
+
+<template id="phones">
+  <div class="phones">
+    <div class="phone"><div class="screen">
+      <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+      <div class="scroll pad">
+        <div class="brand"><span class="tile">CINE</span><span class="tag">REACT</span></div>
+        <div class="row" style="justify-content:space-between;align-items:baseline"><p class="h1">Library</p><span class="tiny">16 entries</span></div>
+        <div class="row" style="margin-top:10px"><div class="search"><svg><use href="#i-search"/></svg>Search titles, people, or tags</div><div class="iconbtn"><svg style="font-size:14px"><use href="#i-options"/></svg></div></div>
+        <div class="segments"><span class="seg on">All</span><span class="seg">Films</span><span class="seg">Series</span><span class="seg">Books</span></div>
+        <div class="cards">
+          <div class="card"><div class="poster a1"><span class="big">DUNE</span><span class="badge tl"><svg><use href="#i-book"/></svg></span><span class="badge tr"><svg class="fill st"><use href="#i-star"/></svg>9.2</span><span class="badge bl done"><svg><use href="#i-check"/></svg>Read</span></div><div class="t">Dune</div><div class="m">1965 / Frank Herbert</div></div>
+          <div class="card"><div class="poster a2"><span class="big">SEVERANCE</span><span class="badge tl"><svg><use href="#i-tv"/></svg></span><span class="badge bl"><svg><use href="#i-play"/></svg>Watching</span></div><div class="t">Severance</div><div class="m">2022 / Ben Stiller</div></div>
+          <div class="card"><div class="poster"><svg style="font-size:22px;color:var(--muted)"><use href="#i-film"/></svg><span class="badge tl"><svg><use href="#i-film"/></svg></span><span class="badge tr"><svg class="fill st"><use href="#i-star"/></svg>8.1</span><span class="badge bl done"><svg><use href="#i-check"/></svg>Watched</span></div><div class="t">Past Lives</div><div class="m">2023 / Celine Song</div></div>
+          <div class="card"><div class="poster a3"><span class="big">PIRANESI</span><span class="badge tl"><svg><use href="#i-book"/></svg></span><span class="badge bl"><svg><use href="#i-bookmark"/></svg>To read</span></div><div class="t">Piranesi</div><div class="m">2020 / Susanna Clarke</div></div>
+        </div>
+        <div style="height:60px"></div>
+      </div>
+      <div class="fab">+</div>
+      <div class="tabs"><div class="tab on"><svg><use href="#i-albums"/></svg>Library</div><div class="tab"><svg><use href="#i-cal"/></svg>Diary</div><div class="tab"><svg><use href="#i-person"/></svg>Me</div></div>
+    </div></div>
+
+    <div class="phone"><div class="screen">
+      <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+      <div class="navbar"><svg><use href="#i-back"/></svg><span class="title">Dune</span><svg><use href="#i-edit"/></svg></div>
+      <div class="scroll">
+        <div class="hero"><div class="poster a1"><span class="big">DUNE</span></div><p class="h1">Dune</p><p class="tiny" style="color:var(--text-2)">Frank Herbert</p></div>
+        <div class="pad stack" style="padding-bottom:18px;padding-top:12px">
+          <div class="facts"><span class="fact"><svg><use href="#i-book"/></svg>Book</span><span class="fact"><svg><use href="#i-cal"/></svg>1965</span></div>
+          <div class="chips"><span class="chip"><svg><use href="#i-bookmark"/></svg>To read</span><span class="chip"><svg><use href="#i-play"/></svg>Reading</span><span class="chip on"><svg><use href="#i-check"/></svg>Read</span></div>
+          <div class="chips"><span class="chip"><svg><use href="#i-tag"/></svg>sci-fi</span><span class="chip"><svg><use href="#i-tag"/></svg>slow burn</span></div>
+          <div><p class="h2">About</p><p class="p">Paul Atreides moves with his family to Arrakis, the only source of the spice melange.</p></div>
+          <div class="stack" style="gap:6px"><p class="h2">Your score</p><span class="score-big">9.2 <small>/ 10</small></span>
+            <div class="cells"><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell on">9</span><span class="cell ten">10</span></div>
+          </div>
+          <div class="btn outline">Edit entry</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</template>
+
+<div class="wrap">
+  <header class="intro">
+    <p class="eyebrow">Design exploration · 9 Sep 2026 · Cinema, Paperback, and Vice City are in the app</p>
+    <h1>Six looks for CineReact</h1>
+    <p class="lead">The same two screens, Library and Entry detail, redrawn in six palettes. Each one is a full token set in the shape of <code>src/theme/index.ts</code>, so any of them can drop in. Cinema, Paperback, and Vice City now ship in the app and can be picked under Settings on the Me screen. Teh Tarik, Noir, and Marquee remain candidates; each is one <code>ThemeColors</code> object away.</p>
+    <nav class="jump" id="jump"></nav>
+  </header>
+  <div id="themes"></div>
+  <div class="notes">
+    <b>How themes work in the code now</b>
+    <ul>
+      <li><code>ThemeContext</code> holds the choice; every screen builds its styles through <code>useThemedStyles(makeStyles)</code> from the active <code>ThemeColors</code>. The picker sits under Settings on the Me screen and is saved on the device.</li>
+      <li>Adding one of the remaining three means adding its token object to <code>src/theme/index.ts</code>, listing it in <code>THEME_NAMES</code>, and adding its name string in English and Malay.</li>
+      <li>Paperback is the only light theme. A System option that follows the phone would pair it with Cinema; not built yet.</li>
+      <li>Vice City and Marquee carry a second accent (cyan, blue) in the <code>secondary</code> slot, used for the active tab. The other themes set it equal to <code>primary</code>. The sunset hero gradient is not in the app; it would need expo-linear-gradient.</li>
+      <li>Covers in the mockup are gradients built from each theme's own colours. Real covers are whatever image link you paste, so a theme lives mostly in the chrome around them.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  const themes = [
+    {
+      id: 'cinema', name: 'Cinema', kicker: 'The current look, borrowed from GSC',
+      story: 'Near-black surfaces with one yellow accent, the way a cinema lobby reads after the lights go down. <b>Keep as the default.</b> Everything else is measured against it.',
+      t: { bg: '#0B0B0B', surface: '#161616', surfaceAlt: '#1E1E1E', border: '#2A2A2A', primary: '#FCE300', onPrimary: '#0B0B0B', secondary: '#FCE300', text: '#FFFFFF', textSecondary: '#B3B3B3', muted: '#7A7A7A', star: '#FFC42E', overlay: 'rgba(0,0,0,0.55)' },
+      art1: 'linear-gradient(160deg,#3a2f0b,#0f0e0a 60%,#6b5a1a)', art2: 'linear-gradient(200deg,#0d2a33,#071014 55%,#1e5a66)', art3: 'linear-gradient(190deg,#2b1f3a,#0d0a12 55%,#5e4b8a)',
+      hero: 'linear-gradient(160deg,#4a3a10,#0b0b0b 70%)',
+    },
+    {
+      id: 'vice-city', name: 'Vice City', kicker: '1986, Ocean Drive, the radio on',
+      story: 'Deep violet night instead of black, hot pink for every action, cyan as the second voice on tabs and links, and a sunset gradient behind the detail hero. The score colour is a sun yellow so it still reads as a rating and not as a third accent. <b>The loudest of the six</b>, and the one that changes the app\'s personality the most.',
+      t: { bg: '#140A24', surface: '#1F1136', surfaceAlt: '#2A1747', border: '#3B2560', primary: '#FF3E9A', onPrimary: '#16081F', secondary: '#34E4F0', text: '#FFF3FA', textSecondary: '#C9B3D9', muted: '#8A73A3', star: '#FFC94A', overlay: 'rgba(20,10,36,0.6)' },
+      art1: 'linear-gradient(160deg,#ff3e9a 0%,#5b1a6b 45%,#140a24 100%)', art2: 'linear-gradient(200deg,#34e4f0 0%,#1b5f8a 40%,#140a24 100%)', art3: 'linear-gradient(190deg,#ff8a3d 0%,#7a2a66 50%,#140a24 100%)',
+      hero: 'linear-gradient(180deg,#ff3e9a 0%,#ff8a3d 45%,#34e4f0 100%)',
+    },
+    {
+      id: 'paperback', name: 'Paperback', kicker: 'The one light theme',
+      story: 'Warm off-white paper, a brick-red accent from a well-read cover, and ink instead of white text. Cards sit on cream rather than glow out of the dark, so the covers do the colour work. <b>The natural partner for a System option</b> next to Cinema.',
+      t: { bg: '#F4EFE5', surface: '#FFFDF8', surfaceAlt: '#EFE8DA', border: '#DDD3C2', primary: '#B23A2E', onPrimary: '#FFFDF8', secondary: '#B23A2E', text: '#1F1B17', textSecondary: '#5E554B', muted: '#948A7D', star: '#C98A12', overlay: 'rgba(31,27,23,0.62)' },
+      art1: 'linear-gradient(160deg,#c9a76b,#8c6a3a 60%,#5a4224)', art2: 'linear-gradient(200deg,#7fa8b8,#3f6b7d 55%,#243f4b)', art3: 'linear-gradient(190deg,#b39bc8,#6e5a86 55%,#3d2f4d)',
+      hero: 'linear-gradient(160deg,#e3cfae,#f4efe5 70%)',
+    },
+    {
+      id: 'teh-tarik', name: 'Teh Tarik', kicker: 'Mamak at midnight',
+      story: 'Dark roasted brown surfaces with a pulled-tea caramel accent and cream text. Warmer and softer than Cinema without going light; the yellow star becomes a honey gold. <b>The most local of the set</b>, and easy on the eyes for long reading sessions.',
+      t: { bg: '#15100C', surface: '#211812', surfaceAlt: '#2C2019', border: '#3A2C22', primary: '#E8A957', onPrimary: '#1B120A', secondary: '#E8A957', text: '#FBF3E8', textSecondary: '#C7B39E', muted: '#8C7A69', star: '#F2C14E', overlay: 'rgba(21,16,12,0.6)' },
+      art1: 'linear-gradient(160deg,#8a5a2b,#3a2412 60%,#15100c)', art2: 'linear-gradient(200deg,#4f6b5a,#1f2e27 55%,#15100c)', art3: 'linear-gradient(190deg,#7a4a52,#3a2228 55%,#15100c)',
+      hero: 'linear-gradient(160deg,#6b4520,#15100c 70%)',
+    },
+    {
+      id: 'noir', name: 'Noir', kicker: 'Black and white, one gold',
+      story: 'No hue at all in the chrome: charcoal surfaces, a silver accent, and gold reserved for scores so the number is the only warm thing on screen. Covers carry all the colour. <b>The most restrained</b>, and the one that makes posters look best.',
+      t: { bg: '#0A0A0B', surface: '#141416', surfaceAlt: '#1C1C1F', border: '#2A2A2E', primary: '#E6E6EA', onPrimary: '#0A0A0B', secondary: '#E6E6EA', text: '#F5F5F7', textSecondary: '#A8A8B0', muted: '#6E6E76', star: '#D8B45A', overlay: 'rgba(0,0,0,0.6)' },
+      art1: 'linear-gradient(160deg,#5a5a60,#1c1c1f 60%,#0a0a0b)', art2: 'linear-gradient(200deg,#3c4450,#15181c 55%,#0a0a0b)', art3: 'linear-gradient(190deg,#6a5f4a,#2a241c 55%,#0a0a0b)',
+      hero: 'linear-gradient(160deg,#3a3a40,#0a0a0b 70%)',
+    },
+    {
+      id: 'marquee', name: 'Marquee', kicker: 'Letterboxd-adjacent, shifted',
+      story: 'Blue-black slate rather than pure black, a green accent for actions, orange for scores, and a blue second accent for links and the active tab. Close enough to Letterboxd to feel familiar to anyone coming from it, far enough not to be a copy. <b>Best if the app should feel like a social film app</b> rather than a cinema chain.',
+      t: { bg: '#14181C', surface: '#1C232A', surfaceAlt: '#242D35', border: '#2E3841', primary: '#35D07F', onPrimary: '#0E1316', secondary: '#48B6EA', text: '#F1F4F6', textSecondary: '#A9B4BD', muted: '#6B7783', star: '#F5A623', overlay: 'rgba(20,24,28,0.6)' },
+      art1: 'linear-gradient(160deg,#2f6b4d,#1b2f26 60%,#14181c)', art2: 'linear-gradient(200deg,#2b5f80,#182c3a 55%,#14181c)', art3: 'linear-gradient(190deg,#8a4a2b,#3a2218 55%,#14181c)',
+      hero: 'linear-gradient(160deg,#274a3c,#14181c 70%)',
+    },
+  ];
+
+  const swatchOrder = [['bg','background'],['surface','surface'],['border','border'],['primary','primary'],['secondary','secondary'],['text','text'],['textSecondary','textSecondary'],['star','star']];
+  const tpl = document.getElementById('phones');
+  const host = document.getElementById('themes');
+  const jump = document.getElementById('jump');
+
+  for (const th of themes) {
+    const a = document.createElement('a');
+    a.href = '#' + th.id;
+    a.innerHTML = '<span class="dot" style="background:' + th.t.primary + '"></span>' + th.name;
+    jump.appendChild(a);
+
+    const sec = document.createElement('section');
+    sec.className = 'theme';
+    sec.id = th.id;
+    const v = th.t;
+    sec.style.cssText = [
+      '--bg:' + v.bg, '--surface:' + v.surface, '--surface-alt:' + v.surfaceAlt, '--border:' + v.border,
+      '--primary:' + v.primary, '--on-primary:' + v.onPrimary, '--secondary:' + v.secondary,
+      '--text:' + v.text, '--text-2:' + v.textSecondary, '--muted:' + v.muted, '--star:' + v.star, '--overlay:' + v.overlay,
+      '--art1:' + th.art1, '--art2:' + th.art2, '--art3:' + th.art3, '--hero:' + th.hero,
+    ].join(';');
+
+    const sw = swatchOrder.map(([k, label]) =>
+      '<div class="sw"><div class="chip" style="background:' + v[k] + '"></div><div class="n">' + label + '</div><div class="v">' + v[k] + '</div></div>'
+    ).join('');
+    const tokens = Object.entries(v).map(([k, val]) => '  ' + k + ': <span class="k">\'' + val + '\'</span>,').join('\n');
+
+    sec.innerHTML =
+      '<div>' +
+        '<h2>' + th.name + '</h2>' +
+        '<p class="kicker">' + th.kicker + '</p>' +
+        '<p class="story">' + th.story + '</p>' +
+        '<div class="swatches">' + sw + '</div>' +
+        '<pre class="tokens">export const ' + th.id.replace(/-(\w)/g, (m, c) => c.toUpperCase()) + ' = {\n' + tokens + '\n};</pre>' +
+      '</div>';
+    const phones = tpl.content.cloneNode(true);
+    sec.appendChild(phones);
+    // Vice City and Marquee use the second accent on the active tab, as the story says.
+    if (v.secondary !== v.primary) {
+      sec.querySelectorAll('.tab.on').forEach((el) => { el.style.color = v.secondary; });
+    }
+    host.appendChild(sec);
+  }
+</script>
