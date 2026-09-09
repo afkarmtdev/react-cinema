@@ -1,10 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography, type ThemeColors } from '../../theme';
 import { useLanguage } from '../../context/LanguageContext';
 import { Button } from './Button';
+import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
 export function Loading({ message }: { message?: string }) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.center}>
       <ActivityIndicator size="large" color={colors.primary} />
@@ -20,6 +23,8 @@ export function ErrorView({
   message: string;
   onRetry?: () => void;
 }) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { t } = useLanguage();
   return (
     <View style={styles.center}>
@@ -51,6 +56,8 @@ export function EmptyView({
   title: string;
   message?: string;
 }) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.center}>
       <Ionicons name={icon} size={48} color={colors.textMuted} />
@@ -60,19 +67,20 @@ export function EmptyView({
   );
 }
 
-const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-    gap: spacing.sm,
-  },
-  title: { ...typography.h3, color: colors.text, marginTop: spacing.sm },
-  caption: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  retry: { marginTop: spacing.md, paddingHorizontal: spacing.xxl },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.xl,
+      gap: spacing.sm,
+    },
+    title: { ...typography.h3, color: colors.text, marginTop: spacing.sm },
+    caption: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+    retry: { marginTop: spacing.md, paddingHorizontal: spacing.xxl },
+  });

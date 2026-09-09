@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/ui/Screen';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
@@ -9,13 +9,25 @@ import { useLanguage } from '../context/LanguageContext';
 import { pocketbaseUrl } from '../lib/backend';
 import { KIND_ICON } from '../lib/labels';
 import { formatScore } from '../lib/score';
-import { colors, radius, spacing, typography } from '../theme';
+import {
+  THEME_NAMES,
+  radius,
+  spacing,
+  themes,
+  typography,
+  type ThemeColors,
+  type ThemeName,
+} from '../theme';
 import type { ItemKind } from '../types/library';
+import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 export function ProfileScreen() {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { user, logout } = useAuth();
   const { items } = useLibrary();
   const { t, language, setLanguage } = useLanguage();
+  const { name: themeName, setTheme } = useTheme();
 
   const stats = useMemo(() => {
     const done = items.filter((item) => item.status === 'done');
@@ -41,82 +53,145 @@ export function ProfileScreen() {
 
   return (
     <Screen padded>
-      <Text style={styles.heading}>{t('meHeading')}</Text>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.heading}>{t('meHeading')}</Text>
 
-      <View style={styles.card}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {user.name.charAt(0).toUpperCase()}
-          </Text>
+        <View style={styles.card}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {user.name.charAt(0).toUpperCase()}
+            </Text>
+          </View>
+          <Text style={styles.name}>{user.name}</Text>
+          <Text style={styles.email}>{user.email}</Text>
         </View>
-        <Text style={styles.name}>{user.name}</Text>
-        <Text style={styles.email}>{user.email}</Text>
-      </View>
 
-      <View style={styles.stats}>
-        <Stat
-          icon={KIND_ICON.film}
-          value={stats.films}
-          label={t('filmsWatched')}
-        />
-        <Stat
-          icon={KIND_ICON.series}
-          value={stats.series}
-          label={t('seriesWatched')}
-        />
-        <Stat
-          icon={KIND_ICON.book}
-          value={stats.books}
-          label={t('booksRead')}
-        />
-        <Stat icon="star" value={stats.avg} label={t('avgRating')} />
-      </View>
-
-      <View style={styles.languageBlock}>
-        <Text style={styles.languageLabel}>{t('language')}</Text>
-        <View style={styles.languageRow}>
-          <LanguageOption
-            label="English"
-            active={language === 'en'}
-            onPress={() => setLanguage('en')}
+        <View style={styles.stats}>
+          <Stat
+            icon={KIND_ICON.film}
+            value={stats.films}
+            label={t('filmsWatched')}
           />
-          <LanguageOption
-            label="Bahasa Melayu"
-            active={language === 'ms'}
-            onPress={() => setLanguage('ms')}
+          <Stat
+            icon={KIND_ICON.series}
+            value={stats.series}
+            label={t('seriesWatched')}
           />
+          <Stat
+            icon={KIND_ICON.book}
+            value={stats.books}
+            label={t('booksRead')}
+          />
+          <Stat icon="star" value={stats.avg} label={t('avgRating')} />
         </View>
-      </View>
 
-      <View style={styles.storageBlock}>
-        <Text style={styles.languageLabel}>{t('storage')}</Text>
-        <View style={styles.storageRow}>
-          <Ionicons
-            name={
-              pocketbaseUrl ? 'cloud-done-outline' : 'phone-portrait-outline'
-            }
-            size={18}
-            color={colors.textSecondary}
-          />
-          <Text style={styles.storageText}>
-            {pocketbaseUrl
-              ? t('storageCloud', { url: pocketbaseUrl })
-              : t('storageLocal')}
-          </Text>
+        <Text style={styles.settingsHeading}>{t('settings')}</Text>
+
+        <View style={styles.languageBlock}>
+          <Text style={styles.languageLabel}>{t('appearance')}</Text>
+          <View style={styles.themeRow}>
+            {THEME_NAMES.map((name) => (
+              <ThemeOption
+                key={name}
+                name={name}
+                label={t(themeKey(name))}
+                active={themeName === name}
+                onPress={() => setTheme(name)}
+              />
+            ))}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.spacer} />
+        <View style={styles.languageBlock}>
+          <Text style={styles.languageLabel}>{t('language')}</Text>
+          <View style={styles.languageRow}>
+            <LanguageOption
+              label="English"
+              active={language === 'en'}
+              onPress={() => setLanguage('en')}
+            />
+            <LanguageOption
+              label="Bahasa Melayu"
+              active={language === 'ms'}
+              onPress={() => setLanguage('ms')}
+            />
+          </View>
+        </View>
 
-      <Button
-        label={t('logout')}
-        variant="outline"
-        onPress={logout}
-        icon={
-          <Ionicons name="log-out-outline" size={20} color={colors.primary} />
-        }
-      />
+        <View style={styles.storageBlock}>
+          <Text style={styles.languageLabel}>{t('storage')}</Text>
+          <View style={styles.storageRow}>
+            <Ionicons
+              name={
+                pocketbaseUrl ? 'cloud-done-outline' : 'phone-portrait-outline'
+              }
+              size={18}
+              color={colors.textSecondary}
+            />
+            <Text style={styles.storageText}>
+              {pocketbaseUrl
+                ? t('storageCloud', { url: pocketbaseUrl })
+                : t('storageLocal')}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.spacer} />
+
+        <Button
+          label={t('logout')}
+          variant="outline"
+          onPress={logout}
+          icon={
+            <Ionicons name="log-out-outline" size={20} color={colors.primary} />
+          }
+        />
+      </ScrollView>
     </Screen>
+  );
+}
+
+/** Translation key for a theme's display name ("themeCinema"). */
+const themeKey = (name: ThemeName): string =>
+  `theme${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+
+/** A theme choice: a two-colour swatch (background and accent) plus a name. */
+function ThemeOption({
+  name,
+  label,
+  active,
+  onPress,
+}: {
+  name: ThemeName;
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  const styles = useThemedStyles(makeStyles);
+  const palette = themes[name];
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      style={[
+        styles.langOption,
+        styles.themeOption,
+        active && styles.langOptionActive,
+      ]}
+    >
+      <View style={[styles.swatch, { backgroundColor: palette.background }]}>
+        <View
+          style={[styles.swatchDot, { backgroundColor: palette.primary }]}
+        />
+      </View>
+      <Text style={[styles.langText, active && styles.langTextActive]}>
+        {label}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -129,6 +204,7 @@ function LanguageOption({
   active: boolean;
   onPress: () => void;
 }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <Pressable
       onPress={onPress}
@@ -152,6 +228,8 @@ function Stat({
   value: string;
   label: string;
 }) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.stat}>
       <Ionicons name={icon} size={22} color={colors.primary} />
@@ -161,69 +239,92 @@ function Stat({
   );
 }
 
-const styles = StyleSheet.create({
-  heading: {
-    ...typography.h1,
-    color: colors.text,
-    paddingVertical: spacing.lg,
-  },
-  card: {
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: spacing.xl,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: radius.pill,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { fontSize: 34, fontWeight: '800', color: colors.onPrimary },
-  name: { ...typography.h2, color: colors.text },
-  email: { ...typography.body, color: colors.textSecondary },
-  stats: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
-  stat: {
-    flex: 1,
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    paddingVertical: spacing.lg,
-  },
-  statValue: { ...typography.h2, color: colors.text },
-  statLabel: { ...typography.caption, color: colors.textSecondary },
-  languageBlock: { marginTop: spacing.xl, gap: spacing.sm },
-  languageLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginLeft: spacing.xs,
-  },
-  languageRow: { flexDirection: 'row', gap: spacing.md },
-  langOption: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  langOptionActive: { borderColor: colors.primary },
-  langText: { ...typography.bodyStrong, color: colors.textSecondary },
-  langTextActive: { color: colors.primary },
-  storageBlock: { marginTop: spacing.xl, gap: spacing.sm },
-  storageRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-  },
-  storageText: { ...typography.caption, color: colors.textSecondary, flex: 1 },
-  spacer: { flex: 1 },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    heading: {
+      ...typography.h1,
+      color: colors.text,
+      paddingVertical: spacing.lg,
+    },
+    card: {
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.surface,
+      borderRadius: radius.lg,
+      padding: spacing.xl,
+    },
+    avatar: {
+      width: 80,
+      height: 80,
+      borderRadius: radius.pill,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: { fontSize: 34, fontWeight: '800', color: colors.onPrimary },
+    name: { ...typography.h2, color: colors.text },
+    email: { ...typography.body, color: colors.textSecondary },
+    stats: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
+    stat: {
+      flex: 1,
+      alignItems: 'center',
+      gap: spacing.xs,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      paddingVertical: spacing.lg,
+    },
+    statValue: { ...typography.h2, color: colors.text },
+    statLabel: { ...typography.caption, color: colors.textSecondary },
+    content: { paddingBottom: spacing.xxl, flexGrow: 1 },
+    settingsHeading: {
+      ...typography.h2,
+      color: colors.text,
+      marginTop: spacing.xxl,
+    },
+    languageBlock: { marginTop: spacing.lg, gap: spacing.sm },
+    themeRow: { flexDirection: 'row', gap: spacing.sm },
+    themeOption: { gap: spacing.sm, paddingVertical: spacing.sm },
+    swatch: {
+      width: 44,
+      height: 44,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    swatchDot: { width: 18, height: 18, borderRadius: radius.pill },
+    languageLabel: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginLeft: spacing.xs,
+    },
+    languageRow: { flexDirection: 'row', gap: spacing.md },
+    langOption: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      borderRadius: radius.md,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    langOptionActive: { borderColor: colors.primary },
+    langText: { ...typography.bodyStrong, color: colors.textSecondary },
+    langTextActive: { color: colors.primary },
+    storageBlock: { marginTop: spacing.lg, gap: spacing.sm },
+    storageRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.md,
+    },
+    storageText: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      flex: 1,
+    },
+    spacer: { flex: 1, minHeight: spacing.xl },
+  });

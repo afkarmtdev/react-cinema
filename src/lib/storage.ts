@@ -27,4 +27,5 @@ export const StorageKeys = {
   /** Serialized PocketBase session (token plus user record). */
   pocketbaseAuth: '@gscreviews/pocketbase-auth',
   language: '@gscreviews/language',
+  theme: '@gscreviews/theme',
 } as const;

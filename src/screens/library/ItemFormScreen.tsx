@@ -23,7 +23,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
 import { KIND_ICON, creatorKey } from '../../lib/labels';
 import { uniqueTags } from '../../lib/tags';
-import { colors, radius, spacing, typography } from '../../theme';
+import { radius, spacing, typography, type ThemeColors } from '../../theme';
 import {
   isReadKind,
   type ItemKind,
@@ -32,6 +32,7 @@ import {
 } from '../../types/library';
 import type { Movie } from '../../types/movie';
 import type { LibraryStackParamList } from '../../navigation/types';
+import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
 type Props = NativeStackScreenProps<LibraryStackParamList, 'ItemForm'>;
 
@@ -64,6 +65,8 @@ function draftFrom(item: LibraryItem | undefined, kind?: ItemKind): Draft {
 }
 
 export function ItemFormScreen({ navigation, route }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { itemId, kind: initialKind } = route.params ?? {};
   const { getItem, allTags, addItem, updateItem, removeItem } = useLibrary();
   const { t } = useLanguage();
@@ -328,6 +331,7 @@ export function ItemFormScreen({ navigation, route }: Props) {
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>{label}</Text>
@@ -336,32 +340,37 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.lg },
-  field: { gap: spacing.xs },
-  fieldLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginLeft: spacing.xs,
-  },
-  row: { flexDirection: 'row', gap: spacing.md },
-  rowWide: { flex: 2 },
-  rowNarrow: { flex: 1 },
-  posterRow: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-end' },
-  posterPreview: {
-    width: 64,
-    aspectRatio: 2 / 3,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  posterImage: { width: '100%', height: '100%' },
-  error: { ...typography.caption, color: colors.error },
-  deleteRow: { flexDirection: 'row', gap: spacing.md },
-  deleteBtn: { flex: 1, borderColor: colors.error },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    content: { padding: spacing.lg, gap: spacing.lg },
+    field: { gap: spacing.xs },
+    fieldLabel: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginLeft: spacing.xs,
+    },
+    row: { flexDirection: 'row', gap: spacing.md },
+    rowWide: { flex: 2 },
+    rowNarrow: { flex: 1 },
+    posterRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      alignItems: 'flex-end',
+    },
+    posterPreview: {
+      width: 64,
+      aspectRatio: 2 / 3,
+      borderRadius: radius.sm,
+      backgroundColor: colors.surface,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+    },
+    posterImage: { width: '100%', height: '100%' },
+    error: { ...typography.caption, color: colors.error },
+    deleteRow: { flexDirection: 'row', gap: spacing.md },
+    deleteBtn: { flex: 1, borderColor: colors.error },
+  });

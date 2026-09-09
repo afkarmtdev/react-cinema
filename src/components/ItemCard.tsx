@@ -4,8 +4,9 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { KIND_ICON, STATUS_ICON, kindKey, statusKey } from '../lib/labels';
 import { ScoreBadge } from './ui/ScoreBadge';
-import { colors, radius, spacing, typography } from '../theme';
+import { radius, spacing, typography, type ThemeColors } from '../theme';
 import type { LibraryItem } from '../types/library';
+import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 interface ItemCardProps {
   item: LibraryItem;
@@ -14,6 +15,8 @@ interface ItemCardProps {
 
 /** Poster-first grid card for a library entry. */
 function ItemCardBase({ item, onPress }: ItemCardProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const [imageFailed, setImageFailed] = useState(false);
   const { t } = useLanguage();
   const showImage = !!item.poster && !imageFailed;
@@ -47,7 +50,11 @@ function ItemCardBase({ item, onPress }: ItemCardProps) {
           </View>
         )}
         <View style={styles.kindBadge}>
-          <Ionicons name={KIND_ICON[item.kind]} size={12} color={colors.text} />
+          <Ionicons
+            name={KIND_ICON[item.kind]}
+            size={12}
+            color={colors.onOverlay}
+          />
         </View>
         {typeof item.rating === 'number' && (
           <ScoreBadge value={item.rating} style={styles.ratingBadge} />
@@ -61,7 +68,7 @@ function ItemCardBase({ item, onPress }: ItemCardProps) {
           <Ionicons
             name={STATUS_ICON[item.status]}
             size={11}
-            color={item.status === 'done' ? colors.onPrimary : colors.text}
+            color={item.status === 'done' ? colors.onPrimary : colors.onOverlay}
           />
           <Text
             style={[
@@ -84,47 +91,48 @@ function ItemCardBase({ item, onPress }: ItemCardProps) {
   );
 }
 
-const badge = {
-  position: 'absolute' as const,
-  flexDirection: 'row' as const,
-  alignItems: 'center' as const,
-  gap: 3,
-  backgroundColor: colors.overlay,
-  borderRadius: radius.pill,
-  paddingHorizontal: 8,
-  paddingVertical: 3,
+const makeStyles = (colors: ThemeColors) => {
+  const badge = {
+    position: 'absolute' as const,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 3,
+    backgroundColor: colors.overlay,
+    borderRadius: radius.pill,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  };
+  return StyleSheet.create({
+    card: { flex: 1, margin: spacing.sm, gap: 6 },
+    pressed: { opacity: 0.8, transform: [{ scale: 0.98 }] },
+    posterWrap: {
+      width: '100%',
+      aspectRatio: 2 / 3,
+      borderRadius: radius.md,
+      overflow: 'hidden',
+      backgroundColor: colors.surface,
+    },
+    poster: { width: '100%', height: '100%' },
+    posterFallback: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      padding: spacing.md,
+    },
+    fallbackTitle: {
+      ...typography.caption,
+      color: colors.textMuted,
+      textAlign: 'center',
+    },
+    kindBadge: { ...badge, top: spacing.sm, left: spacing.sm, padding: 5 },
+    ratingBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm },
+    statusBadge: { ...badge, bottom: spacing.sm, left: spacing.sm },
+    statusBadgeDone: { backgroundColor: colors.primary },
+    statusText: { ...typography.tiny, color: colors.onOverlay },
+    statusTextDone: { color: colors.onPrimary },
+    title: { ...typography.bodyStrong, color: colors.text },
+    meta: { ...typography.caption, color: colors.textSecondary },
+  });
 };
-
-const styles = StyleSheet.create({
-  card: { flex: 1, margin: spacing.sm, gap: 6 },
-  pressed: { opacity: 0.8, transform: [{ scale: 0.98 }] },
-  posterWrap: {
-    width: '100%',
-    aspectRatio: 2 / 3,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    backgroundColor: colors.surface,
-  },
-  poster: { width: '100%', height: '100%' },
-  posterFallback: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    padding: spacing.md,
-  },
-  fallbackTitle: {
-    ...typography.caption,
-    color: colors.textMuted,
-    textAlign: 'center',
-  },
-  kindBadge: { ...badge, top: spacing.sm, left: spacing.sm, padding: 5 },
-  ratingBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm },
-  statusBadge: { ...badge, bottom: spacing.sm, left: spacing.sm },
-  statusBadgeDone: { backgroundColor: colors.primary },
-  statusText: { ...typography.tiny, color: colors.text },
-  statusTextDone: { color: colors.onPrimary },
-  title: { ...typography.bodyStrong, color: colors.text },
-  meta: { ...typography.caption, color: colors.textSecondary },
-});
 
 export const ItemCard = React.memo(ItemCardBase);

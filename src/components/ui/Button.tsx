@@ -7,7 +7,8 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { colors, radius, spacing, typography } from '../../theme';
+import { radius, spacing, typography, type ThemeColors } from '../../theme';
+import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
 type Variant = 'primary' | 'outline' | 'ghost';
 
@@ -30,6 +31,8 @@ export function Button({
   icon,
   style,
 }: ButtonProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const isDisabled = disabled || loading;
 
   return (
@@ -40,7 +43,7 @@ export function Button({
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.base,
-        variantStyles[variant],
+        styles[variant],
         pressed && !isDisabled && styles.pressed,
         isDisabled && styles.disabled,
         style,
@@ -53,39 +56,35 @@ export function Button({
       ) : (
         <View style={styles.content}>
           {icon}
-          <Text style={[styles.label, labelStyles[variant]]}>{label}</Text>
+          <Text style={[styles.label, styles[`${variant}Label`]]}>{label}</Text>
         </View>
       )}
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    height: 52,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  label: { ...typography.bodyStrong, fontSize: 16 },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
-  disabled: { opacity: 0.5 },
-});
-
-const variantStyles: Record<Variant, ViewStyle> = {
-  primary: { backgroundColor: colors.primary },
-  outline: { borderWidth: 1.5, borderColor: colors.primary },
-  ghost: { backgroundColor: 'transparent' },
-};
-
-const labelStyles: Record<Variant, { color: string }> = {
-  primary: { color: colors.onPrimary },
-  outline: { color: colors.primary },
-  ghost: { color: colors.text },
-};
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    base: {
+      height: 52,
+      borderRadius: radius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    content: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    label: { ...typography.bodyStrong, fontSize: 16 },
+    pressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
+    disabled: { opacity: 0.5 },
+    // One pair per variant: the container and its label colour.
+    primary: { backgroundColor: colors.primary },
+    outline: { borderWidth: 1.5, borderColor: colors.primary },
+    ghost: { backgroundColor: 'transparent' },
+    primaryLabel: { color: colors.onPrimary },
+    outlineLabel: { color: colors.primary },
+    ghostLabel: { color: colors.text },
+  });

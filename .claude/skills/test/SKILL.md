@@ -11,7 +11,7 @@ Node 24 is the default in both PowerShell and Bash on this machine, so either
 tool works:
 
 ```powershell
-npm test                 # run everything once (48 tests in 7 files)
+npm test                 # run everything once (52 tests in 8 files)
 npx jest --watch         # watch mode
 npx jest path/to/file    # a single file
 npx jest -t "duplicate"  # tests matching a name
@@ -49,6 +49,9 @@ The OMDb client logs each request with `console.log`, so expect a few
   to the SDK's `collection()` and `authStore`) checks record mapping in both
   directions, which collection calls the store makes, and how SDK errors map
   to AuthError codes (duplicate email, wrong password, no connection).
+- `src/context/__tests__/ThemeContext.test.tsx`: default theme, switching
+  and persisting, restoring a saved (or unknown) value, and that
+  `useThemedStyles` only rebuilds when the theme changes.
 - `src/context/__tests__/AuthContext.test.tsx`: signup, login, logout,
   duplicate email, short password, wrong password. Uses RNTL `renderHook`.
 - `src/context/__tests__/LibraryContext.test.tsx`: add, title validation,

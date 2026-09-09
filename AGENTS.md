@@ -82,7 +82,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (48 tests in 7 files)
+npm test            Jest, runs once (52 tests in 8 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 ```
@@ -95,7 +95,8 @@ Run typecheck, lint, and test before calling a change done.
 src/api          movies.ts: optional OMDb search and detail, used only to
                  prefill the add form when a key is configured
 src/hooks        useDebouncedValue
-src/context      AuthContext, LibraryContext, LanguageContext, and their tests
+src/context      AuthContext, LibraryContext, LanguageContext, ThemeContext, and
+                 their tests
 src/components   ItemCard, KindPicker, StatusPicker, TagInput, FilterSheet,
                  OmdbLookupSheet, SearchBar, BrandHeader, MultiProvider, and
                  ui/ primitives (Button, TextField, Chip, StarRating, ...)
@@ -108,7 +109,8 @@ src/lib          backend (picks PocketBase or local at startup), auth
                  local entries), pocketbase (both, against the SDK), storage,
                  score (1 to 10 scale, the 10 rule), tags, labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
-src/theme        colour, spacing, radius, and typography tokens
+src/theme        three colour themes (cinema, paperback, viceCity) as
+                 ThemeColors, plus spacing, radius, and typography tokens
 src/types        library.ts (LibraryItem, ItemKind, ItemStatus), movie.ts
 ```
 
@@ -117,6 +119,13 @@ Contexts never touch storage directly. `src/lib/backend.ts` hands them a
 signup, login, logout); tests always get the local pair. The `pocketbase`
 package is on the exact-pin, 10-day rule like everything else, and Jest maps
 it to its ES build in jest.config.js because the default entry is .mjs.
+
+Colours are never imported statically. A component defines a module-level
+`makeStyles = (colors: ThemeColors) => StyleSheet.create({...})` and calls
+`useThemedStyles(makeStyles)`; anything that needs a colour outside the
+styles reads `const { colors } = useTheme()`. Adding a theme means adding a
+`ThemeColors` object to `src/theme/index.ts`, listing it in `THEME_NAMES`,
+and adding a `theme<Name>` string in both languages.
 
 Every user-facing string goes through `t()` from `LanguageContext`, so a new
 string needs both an English and a Malay entry in `src/i18n/translations.ts`.

@@ -1,33 +1,115 @@
-// Shared design tokens: GSC's dark surfaces + single yellow accent.
+// Shared design tokens. Spacing, radius, and type are fixed; colours come in
+// named themes that the user picks on the Me screen (see ThemeContext).
 
-export const colors = {
+export interface ThemeColors {
   // Surfaces
+  background: string;
+  surface: string;
+  surfaceAlt: string;
+  elevated: string;
+  border: string;
+
+  // Accent
+  primary: string;
+  primaryPressed: string;
+  onPrimary: string;
+  /** Second accent for the active tab. Equal to primary in most themes. */
+  secondary: string;
+
+  // Text
+  text: string;
+  textSecondary: string;
+  textMuted: string;
+  /** Text and icons on top of the dark overlay badges over covers. */
+  onOverlay: string;
+
+  // Feedback
+  star: string;
+  error: string;
+  success: string;
+
+  // Misc
+  overlay: string;
+  skeleton: string;
+  skeletonHighlight: string;
+}
+
+/** Near-black surfaces and one yellow accent, borrowed from GSC. Default. */
+export const cinema: ThemeColors = {
   background: '#0B0B0B',
   surface: '#161616',
   surfaceAlt: '#1E1E1E',
   elevated: '#262626',
   border: '#2A2A2A',
-
-  // Brand
-  primary: '#FCE300', // GSC yellow
+  primary: '#FCE300',
   primaryPressed: '#D9C400',
-  onPrimary: '#0B0B0B', // text/icons on yellow
-
-  // Text
+  onPrimary: '#0B0B0B',
+  secondary: '#FCE300',
   text: '#FFFFFF',
   textSecondary: '#B3B3B3',
   textMuted: '#7A7A7A',
-
-  // Feedback
+  onOverlay: '#FFFFFF',
   star: '#FFC42E',
   error: '#FF5A5F',
   success: '#34C759',
-
-  // Misc
   overlay: 'rgba(0,0,0,0.55)',
   skeleton: '#1F1F1F',
   skeletonHighlight: '#2C2C2C',
-} as const;
+};
+
+/** Warm paper, brick-red accent, ink text. The light theme. */
+export const paperback: ThemeColors = {
+  background: '#F4EFE5',
+  surface: '#FFFDF8',
+  surfaceAlt: '#EFE8DA',
+  elevated: '#E7DFCF',
+  border: '#DDD3C2',
+  primary: '#B23A2E',
+  primaryPressed: '#932F25',
+  onPrimary: '#FFFDF8',
+  secondary: '#B23A2E',
+  text: '#1F1B17',
+  textSecondary: '#5E554B',
+  textMuted: '#948A7D',
+  onOverlay: '#FFFDF8',
+  star: '#C98A12',
+  error: '#C0392B',
+  success: '#2E7D4F',
+  overlay: 'rgba(31,27,23,0.62)',
+  skeleton: '#E9E2D4',
+  skeletonHighlight: '#F1EBDF',
+};
+
+/** Violet night, hot pink actions, cyan on the active tab. Ocean Drive, 1986. */
+export const viceCity: ThemeColors = {
+  background: '#140A24',
+  surface: '#1F1136',
+  surfaceAlt: '#2A1747',
+  elevated: '#341D57',
+  border: '#3B2560',
+  primary: '#FF3E9A',
+  primaryPressed: '#E02F84',
+  onPrimary: '#16081F',
+  secondary: '#34E4F0',
+  text: '#FFF3FA',
+  textSecondary: '#C9B3D9',
+  textMuted: '#8A73A3',
+  onOverlay: '#FFF3FA',
+  star: '#FFC94A',
+  error: '#FF5A5F',
+  success: '#34E4A0',
+  overlay: 'rgba(20,10,36,0.6)',
+  skeleton: '#241440',
+  skeletonHighlight: '#31204F',
+};
+
+export const themes = { cinema, paperback, viceCity } as const;
+export type ThemeName = keyof typeof themes;
+export const THEME_NAMES: ThemeName[] = ['cinema', 'paperback', 'viceCity'];
+export const DEFAULT_THEME: ThemeName = 'cinema';
+
+/** Light themes need a dark status bar and light navigation chrome. */
+export const isLightTheme = (name: ThemeName): boolean => name === 'paperback';
 
 export const spacing = {
   xs: 4,
@@ -55,6 +137,3 @@ export const typography = {
   caption: { fontSize: 13, fontWeight: '400' as const },
   tiny: { fontSize: 11, fontWeight: '500' as const },
 } as const;
-
-export const theme = { colors, spacing, radius, typography };
-export type Theme = typeof theme;

@@ -15,9 +15,10 @@ import { ScoreBadge } from '../components/ui/ScoreBadge';
 import { useLanguage } from '../context/LanguageContext';
 import { useLibrary } from '../context/LibraryContext';
 import { KIND_ICON, formatMonth } from '../lib/labels';
-import { colors, radius, spacing, typography } from '../theme';
+import { radius, spacing, typography, type ThemeColors } from '../theme';
 import type { LibraryItem } from '../types/library';
 import type { TabParamList } from '../navigation/types';
+import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 type Props = BottomTabScreenProps<TabParamList, 'DiaryTab'>;
 
@@ -28,6 +29,7 @@ interface MonthSection {
 
 /** Everything finished, newest first, grouped by the month it was finished. */
 export function DiaryScreen({ navigation }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const { items } = useLibrary();
   const { t } = useLanguage();
 
@@ -85,6 +87,8 @@ function DiaryRow({
   item: LibraryItem;
   onPress: (item: LibraryItem) => void;
 }) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const day = new Date(item.finishedAt ?? item.updatedAt).getDate();
   return (
     <Pressable
@@ -130,48 +134,49 @@ function DiaryRow({
   );
 }
 
-const styles = StyleSheet.create({
-  heading: {
-    ...typography.h1,
-    color: colors.text,
-    paddingVertical: spacing.lg,
-  },
-  content: { flexGrow: 1, paddingBottom: spacing.xxl },
-  month: {
-    ...typography.caption,
-    fontWeight: '700',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-  gap: { height: spacing.md },
-  row: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-  },
-  pressed: { opacity: 0.8 },
-  day: {
-    ...typography.h2,
-    color: colors.primary,
-    width: 32,
-    textAlign: 'center',
-  },
-  thumb: {
-    width: 52,
-    height: 78,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surfaceAlt,
-  },
-  thumbFallback: { alignItems: 'center', justifyContent: 'center' },
-  info: { flex: 1, gap: 4 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  title: { ...typography.bodyStrong, color: colors.text, flex: 1 },
-  meta: { ...typography.caption, color: colors.textSecondary },
-  snippet: { ...typography.caption, color: colors.textSecondary },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    heading: {
+      ...typography.h1,
+      color: colors.text,
+      paddingVertical: spacing.lg,
+    },
+    content: { flexGrow: 1, paddingBottom: spacing.xxl },
+    month: {
+      ...typography.caption,
+      fontWeight: '700',
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.sm,
+    },
+    gap: { height: spacing.md },
+    row: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.md,
+    },
+    pressed: { opacity: 0.8 },
+    day: {
+      ...typography.h2,
+      color: colors.primary,
+      width: 32,
+      textAlign: 'center',
+    },
+    thumb: {
+      width: 52,
+      height: 78,
+      borderRadius: radius.sm,
+      backgroundColor: colors.surfaceAlt,
+    },
+    thumbFallback: { alignItems: 'center', justifyContent: 'center' },
+    info: { flex: 1, gap: 4 },
+    titleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    title: { ...typography.bodyStrong, color: colors.text, flex: 1 },
+    meta: { ...typography.caption, color: colors.textSecondary },
+    snippet: { ...typography.caption, color: colors.textSecondary },
+  });

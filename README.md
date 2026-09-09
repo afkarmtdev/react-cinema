@@ -55,9 +55,12 @@ scale, with five stars landing on 9.9.
 **Diary.** The second tab lists everything you have finished, newest first,
 grouped by month, with the day, your score, and a snippet of your notes.
 
-**Two languages.** The whole interface is available in English (the default)
-and Bahasa Melayu, switchable from the profile tab, which also shows how many
-films, series, and books you have finished and your average rating.
+**Settings.** The Me tab shows how many films, series, and books you have
+finished and your average score, then a Settings group. Appearance picks one
+of three themes: Cinema (the dark GSC look, the default), Paperback (warm
+paper with a brick-red accent, the light one), and Vice City (violet night,
+hot pink, cyan on the active tab). Language switches the whole interface
+between English and Bahasa Melayu. Both choices are remembered on the device.
 
 ## Tech stack
 
@@ -67,6 +70,7 @@ films, series, and books you have finished and your average rating.
 | Navigation  | React Navigation 7 (native-stack + bottom-tabs)                               |
 | State       | React Context API + hooks (`useState`, `useEffect`, `useMemo`, `useCallback`) |
 | i18n        | A small `LanguageContext` + `t()` dictionary (English / Malay)                |
+| Theming     | `ThemeContext` + `useThemedStyles()`; three palettes in `src/theme`           |
 | Persistence | PocketBase (`pocketbase` SDK) or AsyncStorage, behind one store interface     |
 | Testing     | Jest + `jest-expo` + React Native Testing Library                             |
 | Icons       | `@expo/vector-icons` (Ionicons)                                               |
@@ -81,7 +85,7 @@ src/
 │  ├─ ui/          Button, TextField, Chip, Screen, StarRating, Skeleton, StateViews
 │  ├─ BrandHeader, SearchBar, ItemCard, KindPicker, StatusPicker, TagInput,
 │  │  FilterSheet, OmdbLookupSheet
-├─ context/        AuthContext, LibraryContext, LanguageContext
+├─ context/        AuthContext, LibraryContext, LanguageContext, ThemeContext
 │  └─ __tests__/   tests for the auth and library contexts
 ├─ i18n/           translations.ts (English / Malay dictionaries)
 ├─ hooks/          useDebouncedValue
@@ -91,7 +95,7 @@ src/
 ├─ screens/        SplashScreen, auth/(Login, Signup),
 │                  library/(Library, ItemDetail, ItemForm), DiaryScreen,
 │                  ProfileScreen
-├─ theme/          colours, spacing, and type tokens
+├─ theme/          three colour themes (cinema, paperback, viceCity), spacing, type
 └─ types/          library.ts (the entry model), movie.ts (OMDb shape)
 pocketbase/
 ├─ pb_migrations/  creates the entries collection with per-user access rules
@@ -215,7 +219,7 @@ that server beyond your Wi-Fi.
 
 ## Tests
 
-`npm test` runs 48 tests across seven files:
+`npm test` runs 52 tests across eight files:
 
 | File                     | What it checks                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------------ |
@@ -226,6 +230,7 @@ that server beyond your Wi-Fi.
 | `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)    |
 | `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password               |
 | `context/LibraryContext` | add, validate, update, finish dates, remove, tag ordering, per-user split, migration |
+| `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles    |
 
 One thing to know if you touch the test setup: `jest-expo@54` targets the Jest 29
 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the runner.

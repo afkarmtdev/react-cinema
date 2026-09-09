@@ -3,12 +3,14 @@ import { useLanguage } from '../context/LanguageContext';
 import { LibraryScreen } from '../screens/library/LibraryScreen';
 import { ItemDetailScreen } from '../screens/library/ItemDetailScreen';
 import { ItemFormScreen } from '../screens/library/ItemFormScreen';
-import { colors } from '../theme';
+
 import type { LibraryStackParamList } from './types';
+import { useTheme } from '../context/ThemeContext';
 
 const Stack = createNativeStackNavigator<LibraryStackParamList>();
 
 export function LibraryStack() {
+  const { colors } = useTheme();
   const { t } = useLanguage();
   return (
     <Stack.Navigator

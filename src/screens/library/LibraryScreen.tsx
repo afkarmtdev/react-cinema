@@ -19,13 +19,14 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { hasTag } from '../../lib/tags';
-import { colors, radius, spacing, typography } from '../../theme';
+import { radius, spacing, typography, type ThemeColors } from '../../theme';
 import {
   ITEM_KINDS,
   type ItemKind,
   type LibraryItem,
 } from '../../types/library';
 import type { LibraryStackParamList } from '../../navigation/types';
+import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
 type Props = NativeStackScreenProps<LibraryStackParamList, 'Library'>;
 
@@ -39,6 +40,8 @@ const KIND_LABEL: Record<KindFilter, string> = {
 };
 
 export function LibraryScreen({ navigation }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { items, allTags, ready, loadError, reload } = useLibrary();
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
@@ -211,6 +214,7 @@ function SegmentButton({
   active: boolean;
   onPress: () => void;
 }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <Pressable onPress={onPress} style={styles.segment}>
       <Text style={[styles.segmentLabel, active && styles.segmentLabelActive]}>
@@ -221,65 +225,70 @@ function SegmentButton({
   );
 }
 
-const styles = StyleSheet.create({
-  header: { paddingTop: spacing.sm, gap: spacing.lg, marginBottom: spacing.md },
-  headingRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-  },
-  heading: { ...typography.h1, color: colors.text },
-  count: { ...typography.caption, color: colors.textMuted },
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  searchFlex: { flex: 1 },
-  filterBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filterBtnActive: { borderColor: colors.primary },
-  filterDot: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-  },
-  segments: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
-  segment: { gap: spacing.sm },
-  segmentLabel: { ...typography.h3, color: colors.textMuted },
-  segmentLabelActive: { color: colors.text },
-  segmentBar: {
-    height: 3,
-    borderRadius: radius.pill,
-    backgroundColor: 'transparent',
-  },
-  segmentBarActive: { backgroundColor: colors.primary },
-  column: { gap: spacing.sm },
-  listContent: { flexGrow: 1 },
-  empty: { flex: 1, alignItems: 'center', paddingBottom: spacing.xxl },
-  emptyBtn: { paddingHorizontal: spacing.xxl },
-  fab: {
-    position: 'absolute',
-    right: spacing.lg,
-    width: 60,
-    height: 60,
-    borderRadius: radius.pill,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
-  fabPressed: { backgroundColor: colors.primaryPressed },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    header: {
+      paddingTop: spacing.sm,
+      gap: spacing.lg,
+      marginBottom: spacing.md,
+    },
+    headingRow: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+    },
+    heading: { ...typography.h1, color: colors.text },
+    count: { ...typography.caption, color: colors.textMuted },
+    searchRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    searchFlex: { flex: 1 },
+    filterBtn: {
+      width: 48,
+      height: 48,
+      borderRadius: radius.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    filterBtnActive: { borderColor: colors.primary },
+    filterDot: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.primary,
+    },
+    segments: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
+    segment: { gap: spacing.sm },
+    segmentLabel: { ...typography.h3, color: colors.textMuted },
+    segmentLabelActive: { color: colors.text },
+    segmentBar: {
+      height: 3,
+      borderRadius: radius.pill,
+      backgroundColor: 'transparent',
+    },
+    segmentBarActive: { backgroundColor: colors.primary },
+    column: { gap: spacing.sm },
+    listContent: { flexGrow: 1 },
+    empty: { flex: 1, alignItems: 'center', paddingBottom: spacing.xxl },
+    emptyBtn: { paddingHorizontal: spacing.xxl },
+    fab: {
+      position: 'absolute',
+      right: spacing.lg,
+      width: 60,
+      height: 60,
+      borderRadius: radius.pill,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOpacity: 0.4,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 6,
+    },
+    fabPressed: { backgroundColor: colors.primaryPressed },
+  });

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { hasTag, splitTags, uniqueTags } from '../lib/tags';
-import { colors, radius, spacing, typography } from '../theme';
+import { radius, spacing, typography, type ThemeColors } from '../theme';
 import { Chip } from './ui/Chip';
+import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 interface TagInputProps {
   value: string[];
@@ -17,6 +18,8 @@ interface TagInputProps {
  * a chip; suggestions from the rest of the library sit underneath.
  */
 export function TagInput({ value, onChange, suggestions = [] }: TagInputProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { t } = useLanguage();
   const [draft, setDraft] = useState('');
   const [focused, setFocused] = useState(false);
@@ -80,36 +83,37 @@ export function TagInput({ value, onChange, suggestions = [] }: TagInputProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: { gap: spacing.sm },
-  field: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: spacing.sm,
-    minHeight: 52,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  fieldFocused: { borderColor: colors.primary },
-  input: {
-    flexGrow: 1,
-    minWidth: 120,
-    height: 34,
-    padding: 0,
-    color: colors.text,
-    ...typography.body,
-    fontSize: 16,
-  },
-  suggestions: { gap: spacing.xs },
-  suggestionsLabel: {
-    ...typography.tiny,
-    color: colors.textMuted,
-    marginLeft: spacing.xs,
-  },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    wrapper: { gap: spacing.sm },
+    field: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: spacing.sm,
+      minHeight: 52,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    fieldFocused: { borderColor: colors.primary },
+    input: {
+      flexGrow: 1,
+      minWidth: 120,
+      height: 34,
+      padding: 0,
+      color: colors.text,
+      ...typography.body,
+      fontSize: 16,
+    },
+    suggestions: { gap: spacing.xs },
+    suggestionsLabel: {
+      ...typography.tiny,
+      color: colors.textMuted,
+      marginLeft: spacing.xs,
+    },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  });

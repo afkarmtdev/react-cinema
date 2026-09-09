@@ -8,7 +8,8 @@ import {
   TextInputProps,
   View,
 } from 'react-native';
-import { colors, radius, spacing, typography } from '../../theme';
+import { radius, spacing, typography, type ThemeColors } from '../../theme';
+import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
 interface TextFieldProps extends TextInputProps {
   label: string;
@@ -24,6 +25,8 @@ export function TextField({
   style,
   ...props
 }: TextFieldProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(secure);
 
@@ -76,37 +79,42 @@ export function TextField({
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: { gap: spacing.xs },
-  label: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginLeft: spacing.xs,
-  },
-  field: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.lg,
-  },
-  fieldMultiline: { alignItems: 'flex-start' },
-  fieldFocused: { borderColor: colors.primary },
-  fieldError: { borderColor: colors.error },
-  input: {
-    flex: 1,
-    height: 52,
-    color: colors.text,
-    ...typography.body,
-    fontSize: 16,
-  },
-  inputMultiline: {
-    height: undefined,
-    minHeight: 100,
-    paddingVertical: spacing.md,
-    textAlignVertical: 'top',
-  },
-  error: { ...typography.caption, color: colors.error, marginLeft: spacing.xs },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    wrapper: { gap: spacing.xs },
+    label: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginLeft: spacing.xs,
+    },
+    field: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      paddingHorizontal: spacing.lg,
+    },
+    fieldMultiline: { alignItems: 'flex-start' },
+    fieldFocused: { borderColor: colors.primary },
+    fieldError: { borderColor: colors.error },
+    input: {
+      flex: 1,
+      height: 52,
+      color: colors.text,
+      ...typography.body,
+      fontSize: 16,
+    },
+    inputMultiline: {
+      height: undefined,
+      minHeight: 100,
+      paddingVertical: spacing.md,
+      textAlignVertical: 'top',
+    },
+    error: {
+      ...typography.caption,
+      color: colors.error,
+      marginLeft: spacing.xs,
+    },
+  });

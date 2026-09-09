@@ -14,12 +14,14 @@ import { TextField } from '../../components/ui/TextField';
 import { BrandHeader } from '../../components/BrandHeader';
 import { AuthError, useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { colors, spacing, typography } from '../../theme';
+import { spacing, typography, type ThemeColors } from '../../theme';
 import type { AuthStackParamList } from '../../navigation/types';
+import { useThemedStyles } from '../../context/ThemeContext';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Signup'>;
 
 export function SignupScreen({ navigation }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const { signup } = useAuth();
   const { t } = useLanguage();
   const [name, setName] = useState('');
@@ -104,13 +106,14 @@ export function SignupScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  content: { flexGrow: 1, paddingVertical: spacing.xl, gap: spacing.sm },
-  title: { ...typography.h1, color: colors.text, marginTop: spacing.lg },
-  subtitle: { ...typography.body, color: colors.textSecondary },
-  form: { gap: spacing.lg, marginTop: spacing.xl },
-  error: { ...typography.caption, color: colors.error },
-  footer: { marginTop: 'auto', alignItems: 'center' },
-  footerText: { ...typography.caption, color: colors.textSecondary },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    content: { flexGrow: 1, paddingVertical: spacing.xl, gap: spacing.sm },
+    title: { ...typography.h1, color: colors.text, marginTop: spacing.lg },
+    subtitle: { ...typography.body, color: colors.textSecondary },
+    form: { gap: spacing.lg, marginTop: spacing.xl },
+    error: { ...typography.caption, color: colors.error },
+    footer: { marginTop: 'auto', alignItems: 'center' },
+    footerText: { ...typography.caption, color: colors.textSecondary },
+  });

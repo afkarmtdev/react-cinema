@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Animated, StyleSheet, View, ViewStyle } from 'react-native';
-import { colors, radius, spacing } from '../../theme';
+import { radius, spacing, type ThemeColors } from '../../theme';
+import { useThemedStyles } from '../../context/ThemeContext';
 
 /** A single pulsing placeholder block. */
 export function Skeleton({ style }: { style?: ViewStyle }) {
+  const styles = useThemedStyles(makeStyles);
   // Created once with a lazy initializer so it survives re-renders.
   const [opacity] = useState(() => new Animated.Value(0.4));
 
@@ -31,6 +33,7 @@ export function Skeleton({ style }: { style?: ViewStyle }) {
 
 /** Skeleton matching the poster-grid card. */
 export function ItemCardSkeleton() {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.card}>
       <Skeleton style={styles.poster} />
@@ -40,10 +43,11 @@ export function ItemCardSkeleton() {
   );
 }
 
-const styles = StyleSheet.create({
-  block: { backgroundColor: colors.skeleton, borderRadius: radius.sm },
-  card: { flex: 1, margin: spacing.sm, gap: spacing.sm },
-  poster: { width: '100%', aspectRatio: 2 / 3, borderRadius: radius.md },
-  lineWide: { height: 12, width: '85%' },
-  lineNarrow: { height: 10, width: '55%' },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    block: { backgroundColor: colors.skeleton, borderRadius: radius.sm },
+    card: { flex: 1, margin: spacing.sm, gap: spacing.sm },
+    poster: { width: '100%', aspectRatio: 2 / 3, borderRadius: radius.md },
+    lineWide: { height: 12, width: '85%' },
+    lineNarrow: { height: 10, width: '55%' },
+  });

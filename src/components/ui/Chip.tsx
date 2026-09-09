@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { colors, radius, spacing, typography } from '../../theme';
+import { radius, spacing, typography, type ThemeColors } from '../../theme';
+import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
 interface ChipProps {
   label: string;
@@ -22,6 +23,8 @@ export function Chip({
   icon,
   style,
 }: ChipProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const color = active ? colors.primary : colors.textSecondary;
   const body = (
     <>
@@ -64,24 +67,25 @@ export function Chip({
   );
 }
 
-const styles = StyleSheet.create({
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 7,
-    borderRadius: radius.pill,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  chipActive: { borderColor: colors.primary },
-  pressed: { opacity: 0.8 },
-  label: {
-    ...typography.caption,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  labelActive: { color: colors.primary },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    chip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 7,
+      borderRadius: radius.pill,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    chipActive: { borderColor: colors.primary },
+    pressed: { opacity: 0.8 },
+    label: {
+      ...typography.caption,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    labelActive: { color: colors.primary },
+  });

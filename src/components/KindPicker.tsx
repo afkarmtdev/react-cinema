@@ -2,8 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { KIND_ICON, kindKey } from '../lib/labels';
-import { colors, radius, spacing, typography } from '../theme';
+import { radius, spacing, typography, type ThemeColors } from '../theme';
 import { ITEM_KINDS, type ItemKind } from '../types/library';
+import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 interface KindPickerProps {
   value: ItemKind;
@@ -12,6 +13,8 @@ interface KindPickerProps {
 
 /** Three-way selector for film, series, or book. */
 export function KindPicker({ value, onChange }: KindPickerProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { t } = useLanguage();
   return (
     <View style={styles.row}>
@@ -40,19 +43,20 @@ export function KindPicker({ value, onChange }: KindPickerProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: spacing.md },
-  option: {
-    flex: 1,
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  optionActive: { borderColor: colors.primary },
-  label: { ...typography.bodyStrong, color: colors.textSecondary },
-  labelActive: { color: colors.primary },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    row: { flexDirection: 'row', gap: spacing.md },
+    option: {
+      flex: 1,
+      alignItems: 'center',
+      gap: spacing.xs,
+      paddingVertical: spacing.md,
+      borderRadius: radius.md,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    optionActive: { borderColor: colors.primary },
+    label: { ...typography.bodyStrong, color: colors.textSecondary },
+    labelActive: { color: colors.primary },
+  });

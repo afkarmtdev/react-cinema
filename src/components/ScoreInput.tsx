@@ -9,8 +9,9 @@ import {
   formatScore,
   splitScore,
 } from '../lib/score';
-import { colors, radius, spacing, typography } from '../theme';
+import { radius, spacing, typography, type ThemeColors } from '../theme';
 import { Button } from './ui/Button';
+import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 interface ScoreInputProps {
   /** 1.0 to 10.0, or 0 when nothing has been scored yet. */
@@ -26,6 +27,8 @@ const TENTHS = Array.from({ length: 10 }, (_, i) => i);
  * the result shown large. Tapping 10 asks for a confession first.
  */
 export function ScoreInput({ value, onChange }: ScoreInputProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { t } = useLanguage();
   const [askingAboutTen, setAskingAboutTen] = useState(false);
   const hasScore = value >= 1;
@@ -153,66 +156,67 @@ export function ScoreInput({ value, onChange }: ScoreInputProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { gap: spacing.sm },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-  },
-  big: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: colors.star,
-    fontVariant: ['tabular-nums'],
-  },
-  outOf: { ...typography.body, color: colors.textMuted, fontWeight: '500' },
-  clear: { ...typography.caption, color: colors.textMuted },
-  row: { flexDirection: 'row', gap: 4 },
-  cell: {
-    flex: 1,
-    height: 38,
-    borderRadius: radius.sm,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cellTenth: { height: 32 },
-  cellActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.surfaceAlt,
-  },
-  cellTen: { borderStyle: 'dashed' },
-  cellDisabled: { opacity: 0.35 },
-  cellText: {
-    ...typography.caption,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    fontVariant: ['tabular-nums'],
-  },
-  cellTextActive: { color: colors.primary },
-  warning: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    padding: spacing.md,
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  warningHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  warningTitle: { ...typography.bodyStrong, color: colors.text, flex: 1 },
-  warningBody: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    lineHeight: 19,
-  },
-  warningActions: { flexDirection: 'row', gap: spacing.sm },
-  warningBtn: { flex: 1, height: 42 },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { gap: spacing.sm },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+    },
+    big: {
+      fontSize: 34,
+      fontWeight: '800',
+      color: colors.star,
+      fontVariant: ['tabular-nums'],
+    },
+    outOf: { ...typography.body, color: colors.textMuted, fontWeight: '500' },
+    clear: { ...typography.caption, color: colors.textMuted },
+    row: { flexDirection: 'row', gap: 4 },
+    cell: {
+      flex: 1,
+      height: 38,
+      borderRadius: radius.sm,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cellTenth: { height: 32 },
+    cellActive: {
+      borderColor: colors.primary,
+      backgroundColor: colors.surfaceAlt,
+    },
+    cellTen: { borderStyle: 'dashed' },
+    cellDisabled: { opacity: 0.35 },
+    cellText: {
+      ...typography.caption,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      fontVariant: ['tabular-nums'],
+    },
+    cellTextActive: { color: colors.primary },
+    warning: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      borderWidth: 1.5,
+      borderColor: colors.primary,
+      padding: spacing.md,
+      gap: spacing.sm,
+      marginTop: spacing.xs,
+    },
+    warningHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    warningTitle: { ...typography.bodyStrong, color: colors.text, flex: 1 },
+    warningBody: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      lineHeight: 19,
+    },
+    warningActions: { flexDirection: 'row', gap: spacing.sm },
+    warningBtn: { flex: 1, height: 42 },
+  });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { colors, radius, spacing, typography } from '../theme';
+import { radius, spacing, typography, type ThemeColors } from '../theme';
+import { useThemedStyles } from '../context/ThemeContext';
 
 interface BrandHeaderProps {
   /** Optional content rendered on the right (e.g. a coins badge). */
@@ -15,6 +16,7 @@ export function BrandHeader({
   align = 'center',
   style,
 }: BrandHeaderProps) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View
       style={[
@@ -34,28 +36,29 @@ export function BrandHeader({
   );
 }
 
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', width: '100%' },
-  center: { justifyContent: 'center' },
-  left: { justifyContent: 'space-between' },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  logo: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-    borderRadius: radius.sm,
-    transform: [{ skewX: '-8deg' }],
-  },
-  logoText: {
-    fontSize: 24,
-    fontWeight: '900',
-    fontStyle: 'italic',
-    color: colors.onPrimary,
-  },
-  tag: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    letterSpacing: 3,
-    fontWeight: '700',
-  },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    row: { flexDirection: 'row', alignItems: 'center', width: '100%' },
+    center: { justifyContent: 'center' },
+    left: { justifyContent: 'space-between' },
+    brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    logo: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: radius.sm,
+      transform: [{ skewX: '-8deg' }],
+    },
+    logoText: {
+      fontSize: 24,
+      fontWeight: '900',
+      fontStyle: 'italic',
+      color: colors.onPrimary,
+    },
+    tag: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      letterSpacing: 3,
+      fontWeight: '700',
+    },
+  });

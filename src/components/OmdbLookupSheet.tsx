@@ -16,10 +16,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fetchMovieById, fetchMovies } from '../api/movies';
 import { useLanguage } from '../context/LanguageContext';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
-import { colors, radius, spacing, typography } from '../theme';
+import { radius, spacing, typography, type ThemeColors } from '../theme';
 import type { ItemKind } from '../types/library';
 import type { Movie } from '../types/movie';
 import { SearchBar } from './SearchBar';
+import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 interface OmdbLookupSheetProps {
   visible: boolean;
@@ -39,6 +40,8 @@ export function OmdbLookupSheet({
   onPick,
   onClose,
 }: OmdbLookupSheetProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
@@ -180,64 +183,65 @@ export function OmdbLookupSheet({
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.overlay,
-  },
-  sheet: {
-    height: '75%',
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.lg,
-    gap: spacing.md,
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    borderRadius: radius.pill,
-    backgroundColor: colors.border,
-    alignSelf: 'center',
-  },
-  title: { ...typography.h2, color: colors.text },
-  hint: { ...typography.caption, color: colors.textSecondary },
-  list: { flex: 1 },
-  gap: { height: spacing.sm },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.background,
-    borderRadius: radius.md,
-    padding: spacing.md,
-  },
-  pressed: { opacity: 0.8 },
-  thumb: {
-    width: 40,
-    height: 60,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surfaceAlt,
-  },
-  thumbFallback: { alignItems: 'center', justifyContent: 'center' },
-  info: { flex: 1, gap: 2 },
-  rowTitle: { ...typography.bodyStrong, color: colors.text },
-  rowMeta: { ...typography.caption, color: colors.textSecondary },
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-    gap: spacing.sm,
-  },
-  muted: { ...typography.caption, color: colors.textMuted },
-  error: {
-    ...typography.caption,
-    color: colors.error,
-    textAlign: 'center',
-  },
-});
+const makeStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    root: { flex: 1, justifyContent: 'flex-end' },
+    backdrop: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.overlay,
+    },
+    sheet: {
+      height: '75%',
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.lg,
+      gap: spacing.md,
+    },
+    handle: {
+      width: 40,
+      height: 4,
+      borderRadius: radius.pill,
+      backgroundColor: colors.border,
+      alignSelf: 'center',
+    },
+    title: { ...typography.h2, color: colors.text },
+    hint: { ...typography.caption, color: colors.textSecondary },
+    list: { flex: 1 },
+    gap: { height: spacing.sm },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      backgroundColor: colors.background,
+      borderRadius: radius.md,
+      padding: spacing.md,
+    },
+    pressed: { opacity: 0.8 },
+    thumb: {
+      width: 40,
+      height: 60,
+      borderRadius: radius.sm,
+      backgroundColor: colors.surfaceAlt,
+    },
+    thumbFallback: { alignItems: 'center', justifyContent: 'center' },
+    info: { flex: 1, gap: 2 },
+    rowTitle: { ...typography.bodyStrong, color: colors.text },
+    rowMeta: { ...typography.caption, color: colors.textSecondary },
+    center: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.xl,
+      gap: spacing.sm,
+    },
+    muted: { ...typography.caption, color: colors.textMuted },
+    error: {
+      ...typography.caption,
+      color: colors.error,
+      textAlign: 'center',
+    },
+  });
