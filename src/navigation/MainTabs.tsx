@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { MoviesStack } from './MoviesStack';
-import { ReviewsScreen } from '../screens/ReviewsScreen';
+import { LibraryStack } from './LibraryStack';
+import { DiaryScreen } from '../screens/DiaryScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { useLanguage } from '../context/LanguageContext';
 import { colors, typography } from '../theme';
@@ -10,8 +10,8 @@ import type { TabParamList } from './types';
 const Tab = createBottomTabNavigator<TabParamList>();
 
 const ICONS: Record<keyof TabParamList, keyof typeof Ionicons.glyphMap> = {
-  MoviesTab: 'film',
-  ReviewsTab: 'star',
+  LibraryTab: 'albums',
+  DiaryTab: 'calendar',
   ProfileTab: 'person',
 };
 
@@ -37,14 +37,14 @@ export function MainTabs() {
       })}
     >
       <Tab.Screen
-        name="MoviesTab"
-        component={MoviesStack}
-        options={{ title: t('moviesTab') }}
+        name="LibraryTab"
+        component={LibraryStack}
+        options={{ title: t('libraryTab') }}
       />
       <Tab.Screen
-        name="ReviewsTab"
-        component={ReviewsScreen}
-        options={{ title: t('reviewsTab') }}
+        name="DiaryTab"
+        component={DiaryScreen}
+        options={{ title: t('diaryTab') }}
       />
       <Tab.Screen
         name="ProfileTab"

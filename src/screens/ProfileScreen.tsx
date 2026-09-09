@@ -4,20 +4,38 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/ui/Screen';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
-import { useReviews } from '../context/ReviewsContext';
+import { useLibrary } from '../context/LibraryContext';
 import { useLanguage } from '../context/LanguageContext';
+import { pocketbaseUrl } from '../lib/backend';
+import { KIND_ICON } from '../lib/labels';
+import { formatScore } from '../lib/score';
 import { colors, radius, spacing, typography } from '../theme';
+import type { ItemKind } from '../types/library';
 
 export function ProfileScreen() {
   const { user, logout } = useAuth();
-  const { myReviews } = useReviews();
+  const { items } = useLibrary();
   const { t, language, setLanguage } = useLanguage();
 
-  const averageGiven = useMemo(() => {
-    if (myReviews.length === 0) return 'N/A';
-    const sum = myReviews.reduce((acc, r) => acc + r.rating, 0);
-    return (sum / myReviews.length).toFixed(1);
-  }, [myReviews]);
+  const stats = useMemo(() => {
+    const done = items.filter((item) => item.status === 'done');
+    const rated = items.filter((item) => typeof item.rating === 'number');
+    const count = (kind: ItemKind) =>
+      String(done.filter((item) => item.kind === kind).length);
+    const avg =
+      rated.length === 0
+        ? 'N/A'
+        : formatScore(
+            rated.reduce((acc, item) => acc + (item.rating ?? 0), 0) /
+              rated.length,
+          );
+    return {
+      films: count('film'),
+      series: count('series'),
+      books: count('book'),
+      avg,
+    };
+  }, [items]);
 
   if (!user) return null;
 
@@ -37,11 +55,21 @@ export function ProfileScreen() {
 
       <View style={styles.stats}>
         <Stat
-          icon="albums-outline"
-          value={String(myReviews.length)}
-          label={t('reviewsStat')}
+          icon={KIND_ICON.film}
+          value={stats.films}
+          label={t('filmsWatched')}
         />
-        <Stat icon="star" value={averageGiven} label={t('avgRating')} />
+        <Stat
+          icon={KIND_ICON.series}
+          value={stats.series}
+          label={t('seriesWatched')}
+        />
+        <Stat
+          icon={KIND_ICON.book}
+          value={stats.books}
+          label={t('booksRead')}
+        />
+        <Stat icon="star" value={stats.avg} label={t('avgRating')} />
       </View>
 
       <View style={styles.languageBlock}>
@@ -57,6 +85,24 @@ export function ProfileScreen() {
             active={language === 'ms'}
             onPress={() => setLanguage('ms')}
           />
+        </View>
+      </View>
+
+      <View style={styles.storageBlock}>
+        <Text style={styles.languageLabel}>{t('storage')}</Text>
+        <View style={styles.storageRow}>
+          <Ionicons
+            name={
+              pocketbaseUrl ? 'cloud-done-outline' : 'phone-portrait-outline'
+            }
+            size={18}
+            color={colors.textSecondary}
+          />
+          <Text style={styles.storageText}>
+            {pocketbaseUrl
+              ? t('storageCloud', { url: pocketbaseUrl })
+              : t('storageLocal')}
+          </Text>
         </View>
       </View>
 
@@ -139,7 +185,7 @@ const styles = StyleSheet.create({
   avatarText: { fontSize: 34, fontWeight: '800', color: colors.onPrimary },
   name: { ...typography.h2, color: colors.text },
   email: { ...typography.body, color: colors.textSecondary },
-  stats: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg },
+  stats: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
   stat: {
     flex: 1,
     alignItems: 'center',
@@ -169,5 +215,15 @@ const styles = StyleSheet.create({
   langOptionActive: { borderColor: colors.primary },
   langText: { ...typography.bodyStrong, color: colors.textSecondary },
   langTextActive: { color: colors.primary },
+  storageBlock: { marginTop: spacing.xl, gap: spacing.sm },
+  storageRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  storageText: { ...typography.caption, color: colors.textSecondary, flex: 1 },
   spacer: { flex: 1 },
 });

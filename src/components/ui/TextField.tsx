@@ -33,6 +33,7 @@ export function TextField({
       <View
         style={[
           styles.field,
+          props.multiline && styles.fieldMultiline,
           focused && styles.fieldFocused,
           !!error && styles.fieldError,
         ]}
@@ -49,7 +50,11 @@ export function TextField({
             setFocused(false);
             props.onBlur?.(e);
           }}
-          style={[styles.input, style]}
+          style={[
+            styles.input,
+            props.multiline && styles.inputMultiline,
+            style,
+          ]}
         />
         {secure && (
           <Pressable
@@ -87,6 +92,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     paddingHorizontal: spacing.lg,
   },
+  fieldMultiline: { alignItems: 'flex-start' },
   fieldFocused: { borderColor: colors.primary },
   fieldError: { borderColor: colors.error },
   input: {
@@ -95,6 +101,12 @@ const styles = StyleSheet.create({
     color: colors.text,
     ...typography.body,
     fontSize: 16,
+  },
+  inputMultiline: {
+    height: undefined,
+    minHeight: 100,
+    paddingVertical: spacing.md,
+    textAlignVertical: 'top',
   },
   error: { ...typography.caption, color: colors.error, marginLeft: spacing.xs },
 });

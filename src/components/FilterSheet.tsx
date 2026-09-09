@@ -1,53 +1,65 @@
 import { useEffect, useState } from 'react';
 import {
-  Keyboard,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, spacing, typography } from '../theme';
-import { Button } from './ui/Button';
 import { useLanguage } from '../context/LanguageContext';
-import type { MovieFilters } from '../api/movies';
+import { STATUS_ICON, statusKey } from '../lib/labels';
+import { hasTag } from '../lib/tags';
+import { colors, radius, spacing, typography } from '../theme';
+import { ITEM_STATUSES, type ItemStatus } from '../types/library';
+import { Button } from './ui/Button';
+import { Chip } from './ui/Chip';
+
+export interface LibraryFilters {
+  status?: ItemStatus;
+  /** An entry must carry every selected tag. */
+  tags: string[];
+}
+
+export const EMPTY_FILTERS: LibraryFilters = { tags: [] };
+
+export const hasActiveFilters = (f: LibraryFilters) =>
+  !!f.status || f.tags.length > 0;
 
 interface FilterSheetProps {
   visible: boolean;
-  filters: MovieFilters;
-  onApply: (filters: MovieFilters) => void;
+  filters: LibraryFilters;
+  /** Every tag in the library, offered as toggles. */
+  availableTags: string[];
+  onApply: (filters: LibraryFilters) => void;
   onClose: () => void;
 }
 
+/** Bottom sheet to narrow the library by status and tags. */
 export function FilterSheet({
   visible,
   filters,
+  availableTags,
   onApply,
   onClose,
 }: FilterSheetProps) {
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
-  const [year, setYear] = useState(filters.year ?? '');
-  const [type, setType] = useState<MovieFilters['type']>(filters.type);
+  const [draft, setDraft] = useState<LibraryFilters>(filters);
 
   // Sync the draft with the active filters whenever the sheet opens.
   useEffect(() => {
-    if (visible) {
-      setYear(filters.year ?? '');
-      setType(filters.type);
-    }
+    if (visible) setDraft(filters);
   }, [visible, filters]);
 
-  const apply = () => onApply({ year: year.trim() || undefined, type });
-  const clear = () => {
-    setYear('');
-    setType(undefined);
-    onApply({});
-  };
+  const toggleTag = (tag: string) =>
+    setDraft((d) => ({
+      ...d,
+      tags: hasTag(d.tags, tag)
+        ? d.tags.filter((x) => x.toLowerCase() !== tag.toLowerCase())
+        : [...d.tags, tag],
+    }));
 
   return (
     <Modal
@@ -56,86 +68,70 @@ export function FilterSheet({
       animationType="slide"
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView
-        style={styles.root}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      <View style={styles.root}>
         <Pressable style={styles.backdrop} onPress={onClose} />
-        <Pressable
-          onPress={Keyboard.dismiss}
+        <View
           style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}
         >
           <View style={styles.handle} />
           <Text style={styles.title}>{t('filters')}</Text>
 
-          <Text style={styles.label}>{t('filterYear')}</Text>
-          <TextInput
-            value={year}
-            onChangeText={(v) => setYear(v.replace(/[^0-9]/g, '').slice(0, 4))}
-            placeholder={t('filterYearHint')}
-            placeholderTextColor={colors.textMuted}
-            keyboardType="number-pad"
-            returnKeyType="done"
-            onSubmitEditing={Keyboard.dismiss}
-            style={styles.input}
-          />
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Text style={styles.label}>{t('filterStatus')}</Text>
+            <View style={styles.chips}>
+              <Chip
+                label={t('filterAll')}
+                active={!draft.status}
+                onPress={() => setDraft((d) => ({ ...d, status: undefined }))}
+              />
+              {ITEM_STATUSES.map((status) => (
+                <Chip
+                  key={status}
+                  label={t(statusKey(status))}
+                  icon={STATUS_ICON[status]}
+                  active={draft.status === status}
+                  onPress={() => setDraft((d) => ({ ...d, status }))}
+                />
+              ))}
+            </View>
 
-          <Text style={styles.label}>{t('filterType')}</Text>
-          <View style={styles.typeRow}>
-            <TypeOption
-              label={t('filterAll')}
-              active={type === undefined}
-              onPress={() => setType(undefined)}
-            />
-            <TypeOption
-              label={t('filterMovie')}
-              active={type === 'movie'}
-              onPress={() => setType('movie')}
-            />
-            <TypeOption
-              label={t('filterSeries')}
-              active={type === 'series'}
-              onPress={() => setType('series')}
-            />
-          </View>
+            <Text style={styles.label}>{t('filterTags')}</Text>
+            {availableTags.length === 0 ? (
+              <Text style={styles.muted}>{t('noTagsYet')}</Text>
+            ) : (
+              <View style={styles.chips}>
+                {availableTags.map((tag) => (
+                  <Chip
+                    key={tag}
+                    label={tag}
+                    active={hasTag(draft.tags, tag)}
+                    onPress={() => toggleTag(tag)}
+                  />
+                ))}
+              </View>
+            )}
+          </ScrollView>
 
           <View style={styles.actions}>
             <Button
               label={t('clearFilters')}
               variant="outline"
-              onPress={clear}
+              onPress={() => onApply(EMPTY_FILTERS)}
               style={styles.actionBtn}
             />
             <Button
               label={t('apply')}
-              onPress={apply}
+              onPress={() => onApply(draft)}
               style={styles.actionBtn}
             />
           </View>
-        </Pressable>
-      </KeyboardAvoidingView>
+        </View>
+      </View>
     </Modal>
-  );
-}
-
-function TypeOption({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[styles.typeOption, active && styles.typeOptionActive]}
-    >
-      <Text style={[styles.typeText, active && styles.typeTextActive]}>
-        {label}
-      </Text>
-    </Pressable>
   );
 }
 
@@ -150,6 +146,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.overlay,
   },
   sheet: {
+    maxHeight: '80%',
     backgroundColor: colors.surface,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
@@ -164,36 +161,16 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: spacing.sm,
   },
-  title: { ...typography.h2, color: colors.text, marginBottom: spacing.sm },
+  title: { ...typography.h2, color: colors.text },
+  scroll: { flexGrow: 0 },
+  scrollContent: { gap: spacing.sm, paddingBottom: spacing.sm },
   label: {
     ...typography.caption,
     color: colors.textSecondary,
     marginTop: spacing.sm,
   },
-  input: {
-    height: 50,
-    backgroundColor: colors.background,
-    borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.lg,
-    color: colors.text,
-    ...typography.body,
-    fontSize: 16,
-  },
-  typeRow: { flexDirection: 'row', gap: spacing.md },
-  typeOption: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
-  },
-  typeOptionActive: { borderColor: colors.primary },
-  typeText: { ...typography.bodyStrong, color: colors.textSecondary },
-  typeTextActive: { color: colors.primary },
-  actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  muted: { ...typography.caption, color: colors.textMuted },
+  actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
   actionBtn: { flex: 1 },
 });

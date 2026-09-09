@@ -2,54 +2,62 @@
 
 > **Cine·React** &nbsp; /ˌsɪn.iˈrækt/ &nbsp; _noun_ &nbsp;·&nbsp; a blend of **ciné** (cinema) + **react**
 >
-> 1. A React Native app for browsing, searching, and reviewing movies.
-> 2. _to react_: to respond to a film with a star rating and a few honest words.
+> 1. A React Native app for keeping a diary of the films, series, and books you get through.
+> 2. _to react_: to respond to something with a score out of ten and a few honest words.
 >
 > _Built with React · powered by your reactions._
 
-CineReact is a small movie-review app built with React Native (Expo +
-TypeScript). You can browse and search movies, open any of them to read the
-details, and, once you're signed in, leave a star rating and a short review.
+CineReact is a small Letterboxd-style tracker built with React Native (Expo +
+TypeScript). It keeps a personal library of films, series, and books: what you
+want to get to, what you are in the middle of, and what you have finished, with
+a rating, your notes, tags, and the director or author on each entry. Finished
+entries roll into a diary grouped by month.
 
-It started as two separate take-home briefs: one for listing and searching
-movies from an API, and one for a login/signup flow built on React's Context
-API. I merged them into a single app and added the reviews feature so that
-signing in actually does something. The look is borrowed from the Golden Screen
-Cinemas (GSC) app: a dark background with yellow accents.
+There is no catalogue API behind it. You type entries in yourself (title,
+year, who made it, a cover image link, a description) so it works just as well
+for a novel as for a film. If you have a free OMDb key, the add form can look a
+film or series up and prefill those fields for you, but it is optional.
+
+It started as two separate take-home briefs (a movie list fed by an API, and a
+login flow built on React's Context API), then grew into this. The look is
+borrowed from the Golden Screen Cinemas (GSC) app: a dark background with
+yellow accents.
 
 ## What it does
 
 **Accounts.** Sign up, log in, and log out, all handled by a single
-`AuthContext`. The forms validate the way you'd expect: no empty fields, a valid
-email, a password of at least six characters, no duplicate accounts, and the
-right credentials to log in. When something's off, you get a clear message
-instead of a silent failure. The password field has a show/hide toggle, and your
-session is saved on the device, so you stay logged in after closing the app.
-While that saved session loads at startup, there's a short branded splash screen.
+`AuthContext`. The forms validate the way you'd expect: no empty fields, a
+valid email, a password of at least six characters, no duplicate accounts, and
+the right credentials to log in. Your session is saved on the device, so you
+stay logged in after closing the app, and each account has its own library.
 
-**Movies.** The home screen pulls a movie list from OMDb and lays it out as a
-poster grid that pages in more as you scroll (OMDb returns 10 per page, and the
-list requests the next page when you near the bottom). Each card shows the title
-and year (OMDb's search
-results are lightweight, so the rating and director come from the detail screen).
-The search box filters by title and updates as you type, and the filter button
-next to it opens a sheet to narrow results by year or type (movie/series), which
-map to OMDb's own `y=` and `type=` parameters. Two tabs above the grid, Now
-Showing and Advance Sales, reorder the list (top-rated first, or newest first),
-and a small info button explains the difference. Tapping a movie opens a detail
-screen with the rating, director, synopsis, cast, and runtime. Anywhere the app
-fetches data it handles the three states you'd want: a loading placeholder, an
-error state with a retry button, and an empty state.
+**Library.** The home tab is a poster grid of everything you have added. Tabs
+along the top split it into films, series, and books; the search box matches
+titles, directors, authors, years, and tags as you type; and the filter button
+narrows by status (want to, in progress, finished) or by any combination of
+your tags. A yellow button in the corner adds a new entry.
 
-**Reviews.** This is the part that ties the two halves together. A signed-in user
-can rate a movie one to five stars and write a short review. Everyone gets one
-review per movie, which they can edit or delete later. The detail screen shows
-the average rating alongside everyone's reviews, and the "My Reviews" tab gathers
-yours in one place.
+**Entries.** Every entry has a type, a title, a year, a director or author, a
+cover image link (with a live preview), a description, tags, a status, a
+score from 1.0 to 10.0 with one decimal, and free-text notes. The status wording follows the
+type: watchlist, watching, watched for films and series; to read, reading, read
+for books. Tags are free text and the form suggests ones you have used before.
+The detail screen shows all of it and lets you change the status or rating in
+place. When you mark something finished, the date is recorded.
 
-**Two languages.** The whole interface is available in English (the default) and
-Bahasa Melayu, switchable from the profile tab. Your choice is remembered between
-launches.
+**Scores, not stars.** Ratings run from 1.0 to 10.0 in tenths, pizza-review
+style, picked from a whole-number row and a tenths row. Tapping 10 brings up a
+warning: a 10 means you have found the one, which is impossible, so the app
+offers 9.9 instead. There is one exception, and the button for it says so.
+Old five-star reviews from the previous version are mapped onto the new
+scale, with five stars landing on 9.9.
+
+**Diary.** The second tab lists everything you have finished, newest first,
+grouped by month, with the day, your score, and a snippet of your notes.
+
+**Two languages.** The whole interface is available in English (the default)
+and Bahasa Melayu, switchable from the profile tab, which also shows how many
+films, series, and books you have finished and your average rating.
 
 ## Tech stack
 
@@ -59,29 +67,35 @@ launches.
 | Navigation  | React Navigation 7 (native-stack + bottom-tabs)                               |
 | State       | React Context API + hooks (`useState`, `useEffect`, `useMemo`, `useCallback`) |
 | i18n        | A small `LanguageContext` + `t()` dictionary (English / Malay)                |
-| Persistence | `@react-native-async-storage/async-storage`                                   |
+| Persistence | PocketBase (`pocketbase` SDK) or AsyncStorage, behind one store interface     |
 | Testing     | Jest + `jest-expo` + React Native Testing Library                             |
 | Icons       | `@expo/vector-icons` (Ionicons)                                               |
-| Networking  | `fetch`, with a guard that ignores out-of-date search responses               |
+| Lookup      | `fetch` against OMDb, only when a key is configured                           |
 
 ## Project structure
 
 ```
 src/
-├─ api/            movies.ts (fetch the list, search, and a single movie)
+├─ api/            movies.ts (optional OMDb search and detail, for prefill)
 ├─ components/
-│  ├─ ui/          Button, TextField, Screen, StarRating, Skeleton, StateViews
-│  ├─ BrandHeader, SearchBar, MovieCard, ReviewItem, ReviewComposer
-├─ context/        AuthContext, ReviewsContext, LanguageContext
-│  └─ __tests__/   tests for the auth and reviews contexts
+│  ├─ ui/          Button, TextField, Chip, Screen, StarRating, Skeleton, StateViews
+│  ├─ BrandHeader, SearchBar, ItemCard, KindPicker, StatusPicker, TagInput,
+│  │  FilterSheet, OmdbLookupSheet
+├─ context/        AuthContext, LibraryContext, LanguageContext
+│  └─ __tests__/   tests for the auth and library contexts
 ├─ i18n/           translations.ts (English / Malay dictionaries)
-├─ hooks/          useMovies, useMovieDetail, useDebouncedValue
-├─ lib/            storage (AsyncStorage wrapper), validation
-├─ navigation/     RootNavigator, AuthStack, MainTabs, MoviesStack, types
-├─ screens/        SplashScreen, auth/(Login, Signup), movies/(List, Detail),
-│                  ReviewsScreen, ProfileScreen
+├─ hooks/          useDebouncedValue
+├─ lib/            backend (picks PocketBase or local), auth, libraryStore,
+│                  pocketbase, storage, tags, labels, validation
+├─ navigation/     RootNavigator, AuthStack, MainTabs, LibraryStack, types
+├─ screens/        SplashScreen, auth/(Login, Signup),
+│                  library/(Library, ItemDetail, ItemForm), DiaryScreen,
+│                  ProfileScreen
 ├─ theme/          colours, spacing, and type tokens
-└─ types/          movie.ts
+└─ types/          library.ts (the entry model), movie.ts (OMDb shape)
+pocketbase/
+├─ pb_migrations/  creates the entries collection with per-user access rules
+└─ README.md       how to run the server and point the app at it
 ```
 
 ## Getting started
@@ -93,13 +107,14 @@ runs the latest SDK, and this project is on SDK 54. Pick SDK 54 from the
 version selector at https://expo.dev/go to get a build that opens it, or use
 the web target below.
 
-The app reads movie data from OMDb, which needs a free API key. Grab one (1,000
-requests/day) at https://www.omdbapi.com/apikey.aspx, then put it in a `.env`
-file:
+Copy `.env.example` to `.env`. Both values in it are optional:
 
 ```bash
 cp .env.example .env
-# open .env and set EXPO_PUBLIC_OMDB_API_KEY=your_key
+# EXPO_PUBLIC_POCKETBASE_URL: your PocketBase server, for sync across devices
+#   (see pocketbase/README.md). Leave empty to keep everything on the device.
+# EXPO_PUBLIC_OMDB_API_KEY: enables the OMDb lookup in the add form. Free at
+#   https://www.omdbapi.com/apikey.aspx (1,000 requests/day).
 ```
 
 Then install and run:
@@ -149,48 +164,68 @@ supply-chain attacks, this project is careful about what it pulls in:
 - The project stays on Expo SDK 54 deliberately. Upgrading the SDK is a
   separate job, not something to do while fixing a bug.
 
-## How the API calls work
+## Where the data lives
 
-The data comes from the OMDb API over https:
+There are two modes, picked at startup by whether `EXPO_PUBLIC_POCKETBASE_URL`
+is set in `.env`.
 
-| Use    | Request                                |
-| ------ | -------------------------------------- |
-| Search | `GET ?apikey=KEY&type=movie&s=<query>` |
-| Detail | `GET ?apikey=KEY&i=<imdbID>&plot=full` |
+**PocketBase (sync across devices).** Accounts live in PocketBase's `users`
+collection and the library in an `entries` collection, so signing in on
+another phone shows the same library. PocketBase is a single binary with
+SQLite inside. Setup takes a few minutes and is written up in
+[pocketbase/README.md](pocketbase/README.md): download the binary, run it,
+let the included migration create the collection, and put the server's LAN
+address in `.env`. The session token is cached on the device so the app
+opens straight into your library, and if the server is unreachable you stay
+signed in and see an error with a retry.
 
-A few things worth knowing about OMDb:
+**On the device (no server).** Without the URL everything stays in
+AsyncStorage: accounts, the session, the language choice, and the library as
+one JSON array of entries tagged with the owning account's id. The first time
+this version runs on a device that had the old OMDb-only app, any reviews it
+finds are carried over as "watched" film entries.
 
-- It only searches by a term, so the home screen seeds the list with a default
-  query when the search box is empty.
-- Search results are lightweight (title, year, poster, imdb id). The **rating,
-  director, cast, and plot come from the detail endpoint**, so they show on the
-  movie's detail screen rather than on the list cards. The id is OMDb's
-  `imdbID`, which is why movie ids are strings.
+Either way `LibraryContext` and `AuthContext` do not know which mode is on.
+`src/lib/backend.ts` picks a `LibraryStore` (list, create, update, remove)
+and an `AuthBackend` (restore, signup, login, logout); the local versions are
+in `libraryStore.ts` and `auth.ts`, the server versions in `pocketbase.ts`.
 
-Search is debounced so it isn't firing on every keystroke. Because a few
-requests can be in flight at once when you type quickly, the hook ignores any
-response that's no longer the most recent one, so the list never flickers back to
-stale results. The request layer also has a timeout, so a hung connection fails
-into the error state instead of loading forever.
+## The optional OMDb lookup
+
+When a key is present, the add form for a film or series shows a "Fill from
+OMDb" button. It opens a search sheet; picking a result fetches the full
+record and fills in the title, year, director, plot, poster, and genre tags.
+Everything stays editable afterwards. The requests are:
+
+| Use    | Request                                 |
+| ------ | --------------------------------------- |
+| Search | `GET ?apikey=KEY&type=<type>&s=<query>` |
+| Detail | `GET ?apikey=KEY&i=<imdbID>&plot=full`  |
+
+Search is debounced, and the request layer has a timeout, so a hung
+connection fails into an error message instead of loading forever.
 
 ## A note on the authentication
 
-There's no backend. Accounts and sessions are kept on the device with
-AsyncStorage purely to show the Context-API auth flow working end to end.
-Passwords aren't hashed and never leave the phone, so please don't reuse a real
-one.
+In device-only mode there is no backend: accounts and sessions are kept in
+AsyncStorage purely to show the Context-API auth flow working end to end, and
+passwords are not hashed, so do not reuse a real one. With PocketBase the
+password goes to your own server, which hashes it; use https before exposing
+that server beyond your Wi-Fi.
 
 ## Tests
 
-`npm test` runs 29 tests across five files:
+`npm test` runs 48 tests across seven files:
 
-| File                     | What it checks                                                                      |
-| ------------------------ | ----------------------------------------------------------------------------------- |
-| `lib/validation`         | the email and password rules                                                        |
-| `api/movies`             | the URL it builds (search, filters, page), odd responses, and errors                |
-| `hooks/useMovies`        | filter changes replace the list, a failed change clears it, stale pages are dropped |
-| `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password              |
-| `context/ReviewsContext` | creating, updating (not duplicating), and deleting a review                         |
+| File                     | What it checks                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------ |
+| `lib/validation`         | the email and password rules                                                         |
+| `lib/tags`               | trimming, case-insensitive dedupe, and splitting comma-separated input               |
+| `lib/score`              | clamping to one decimal, formatting, splitting for the picker, stars to score        |
+| `api/movies`             | the URL it builds (search, filters, page), odd responses, and errors                 |
+| `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)    |
+| `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password               |
+| `context/LibraryContext` | add, validate, update, finish dates, remove, tag ordering, per-user split, migration |
 
 One thing to know if you touch the test setup: `jest-expo@54` targets the Jest 29
 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the runner.
@@ -198,30 +233,7 @@ AsyncStorage is swapped for a small in-memory mock in `jest.setup.js`.
 
 ## Screenshots
 
-A mockup of the main screens lives in [preview/screens.png](preview/screens.png)
-(rendered from `preview/mock.html`). It's a design reference, not a live capture.
-I'll swap in real Expo Go screenshots (or a short screen recording) of the flow:
-splash, login/signup, the movie list and search, a detail screen with a review,
-My Reviews, and the profile/logout.
-
-## What the briefs asked for
-
-Movie app:
-
-- [x] Movie list with `FlatList` + infinite scroll (paginated)
-- [x] Title, year, and director on each item
-- [x] Search by title, updating live
-- [x] Filter results by year and type (movie/series)
-- [x] Detail screen for the selected movie
-- [x] Loading, error, and empty states
-- [x] Built on `useState` / `useEffect` / `useMemo`
-- [x] React Navigation, with reusable components
-
-Authentication app:
-
-- [x] `AuthContext` with `login`, `signup`, `logout`, and `user`
-- [x] Validation and error messages on both forms
-- [x] Home/profile screen showing the user, with logout
-- [x] Session persistence via AsyncStorage (optional)
-- [x] React Navigation between screens
-- [x] Password visibility toggle (bonus)
+A mockup of the earlier movie-only screens lives in
+[preview/screens.png](preview/screens.png) (rendered from `preview/mock.html`).
+It predates the library revamp, so treat it as a design reference for the look
+rather than the current layout.

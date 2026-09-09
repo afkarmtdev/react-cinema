@@ -29,8 +29,8 @@ export function Skeleton({ style }: { style?: ViewStyle }) {
   return <Animated.View style={[styles.block, { opacity }, style]} />;
 }
 
-/** Skeleton matching the poster-grid card while movies load. */
-export function MovieCardSkeleton() {
+/** Skeleton matching the poster-grid card. */
+export function ItemCardSkeleton() {
   return (
     <View style={styles.card}>
       <Skeleton style={styles.poster} />

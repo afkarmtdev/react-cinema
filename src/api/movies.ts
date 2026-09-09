@@ -9,6 +9,9 @@ const API_KEY = process.env.EXPO_PUBLIC_OMDB_API_KEY ?? '';
 const DEFAULT_QUERY = 'star';
 const TIMEOUT_MS = 10000;
 
+/** True when a key is present, so the add form can offer the OMDb lookup. */
+export const isOmdbConfigured = (): boolean => API_KEY.length > 0;
+
 interface OmdbSearchItem {
   Title: string;
   Year: string;

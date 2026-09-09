@@ -13,8 +13,8 @@ Requested target: "$ARGUMENTS" (if empty, default to starting the app).
   older, stop and report it.
 - If `node_modules` is missing, run `npm ci --ignore-scripts` before anything
   else. Do not add or bump packages (see the dependency policy in AGENTS.md).
-- Starting the app also needs an OMDb key in `.env`; the `run-app` skill has
-  the details.
+- An OMDb key in `.env` is optional (it only enables the lookup button in
+  the add form); the `run-app` skill has the details.
 
 ## Map the argument to a command
 

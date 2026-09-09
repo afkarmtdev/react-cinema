@@ -21,6 +21,10 @@ export const storage = {
 export const StorageKeys = {
   users: '@gscreviews/users',
   session: '@gscreviews/session',
+  /** Legacy key from the OMDb-only version; migrated into `library` once. */
   reviews: '@gscreviews/reviews',
+  library: '@gscreviews/library',
+  /** Serialized PocketBase session (token plus user record). */
+  pocketbaseAuth: '@gscreviews/pocketbase-auth',
   language: '@gscreviews/language',
 } as const;

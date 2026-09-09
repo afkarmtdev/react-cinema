@@ -1,6 +1,6 @@
 ---
 name: run-app
-description: Launch, typecheck, or bundle this Expo SDK 54 + TypeScript cinema app (CineReact). Use when asked to run/start the app, check it builds, or reproduce the dev setup. Captures the Node, OMDb key, and Expo Go facts specific to this machine and project.
+description: Launch, typecheck, or bundle this Expo SDK 54 + TypeScript library tracker (CineReact). Use when asked to run/start the app, check it builds, or reproduce the dev setup. Captures the Node, OMDb key, and Expo Go facts specific to this machine and project.
 ---
 
 # Running CineReact (Expo SDK 54 + TypeScript)
@@ -11,10 +11,12 @@ description: Launch, typecheck, or bundle this Expo SDK 54 + TypeScript cinema a
   machine (installed at E:\nodejs, no nvm). Expo SDK 54 needs Node 20.19 or
   newer. Confirm with `node -v`; if it prints something older, stop and report
   it instead of working around it.
-- `.env` must contain `EXPO_PUBLIC_OMDB_API_KEY` (copy `.env.example` and fill
-  in a free key from https://www.omdbapi.com/apikey.aspx). The file is
-  git-ignored and may be missing on a fresh checkout. Without it the app starts
-  but the movie list shows the error state. Never print the key in output.
+- `.env` (copy `.env.example`; git-ignored, may be missing) has two optional
+  values. `EXPO_PUBLIC_POCKETBASE_URL` points the app at a PocketBase server
+  for cross-device sync (setup in pocketbase/README.md; the phone must reach
+  that address, so use the machine's LAN IP, not localhost). Without it the
+  app keeps everything on the device. `EXPO_PUBLIC_OMDB_API_KEY` only enables
+  the "Fill from OMDb" button. Never print the key in output.
 - If `node_modules` is missing, install from the lockfile with scripts off:
 
   ```powershell
@@ -75,8 +77,12 @@ preference:
 ## Notes
 
 - Dependencies are pinned to exact versions (`.npmrc` has `save-exact=true`).
-- The app reads movies from OMDb, so the device or emulator needs network.
-  Typecheck and the bundle check above work offline.
+- In device-only mode nothing needs network except the optional OMDb lookup
+  and remote cover images. In PocketBase mode the server must be running and
+  reachable from the device. Typecheck and the bundle check above work
+  offline either way.
+- Starting PocketBase is separate from Metro: `./pocketbase serve
+  --http=0.0.0.0:8090` from the pocketbase/ folder (see its README).
 - `npx expo` and `npx tsc` resolve to the copies in `node_modules`. Do not run
   `npx expo-doctor` or other tools that are not in package.json; they fetch
   the latest version from the registry.
