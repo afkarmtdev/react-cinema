@@ -41,3 +41,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# offline bundle check output (see .claude/skills/run-app)
+dist-verify/

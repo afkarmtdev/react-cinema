@@ -34,7 +34,9 @@ and year (OMDb's search
 results are lightweight, so the rating and director come from the detail screen).
 The search box filters by title and updates as you type, and the filter button
 next to it opens a sheet to narrow results by year or type (movie/series), which
-map to OMDb's own `y=` and `type=` parameters. Tapping a movie opens a detail
+map to OMDb's own `y=` and `type=` parameters. Two tabs above the grid, Now
+Showing and Advance Sales, reorder the list (top-rated first, or newest first),
+and a small info button explains the difference. Tapping a movie opens a detail
 screen with the rating, director, synopsis, cast, and runtime. Anywhere the app
 fetches data it handles the three states you'd want: a loading placeholder, an
 error state with a retry button, and an empty state.
@@ -84,8 +86,12 @@ src/
 
 ## Getting started
 
-You'll need Node.js 18 or newer (I built this on Node 24) and the Expo Go app on
-your phone, or an Android emulator / iOS simulator.
+You'll need Node.js 20.19 or newer (the minimum for Expo SDK 54; I built this
+on Node 24) and the Expo Go app on your phone, or an Android emulator / iOS
+simulator. One thing to know about Expo Go: the version in the app stores only
+runs the latest SDK, and this project is on SDK 54. Pick SDK 54 from the
+version selector at https://expo.dev/go to get a build that opens it, or use
+the web target below.
 
 The app reads movie data from OMDb, which needs a free API key. Grab one (1,000
 requests/day) at https://www.omdbapi.com/apikey.aspx, then put it in a `.env`
@@ -99,7 +105,7 @@ cp .env.example .env
 Then install and run:
 
 ```bash
-npm install
+npm ci --ignore-scripts
 npm start          # then scan the QR code with Expo Go
 # or target a platform directly:
 npm run android
@@ -122,6 +128,26 @@ npm run format        # Prettier across the whole project
 
 Prettier, ESLint, and EditorConfig are set up so the code stays formatted the
 same way for everyone, and VS Code applies it on save (see `.vscode/`).
+
+## Dependencies
+
+The install command above is `npm ci --ignore-scripts` rather than a plain
+`npm install` on purpose. After the Shai-Hulud worm and similar npm
+supply-chain attacks, this project is careful about what it pulls in:
+
+- Every dependency is pinned to an exact version (`.npmrc` sets
+  `save-exact=true`), and `npm ci` installs exactly what the lockfile says.
+- Lifecycle scripts are disabled on install. Nothing here needs them.
+- Nothing is ever bumped to "latest". When a package is added or updated, the
+  version has to be at least 10 days old, which gives the ecosystem time to
+  catch a compromised release. The `--before` flag makes npm enforce that:
+
+  ```bash
+  npm install <pkg>@<version> --ignore-scripts --before=$(date -d '10 days ago' +%F)
+  ```
+
+- The project stays on Expo SDK 54 deliberately. Upgrading the SDK is a
+  separate job, not something to do while fixing a bug.
 
 ## How the API calls work
 
@@ -156,14 +182,15 @@ one.
 
 ## Tests
 
-`npm test` runs 23 tests across four files:
+`npm test` runs 29 tests across five files:
 
-| File                     | What it checks                                                               |
-| ------------------------ | ---------------------------------------------------------------------------- |
-| `lib/validation`         | the email and password rules                                                 |
-| `api/movies`             | the URL it builds, search encoding, odd responses, and errors (fetch mocked) |
-| `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password       |
-| `context/ReviewsContext` | creating, updating (not duplicating), and deleting a review                  |
+| File                     | What it checks                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| `lib/validation`         | the email and password rules                                                        |
+| `api/movies`             | the URL it builds (search, filters, page), odd responses, and errors                |
+| `hooks/useMovies`        | filter changes replace the list, a failed change clears it, stale pages are dropped |
+| `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password              |
+| `context/ReviewsContext` | creating, updating (not duplicating), and deleting a review                         |
 
 One thing to know if you touch the test setup: `jest-expo@54` targets the Jest 29
 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the runner.
