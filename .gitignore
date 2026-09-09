@@ -44,3 +44,11 @@ yarn-error.*
 
 # offline bundle check output (see .claude/skills/run-app)
 dist-verify/
+
+# PocketBase server files (the binary and its database live outside git)
+pocketbase/pocketbase
+pocketbase/pocketbase.exe
+pocketbase/pb_data/
+pocketbase/pb_public/
+pocketbase/CHANGELOG.md
+pocketbase/LICENSE.md

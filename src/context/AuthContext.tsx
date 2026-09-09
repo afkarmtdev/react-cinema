@@ -6,19 +6,11 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { storage, StorageKeys } from '../lib/storage';
+import { AuthError, type AuthBackend, type User } from '../lib/auth';
+import { authBackend as defaultBackend } from '../lib/backend';
 import { isValidEmail, isValidPassword } from '../lib/validation';
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
-// Stored locally to emulate a credential check (demo only, no real backend).
-interface StoredAccount extends User {
-  password: string;
-}
+export { AuthError, type User } from '../lib/auth';
 
 interface AuthContextValue {
   user: User | null;
@@ -29,27 +21,34 @@ interface AuthContextValue {
   logout: () => Promise<void>;
 }
 
-/** Auth error whose message is a translation key (resolved by the screen). */
-export class AuthError extends Error {}
-
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({
+  children,
+  backend = defaultBackend,
+}: {
+  children: React.ReactNode;
+  /** Injectable for tests; defaults to whatever `src/lib/backend` picked. */
+  backend?: AuthBackend;
+}) {
   const [user, setUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(true);
 
   // Restore the persisted session on first launch.
   useEffect(() => {
     let active = true;
-    (async () => {
-      const session = await storage.get<User>(StorageKeys.session);
-      if (active && session) setUser(session);
-      if (active) setInitializing(false);
-    })();
+    backend
+      .restore()
+      .catch(() => null)
+      .then((session) => {
+        if (!active) return;
+        if (session) setUser(session);
+        setInitializing(false);
+      });
     return () => {
       active = false;
     };
-  }, []);
+  }, [backend]);
 
   const signup = useCallback(
     async (name: string, email: string, password: string) => {
@@ -66,53 +65,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new AuthError('errPasswordLength');
       }
 
-      const accounts =
-        (await storage.get<StoredAccount[]>(StorageKeys.users)) ?? [];
-      if (accounts.some((a) => a.email === trimmedEmail)) {
-        throw new AuthError('errEmailExists');
-      }
-
-      const account: StoredAccount = {
-        id: `${Date.now()}`,
-        name: trimmedName,
-        email: trimmedEmail,
-        password,
-      };
-      await storage.set(StorageKeys.users, [...accounts, account]);
-
-      const { password: _pw, ...safeUser } = account;
-      await storage.set(StorageKeys.session, safeUser);
-      setUser(safeUser);
+      setUser(await backend.signup(trimmedName, trimmedEmail, password));
     },
-    [],
+    [backend],
   );
 
-  const login = useCallback(async (email: string, password: string) => {
-    const trimmedEmail = email.trim().toLowerCase();
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const trimmedEmail = email.trim().toLowerCase();
 
-    if (!trimmedEmail || !password) {
-      throw new AuthError('errEnterCredentials');
-    }
-    if (!isValidEmail(trimmedEmail)) {
-      throw new AuthError('errInvalidEmail');
-    }
+      if (!trimmedEmail || !password) {
+        throw new AuthError('errEnterCredentials');
+      }
+      if (!isValidEmail(trimmedEmail)) {
+        throw new AuthError('errInvalidEmail');
+      }
 
-    const accounts =
-      (await storage.get<StoredAccount[]>(StorageKeys.users)) ?? [];
-    const account = accounts.find((a) => a.email === trimmedEmail);
-    if (!account || account.password !== password) {
-      throw new AuthError('errIncorrect');
-    }
-
-    const { password: _pw, ...safeUser } = account;
-    await storage.set(StorageKeys.session, safeUser);
-    setUser(safeUser);
-  }, []);
+      setUser(await backend.login(trimmedEmail, password));
+    },
+    [backend],
+  );
 
   const logout = useCallback(async () => {
-    await storage.remove(StorageKeys.session);
+    await backend.logout();
     setUser(null);
-  }, []);
+  }, [backend]);
 
   const value = useMemo(
     () => ({ user, initializing, login, signup, logout }),

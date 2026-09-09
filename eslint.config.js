@@ -56,6 +56,14 @@ module.exports = defineConfig([
     },
   },
   {
-    ignores: ['dist/**', 'dist-verify/**', 'coverage/**', '.expo/**'],
+    // pocketbase/ holds server-side migrations that run inside PocketBase's
+    // own JS runtime (migrate, Collection globals), not in the app.
+    ignores: [
+      'dist/**',
+      'dist-verify/**',
+      'coverage/**',
+      '.expo/**',
+      'pocketbase/**',
+    ],
   },
 ]);
