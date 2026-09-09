@@ -1,0 +1,745 @@
+<title>CineReact Screens</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,900;1,900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --page: #ecede9;
+    --page-ink: #1b1b18;
+    --page-ink-2: #5d5d56;
+    --page-line: #d3d3cb;
+    --page-card: #f6f6f2;
+    /* App tokens, copied from src/theme/index.ts. The phones are always dark. */
+    --bg: #0b0b0b;
+    --surface: #161616;
+    --surface-alt: #1e1e1e;
+    --border: #2a2a2a;
+    --primary: #fce300;
+    --on-primary: #0b0b0b;
+    --text: #ffffff;
+    --text-2: #b3b3b3;
+    --muted: #7a7a7a;
+    --star: #ffc42e;
+    --error: #ff5a5f;
+    --overlay: rgba(0, 0, 0, 0.55);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #141413;
+      --page-ink: #ecece6;
+      --page-ink-2: #a2a29a;
+      --page-line: #2c2c29;
+      --page-card: #1c1c1a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #141413;
+    --page-ink: #ecece6;
+    --page-ink-2: #a2a29a;
+    --page-line: #2c2c29;
+    --page-card: #1c1c1a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--page-ink);
+    font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1380px; margin: 0 auto; padding: 40px 28px 72px; }
+
+  header.intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px 48px;
+    align-items: end;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--page-line);
+    margin-bottom: 36px;
+  }
+  .eyebrow {
+    font-family: "IBM Plex Mono", "Courier New", monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--page-ink-2);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  .intro p { max-width: 62ch; margin: 0; color: var(--page-ink-2); }
+  .brandmark { display: flex; align-items: center; gap: 8px; }
+  .brandmark .tile {
+    background: var(--primary);
+    color: var(--on-primary);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 30px;
+    padding: 2px 14px;
+    border-radius: 6px;
+    transform: skewX(-8deg);
+    line-height: 1.2;
+  }
+  .brandmark .tag {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    color: var(--page-ink-2);
+  }
+
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--page-ink-2);
+    margin: 0 0 28px;
+  }
+  .flow b { color: var(--page-ink); font-weight: 500; }
+  .flow .sep { opacity: 0.5; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 40px 28px;
+    justify-items: center;
+  }
+  figure { margin: 0; width: 300px; }
+  figcaption { margin-top: 14px; }
+  figcaption .name { font-weight: 700; font-size: 15px; margin: 0 0 4px; }
+  figcaption .note {
+    margin: 0;
+    font-size: 13px;
+    color: var(--page-ink-2);
+    line-height: 1.45;
+  }
+
+  /* Phone frame */
+  .phone {
+    width: 300px;
+    height: 640px;
+    border-radius: 36px;
+    background: #050505;
+    padding: 10px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 20px 40px -24px rgba(0,0,0,0.6);
+    border: 1px solid #2a2a2a;
+  }
+  .screen {
+    position: relative;
+    height: 100%;
+    border-radius: 27px;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .status {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 22px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    flex: none;
+  }
+  .scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #333 transparent; }
+  .pad { padding: 0 16px; }
+
+  /* App primitives */
+  .brand { display: flex; align-items: center; gap: 6px; margin: 10px 0 12px; }
+  .brand.center { justify-content: center; }
+  .brand .tile {
+    background: var(--primary);
+    color: var(--on-primary);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 18px;
+    padding: 1px 9px;
+    border-radius: 5px;
+    transform: skewX(-8deg);
+  }
+  .brand .tag { font-size: 10px; font-weight: 700; letter-spacing: 0.25em; color: var(--text-2); }
+  .h1 { font-size: 22px; font-weight: 800; margin: 0; }
+  .h2 { font-size: 16px; font-weight: 700; margin: 0; }
+  .h3 { font-size: 14px; font-weight: 700; margin: 0; }
+  .sub { color: var(--text-2); font-size: 12px; margin: 4px 0 0; }
+  .label { color: var(--text-2); font-size: 10.5px; margin: 0 0 4px 3px; }
+  .field {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    color: var(--text);
+    gap: 8px;
+  }
+  .field.focus { border-color: var(--primary); }
+  .field .ph { color: var(--muted); }
+  .field.area { height: auto; min-height: 76px; align-items: flex-start; padding: 10px 12px; }
+  .btn {
+    height: 42px;
+    border-radius: 999px;
+    background: var(--primary);
+    color: var(--on-primary);
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn.outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
+  .btn.ghost { background: transparent; color: var(--text); }
+  .btn.danger { color: var(--error); }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+  .search {
+    flex: 1;
+    height: 38px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    color: var(--muted);
+  }
+  .iconbtn {
+    width: 38px; height: 38px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; color: var(--text-2);
+  }
+  .iconbtn.active { border-color: var(--primary); color: var(--primary); }
+  .iconbtn .dot { position: absolute; top: 8px; right: 8px; width: 6px; height: 6px; border-radius: 3px; background: var(--primary); }
+  .segments { display: flex; gap: 18px; margin: 12px 0 10px; }
+  .seg { font-size: 14px; font-weight: 700; color: var(--muted); padding-bottom: 6px; border-bottom: 3px solid transparent; }
+  .seg.on { color: var(--text); border-color: var(--primary); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 10px; border-radius: 999px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text-2); font-size: 11px; font-weight: 600;
+  }
+  .chip.on { border-color: var(--primary); color: var(--primary); }
+  .kinds { display: flex; gap: 8px; }
+  .kind {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 9px 0; border-radius: 10px; border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text-2); font-weight: 600; font-size: 12px;
+  }
+  .kind.on { border-color: var(--primary); color: var(--primary); }
+  .stars { display: inline-flex; gap: 1px; color: var(--star); }
+  .stars .off { color: var(--muted); }
+  svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  svg.fill { fill: currentColor; stroke: none; }
+
+  /* Cards */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+  .card { display: flex; flex-direction: column; gap: 4px; }
+  .poster {
+    position: relative; aspect-ratio: 2 / 3; border-radius: 10px; overflow: hidden;
+    background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; color: var(--muted); padding: 10px; text-align: center; font-size: 11px;
+  }
+  .poster.art-1 { background: linear-gradient(160deg, #3a2f0b, #0f0e0a 60%, #6b5a1a); }
+  .poster.art-2 { background: linear-gradient(200deg, #0d2a33, #071014 55%, #1e5a66); }
+  .poster.art-3 { background: linear-gradient(150deg, #33131a, #120608 55%, #6a2b36); }
+  .poster.art-4 { background: linear-gradient(170deg, #1d2d1a, #0a0f08 55%, #4c6b3a); }
+  .poster.art-5 { background: linear-gradient(190deg, #2b1f3a, #0d0a12 55%, #5e4b8a); }
+  .poster .big { font-family: "Archivo", sans-serif; font-weight: 900; font-size: 15px; color: var(--text); letter-spacing: -0.01em; line-height: 1.1; }
+  .badge {
+    position: absolute; display: inline-flex; align-items: center; gap: 3px;
+    background: var(--overlay); border-radius: 999px; padding: 3px 7px;
+    font-size: 9.5px; font-weight: 500; color: var(--text);
+  }
+  .badge.tl { top: 6px; left: 6px; padding: 4px; }
+  .badge.tr { top: 6px; right: 6px; }
+  .badge.bl { bottom: 6px; left: 6px; }
+  .badge.done { background: var(--primary); color: var(--on-primary); }
+  .card .t { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .m { color: var(--text-2); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fab {
+    position: absolute; right: 14px; bottom: 66px; width: 48px; height: 48px; border-radius: 999px;
+    background: var(--primary); color: var(--on-primary); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.5); font-size: 24px;
+  }
+  .tabs {
+    flex: none; display: flex; justify-content: space-around; align-items: center;
+    height: 54px; background: var(--surface); border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 9.5px; font-weight: 500;
+  }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 9.5px; }
+  .tab svg { font-size: 18px; }
+  .tab.on { color: var(--primary); }
+  .navbar {
+    flex: none; display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px; color: var(--primary); font-size: 16px;
+  }
+  .navbar .title { color: var(--text); font-weight: 600; font-size: 14px; }
+
+  /* Sheet */
+  .sheet-bg { position: absolute; inset: 0; background: var(--overlay); display: flex; flex-direction: column; justify-content: flex-end; }
+  .sheet {
+    background: var(--surface); border-radius: 22px 22px 0 0; padding: 12px 16px 22px;
+    display: flex; flex-direction: column; gap: 8px; max-height: 78%; overflow-y: auto;
+  }
+  .handle { width: 36px; height: 4px; border-radius: 2px; background: var(--border); align-self: center; margin-bottom: 4px; }
+  .sheet .field, .sheet .chip, .sheet .search { background: var(--bg); }
+  .result { display: flex; gap: 10px; align-items: center; background: var(--bg); border-radius: 10px; padding: 8px; }
+  .thumb { width: 36px; height: 54px; border-radius: 6px; background: var(--surface-alt); flex: none; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  .result .t { font-weight: 600; }
+  .result .m { color: var(--text-2); font-size: 11px; }
+
+  /* Detail */
+  .hero { position: relative; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; padding: 14px; text-align: center; }
+  .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, #4a3a10, #0b0b0b 70%); opacity: 0.6; }
+  .hero > * { position: relative; }
+  .hero .poster { width: 100px; border: 2px solid var(--primary); }
+  .facts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .fact { display: inline-flex; align-items: center; gap: 4px; background: var(--surface); border-radius: 999px; padding: 4px 10px; font-size: 11px; }
+  .fact svg { color: var(--primary); }
+  .p { color: var(--text-2); font-size: 12px; line-height: 1.55; margin: 0; }
+  .tiny { color: var(--muted); font-size: 10px; }
+  .section { display: flex; flex-direction: column; gap: 8px; }
+  .section .head { display: flex; justify-content: space-between; align-items: center; }
+
+  /* Diary */
+  .month { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+  .drow { display: flex; gap: 10px; align-items: center; background: var(--surface); border-radius: 10px; padding: 8px; margin-bottom: 8px; }
+  .drow .day { width: 26px; text-align: center; font-size: 16px; font-weight: 700; color: var(--primary); flex: none; }
+  .drow .thumb { width: 40px; height: 60px; }
+  .drow .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .drow .t { font-weight: 600; display: flex; gap: 4px; align-items: center; }
+  .drow .t svg { color: var(--muted); font-size: 11px; }
+  .drow .m, .drow .s { color: var(--text-2); font-size: 10.5px; }
+
+  /* Profile */
+  .avatar-card { background: var(--surface); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .avatar { width: 60px; height: 60px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-size: 26px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+  .stats { display: flex; gap: 6px; }
+  .stat { flex: 1; background: var(--surface); border-radius: 10px; padding: 10px 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-variant-numeric: tabular-nums; }
+  .stat svg { color: var(--primary); font-size: 16px; }
+  .stat .v { font-weight: 700; font-size: 14px; }
+  .stat .l { color: var(--text-2); font-size: 9.5px; }
+  .opt { flex: 1; text-align: center; padding: 9px 0; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-2); font-weight: 600; font-size: 12px; }
+  .opt.on { border-color: var(--primary); color: var(--primary); }
+  .storage { display: flex; gap: 8px; align-items: center; background: var(--surface); border-radius: 10px; padding: 10px; color: var(--text-2); font-size: 11px; }
+
+  .err { color: var(--error); font-size: 11px; }
+  .score { display: inline-flex; align-items: center; gap: 3px; background: var(--overlay); border-radius: 999px; padding: 2px 7px; font-size: 10px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .score svg { color: var(--star); font-size: 10px; }
+  .score.perfect { background: var(--primary); color: var(--on-primary); }
+  .score.perfect svg { color: var(--on-primary); }
+  .score-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .score-big { font-size: 26px; font-weight: 800; color: var(--star); font-variant-numeric: tabular-nums; }
+  .score-big small { font-size: 11px; font-weight: 500; color: var(--muted); }
+  .cells { display: flex; gap: 3px; }
+  .cell { flex: 1; height: 26px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .cell.on { border-color: var(--primary); color: var(--primary); background: var(--surface-alt); }
+  .cell.ten { border-style: dashed; }
+  .cell.dim { opacity: 0.35; }
+  .cells.tenths .cell { height: 22px; }
+  .warn { border: 1.5px solid var(--primary); border-radius: 10px; background: var(--surface); padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .warn .t { display: flex; gap: 6px; align-items: center; font-weight: 700; font-size: 12px; }
+  .warn .t svg { color: var(--primary); font-size: 14px; }
+  .warn .p { font-size: 11px; }
+  .preview { width: 52px; aspect-ratio: 2/3; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--muted); flex: none; }
+  .preview.art-5 { background: linear-gradient(190deg, #2b1f3a, #0d0a12 55%, #5e4b8a); color: var(--text); font-weight: 900; font-size: 9px; }
+  .rule { border: 0; border-top: 1px solid var(--page-line); margin: 44px 0 24px; }
+  .eyebrow a { color: inherit; }
+  .changes { max-width: 78ch; }
+  .changes h2 { font-size: 20px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .changes .lead { margin: 0 0 18px; color: var(--page-ink-2); font-size: 14px; }
+  .log { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .log li { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 4px 20px; padding-top: 14px; border-top: 1px solid var(--page-line); }
+  .log .ver { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--page-ink-2); line-height: 1.6; }
+  .log .ver b { display: block; color: var(--page-ink); font-weight: 500; }
+  .log ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .log li li { display: list-item; border: 0; padding: 0; margin-bottom: 4px; }
+  @media (max-width: 560px) { .log li { grid-template-columns: 1fr; } }
+  .notes { max-width: 68ch; color: var(--page-ink-2); font-size: 14px; }
+  .notes b { color: var(--page-ink); font-weight: 600; }
+  .notes ul { padding-left: 18px; margin: 8px 0 0; }
+  .notes li { margin-bottom: 4px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .fab { transition: transform 150ms ease; }
+    .fab:hover { transform: scale(1.05); }
+  }
+</style>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></symbol>
+    <symbol id="i-tv" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 19a2 2 0 0 1 2-2h14"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.5l-6 3.3 1.3-6.7-5-4.6 6.8-.8z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+    <symbol id="i-options" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 12h2M10 12h10M4 17h8M16 17h4"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></symbol>
+    <symbol id="i-albums" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M6 5h12M8 2h8"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4 4 0 0 1 0 9z"/><path d="M9 14l2 2 4-4"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16z"/><path d="M12.5 7.5l4 4"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 4H5v16h5M14 8l4 4-4 4M8 12h10"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16v1" stroke="#0b0b0b" stroke-width="2"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="intro">
+    <div>
+      <p class="eyebrow">Design draft · v2 · mirrors the code as of 9 Sep 2026 · <a href="#changes">changes</a></p>
+      <h1>The revamped CineReact, screen by screen</h1>
+      <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
+    </div>
+    <div class="brandmark"><span class="tile">CINE</span><span class="tag">REACT</span></div>
+  </header>
+
+  <p class="flow">
+    <b>Login</b> <span class="sep">&rarr;</span> <b>Library</b> <span class="sep">&rarr;</span> <b>Add entry</b> <span class="sep">&rarr;</span> <b>Entry detail</b>
+    <span class="sep">&nbsp;·&nbsp;</span> tabs: <b>Library</b>, <b>Diary</b>, <b>Me</b>
+  </p>
+
+  <div class="grid">
+
+    <!-- 1. Login -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="scroll pad">
+          <div class="brand center" style="margin-top:22px"><span class="tile">CINE</span><span class="tag">REACT</span></div>
+          <p class="h1" style="margin-top:20px">Welcome back</p>
+          <p class="sub">Log in to keep track of what you watch and read.</p>
+          <div class="stack" style="margin-top:22px">
+            <div><p class="label">Email</p><div class="field">ali@example.com</div></div>
+            <div><p class="label">Password</p><div class="field focus"><span style="flex:1;letter-spacing:2px">&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;</span><svg style="font-size:16px;color:var(--text-2)"><use href="#i-eye"/></svg></div></div>
+            <div class="btn">Log in</div>
+          </div>
+          <div style="margin-top:150px;text-align:center;color:var(--text-2);font-size:11px">Don't have an account?</div>
+          <div class="btn ghost" style="height:36px">Go to Signup</div>
+        </div>
+      </div></div>
+      <figcaption><p class="name">Login</p><p class="note">Unchanged flow. With a PocketBase URL set, the account lives on the server; without one it stays on the device. The wording now talks about watching and reading.</p></figcaption>
+    </figure>
+
+    <!-- 2. Library -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="scroll pad">
+          <div class="brand"><span class="tile">CINE</span><span class="tag">REACT</span></div>
+          <div class="row" style="justify-content:space-between;align-items:baseline"><p class="h1">Library</p><span class="tiny">16 entries</span></div>
+          <div class="row" style="margin-top:12px">
+            <div class="search"><svg style="font-size:14px"><use href="#i-search"/></svg>Search titles, people, or tags</div>
+            <div class="iconbtn active"><svg style="font-size:16px"><use href="#i-options"/></svg><span class="dot"></span></div>
+          </div>
+          <div class="segments"><span class="seg on">All</span><span class="seg">Films</span><span class="seg">Series</span><span class="seg">Books</span></div>
+          <div class="cards">
+            <div class="card">
+              <div class="poster art-1"><span class="big">DUNE</span>
+                <span class="badge tl"><svg style="font-size:11px"><use href="#i-book"/></svg></span>
+                <span class="badge tr"><svg class="fill" style="font-size:10px;color:var(--star)"><use href="#i-star"/></svg>9.2</span>
+                <span class="badge bl done"><svg style="font-size:10px"><use href="#i-check"/></svg>Read</span>
+              </div>
+              <div class="t">Dune</div><div class="m">1965 / Frank Herbert</div>
+            </div>
+            <div class="card">
+              <div class="poster art-2"><span class="big">SEVERANCE</span>
+                <span class="badge tl"><svg style="font-size:11px"><use href="#i-tv"/></svg></span>
+                <span class="badge bl"><svg style="font-size:10px"><use href="#i-play"/></svg>Watching</span>
+              </div>
+              <div class="t">Severance</div><div class="m">2022 / Ben Stiller</div>
+            </div>
+            <div class="card">
+              <div class="poster"><svg style="font-size:26px"><use href="#i-film"/></svg><span>Past Lives</span>
+                <span class="badge tl"><svg style="font-size:11px"><use href="#i-film"/></svg></span>
+                <span class="badge tr"><svg class="fill" style="font-size:10px;color:var(--star)"><use href="#i-star"/></svg>8.1</span>
+                <span class="badge bl done"><svg style="font-size:10px"><use href="#i-check"/></svg>Watched</span>
+              </div>
+              <div class="t">Past Lives</div><div class="m">2023 / Celine Song</div>
+            </div>
+            <div class="card">
+              <div class="poster art-5"><span class="big">PIRANESI</span>
+                <span class="badge tl"><svg style="font-size:11px"><use href="#i-book"/></svg></span>
+                <span class="badge bl"><svg style="font-size:10px"><use href="#i-bookmark"/></svg>To read</span>
+              </div>
+              <div class="t">Piranesi</div><div class="m">2020 / Susanna Clarke</div>
+            </div>
+            <div class="card">
+              <div class="poster art-3"><span class="big">THE BEAR</span>
+                <span class="badge tl"><svg style="font-size:11px"><use href="#i-tv"/></svg></span>
+                <span class="badge tr"><svg class="fill" style="font-size:10px;color:var(--star)"><use href="#i-star"/></svg>9.6</span>
+                <span class="badge bl done"><svg style="font-size:10px"><use href="#i-check"/></svg>Watched</span>
+              </div>
+              <div class="t">The Bear</div><div class="m">2022 / Christopher Storer</div>
+            </div>
+            <div class="card">
+              <div class="poster art-4"><span class="big">PERFECT DAYS</span>
+                <span class="badge tl"><svg style="font-size:11px"><use href="#i-film"/></svg></span>
+                <span class="badge bl"><svg style="font-size:10px"><use href="#i-bookmark"/></svg>Watchlist</span>
+              </div>
+              <div class="t">Perfect Days</div><div class="m">2023 / Wim Wenders</div>
+            </div>
+          </div>
+          <div style="height:70px"></div>
+        </div>
+        <div class="fab">+</div>
+        <div class="tabs">
+          <div class="tab on"><svg><use href="#i-albums"/></svg>Library</div>
+          <div class="tab"><svg><use href="#i-cal"/></svg>Diary</div>
+          <div class="tab"><svg><use href="#i-person"/></svg>Me</div>
+        </div>
+      </div></div>
+      <figcaption><p class="name">Library</p><p class="note">The home tab. Cards carry the kind (top left), your rating (top right), and the status pill, yellow once finished. Entries without a cover link fall back to the icon and title. The filter dot shows a filter is on.</p></figcaption>
+    </figure>
+
+    <!-- 3. Filters sheet -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="scroll pad" style="opacity:0.5">
+          <div class="brand"><span class="tile">CINE</span><span class="tag">REACT</span></div>
+          <p class="h1">Library</p>
+          <div class="row" style="margin-top:12px"><div class="search"><svg style="font-size:14px"><use href="#i-search"/></svg>Search titles, people, or tags</div><div class="iconbtn"><svg style="font-size:16px"><use href="#i-options"/></svg></div></div>
+          <div class="segments"><span class="seg on">All</span><span class="seg">Films</span><span class="seg">Series</span><span class="seg">Books</span></div>
+          <div class="cards"><div class="card"><div class="poster art-1"></div></div><div class="card"><div class="poster art-2"></div></div></div>
+        </div>
+        <div class="sheet-bg"><div class="sheet">
+          <div class="handle"></div>
+          <p class="h2">Filters</p>
+          <p class="label" style="margin-top:6px">Status</p>
+          <div class="chips"><span class="chip">All</span><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>Want to</span><span class="chip"><svg style="font-size:12px"><use href="#i-play"/></svg>In progress</span><span class="chip on"><svg style="font-size:12px"><use href="#i-check"/></svg>Finished</span></div>
+          <p class="label" style="margin-top:8px">Tags</p>
+          <div class="chips"><span class="chip on">sci-fi</span><span class="chip">slow burn</span><span class="chip">comfort</span><span class="chip">rewatch</span><span class="chip">book club</span><span class="chip">malaysian</span><span class="chip">workplace</span></div>
+          <div class="row" style="margin-top:14px"><div class="btn outline" style="flex:1;height:38px">Clear</div><div class="btn" style="flex:1;height:38px">Apply</div></div>
+        </div></div>
+      </div></div>
+      <figcaption><p class="name">Filters</p><p class="note">Bottom sheet from the filter button. Status is one of four; tags are your own, most-used first, and an entry must carry every selected tag.</p></figcaption>
+    </figure>
+
+    <!-- 4. Add entry -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="navbar"><span style="font-size:13px">Cancel</span><span class="title">Add to library</span><span style="width:40px"></span></div>
+        <div class="scroll pad">
+          <div class="stack" style="padding-bottom:20px">
+            <div><p class="label">Type</p>
+              <div class="kinds">
+                <div class="kind"><svg style="font-size:16px"><use href="#i-film"/></svg>Film</div>
+                <div class="kind"><svg style="font-size:16px"><use href="#i-tv"/></svg>Series</div>
+                <div class="kind on"><svg style="font-size:16px"><use href="#i-book"/></svg>Book</div>
+              </div>
+            </div>
+            <div><p class="label">Title</p><div class="field">Piranesi</div></div>
+            <div class="row" style="align-items:flex-start">
+              <div style="flex:2"><p class="label">Author</p><div class="field">Susanna Clarke</div></div>
+              <div style="flex:1"><p class="label">Year</p><div class="field">2020</div></div>
+            </div>
+            <div class="row" style="align-items:flex-end">
+              <div class="preview art-5">PIRANESI</div>
+              <div style="flex:1"><p class="label">Cover image link</p><div class="field" style="font-size:10.5px;overflow:hidden;white-space:nowrap">https://covers.example.org/piranesi.jpg</div></div>
+            </div>
+            <div><p class="label">Description</p><div class="field area"><span class="p">Piranesi lives in the House, an endless building of halls and statues, with tides that flood the lower floors. He keeps a journal.</span></div></div>
+            <div><p class="label">Tags</p>
+              <div class="field" style="height:auto;flex-wrap:wrap;padding:7px 10px;gap:6px"><span class="chip on">fantasy</span><span class="chip on">mystery</span><span class="ph" style="font-size:11px">Type a tag, then press enter or comma</span></div>
+              <p class="tiny" style="margin:6px 0 4px 3px">Your tags</p>
+              <div class="chips"><span class="chip">+ sci-fi</span><span class="chip">+ slow burn</span><span class="chip">+ book club</span></div>
+            </div>
+            <div><p class="label">Status</p><div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>To read</span><span class="chip on"><svg style="font-size:12px"><use href="#i-play"/></svg>Reading</span><span class="chip"><svg style="font-size:12px"><use href="#i-check"/></svg>Read</span></div></div>
+            <div><p class="label">Your score</p>
+              <div class="stack" style="gap:6px">
+                <div class="score-head"><span class="score-big">8.7 <small>/ 10</small></span><span class="tiny">Clear score</span></div>
+                <div class="cells"><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell on">8</span><span class="cell">9</span><span class="cell ten">10</span></div>
+                <div class="cells tenths"><span class="cell">.0</span><span class="cell">.1</span><span class="cell">.2</span><span class="cell">.3</span><span class="cell">.4</span><span class="cell">.5</span><span class="cell">.6</span><span class="cell on">.7</span><span class="cell">.8</span><span class="cell">.9</span></div>
+                <div class="warn">
+                  <div class="t"><svg class="fill"><use href="#i-alert"/></svg>A 10? Really?</div>
+                  <p class="p">A 10 means you have found the one, and that is impossible. Nothing is a 10. Unless this is your wife.</p>
+                  <div class="row"><div class="btn" style="flex:1;height:34px;font-size:12px">Fine, 9.9</div><div class="btn ghost" style="flex:1;height:34px;font-size:12px">It is my wife</div></div>
+                </div>
+              </div>
+            </div>
+            <div><p class="label">Your notes</p><div class="field area"><span class="ph">What did you think?</span></div></div>
+            <div class="btn">Save</div>
+          </div>
+        </div>
+      </div></div>
+      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Editing uses the same form plus a two-step Delete.</p></figcaption>
+    </figure>
+
+    <!-- 5. OMDb lookup -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="navbar" style="opacity:0.5"><span style="font-size:13px">Cancel</span><span class="title">Add to library</span><span style="width:40px"></span></div>
+        <div class="scroll pad" style="opacity:0.5">
+          <div class="stack">
+            <div><p class="label">Type</p><div class="kinds"><div class="kind on"><svg style="font-size:16px"><use href="#i-film"/></svg>Film</div><div class="kind"><svg style="font-size:16px"><use href="#i-tv"/></svg>Series</div><div class="kind"><svg style="font-size:16px"><use href="#i-book"/></svg>Book</div></div></div>
+            <div class="btn outline"><svg style="font-size:14px"><use href="#i-search"/></svg>Fill from OMDb</div>
+            <div><p class="label">Title</p><div class="field"><span class="ph">e.g. Dune</span></div></div>
+          </div>
+        </div>
+        <div class="sheet-bg"><div class="sheet" style="height:74%;max-height:none">
+          <div class="handle"></div>
+          <p class="h2">Look up on OMDb</p>
+          <p class="tiny" style="color:var(--text-2)">Pick a result to fill in the form. You can edit anything after.</p>
+          <div class="search" style="flex:none;color:var(--text)"><svg style="font-size:14px;color:var(--muted)"><use href="#i-search"/></svg>perfect days</div>
+          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div style="flex:1"><div class="t">Perfect Days</div><div class="m">2023</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
+          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div style="flex:1"><div class="t">Perfect Days</div><div class="m">2012</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
+          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div style="flex:1"><div class="t">A Perfect Day</div><div class="m">2015</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
+          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div style="flex:1"><div class="t">Perfect Days</div><div class="m">2019</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
+        </div></div>
+      </div></div>
+      <figcaption><p class="name">Fill from OMDb</p><p class="note">Optional, only for films and series, and only when an OMDb key is in .env. Picking a result fills title, year, director, plot, poster link, and genre tags. Books are always typed in.</p></figcaption>
+    </figure>
+
+    <!-- 6. Detail -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="navbar"><svg><use href="#i-back"/></svg><span class="title">Dune</span><svg><use href="#i-edit"/></svg></div>
+        <div class="scroll">
+          <div class="hero">
+            <div class="poster art-1"><span class="big">DUNE</span></div>
+            <p class="h1">Dune</p>
+            <p class="tiny" style="color:var(--text-2)">Frank Herbert</p>
+          </div>
+          <div class="pad stack" style="gap:16px;padding-bottom:24px">
+            <div class="facts">
+              <span class="fact"><svg><use href="#i-book"/></svg>Book</span>
+              <span class="fact"><svg><use href="#i-cal"/></svg>1965</span>
+              <span class="fact"><svg><use href="#i-person"/></svg>Author: Frank Herbert</span>
+            </div>
+            <div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>To read</span><span class="chip"><svg style="font-size:12px"><use href="#i-play"/></svg>Reading</span><span class="chip on"><svg style="font-size:12px"><use href="#i-check"/></svg>Read</span></div>
+            <div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-tag"/></svg>sci-fi</span><span class="chip"><svg style="font-size:12px"><use href="#i-tag"/></svg>slow burn</span><span class="chip"><svg style="font-size:12px"><use href="#i-tag"/></svg>book club</span></div>
+            <div class="section"><p class="h2">About</p><p class="p">Paul Atreides moves with his family to Arrakis, the only source of the spice melange, and is pulled into a struggle over the planet and its people.</p></div>
+            <div class="section">
+              <p class="h2">Your score</p>
+              <div class="score-head"><span class="score-big">9.2 <small>/ 10</small></span><span class="tiny">Clear score</span></div>
+              <div class="cells"><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell on">9</span><span class="cell ten">10</span></div>
+              <div class="cells tenths"><span class="cell">.0</span><span class="cell">.1</span><span class="cell on">.2</span><span class="cell">.3</span><span class="cell">.4</span><span class="cell">.5</span><span class="cell">.6</span><span class="cell">.7</span><span class="cell">.8</span><span class="cell">.9</span></div>
+              <p class="p">Slow for the first hundred pages and then impossible to put down. The ecology chapters were the surprise favourite.</p>
+              <p class="tiny">Finished 2 Sept 2026</p>
+            </div>
+          </div>
+        </div>
+      </div></div>
+      <figcaption><p class="name">Entry detail</p><p class="note">Status and score change in place; the pencil opens the edit form. The hero uses a blurred cover when there is one. Marking something finished stamps the date shown at the bottom.</p></figcaption>
+    </figure>
+
+    <!-- 7. Diary -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="scroll pad">
+          <p class="h1" style="margin:14px 0 2px">Diary</p>
+          <p class="month">September 2026</p>
+          <div class="drow"><div class="day">7</div><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div class="info"><div class="t"><svg><use href="#i-film"/></svg>Past Lives</div><div class="m">Celine Song</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>8.1</span><div class="s">Quiet and devastating. The bar scene.</div></div></div>
+          <div class="drow"><div class="day">2</div><div class="thumb art-1" style="background:linear-gradient(160deg,#3a2f0b,#0f0e0a 60%,#6b5a1a)"></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Dune</div><div class="m">Frank Herbert</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.2</span><div class="s">Slow for the first hundred pages and then impossible to put down.</div></div></div>
+          <p class="month">August 2026</p>
+          <div class="drow"><div class="day">30</div><div class="thumb" style="background:linear-gradient(150deg,#33131a,#120608 55%,#6a2b36)"></div><div class="info"><div class="t"><svg><use href="#i-tv"/></svg>The Bear</div><div class="m">Christopher Storer</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.6</span><div class="s">Season 3. Yes chef.</div></div></div>
+          <div class="drow"><div class="day">18</div><div class="thumb"><svg style="font-size:14px"><use href="#i-book"/></svg></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Tomorrow, and Tomorrow, and Tomorrow</div><div class="m">Gabrielle Zevin</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>6.8</span></div></div>
+          <div class="drow"><div class="day">9</div><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div class="info"><div class="t"><svg><use href="#i-film"/></svg>Abang Adik</div><div class="m">Jin Ong</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>8.4</span><div class="s">Pudu at night. Rewatch with subtitles off.</div></div></div>
+          <p class="month">July 2026</p>
+          <div class="drow"><div class="day">21</div><div class="thumb"><svg style="font-size:14px"><use href="#i-tv"/></svg></div><div class="info"><div class="t"><svg><use href="#i-tv"/></svg>Shogun</div><div class="m">Rachel Kondo, Justin Marks</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.5</span></div></div>
+          <div style="height:12px"></div>
+        </div>
+        <div class="tabs">
+          <div class="tab"><svg><use href="#i-albums"/></svg>Library</div>
+          <div class="tab on"><svg><use href="#i-cal"/></svg>Diary</div>
+          <div class="tab"><svg><use href="#i-person"/></svg>Me</div>
+        </div>
+      </div></div>
+      <figcaption><p class="name">Diary</p><p class="note">Everything finished, newest first, grouped by month with the day in yellow and your score on each row. Tapping a row opens the entry. Replaces the old My Reviews tab.</p></figcaption>
+    </figure>
+
+    <!-- 8. Me -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="scroll pad">
+          <p class="h1" style="margin:14px 0 12px">Me</p>
+          <div class="avatar-card"><div class="avatar">A</div><p class="h2">Afkar</p><p class="sub" style="margin:0">afkar@example.com</p></div>
+          <div class="stats" style="margin-top:12px">
+            <div class="stat"><svg><use href="#i-film"/></svg><span class="v">8</span><span class="l">Films</span></div>
+            <div class="stat"><svg><use href="#i-tv"/></svg><span class="v">3</span><span class="l">Series</span></div>
+            <div class="stat"><svg><use href="#i-book"/></svg><span class="v">5</span><span class="l">Books</span></div>
+            <div class="stat"><svg class="fill"><use href="#i-star"/></svg><span class="v">8.6</span><span class="l">Avg score</span></div>
+          </div>
+          <p class="label" style="margin-top:18px">Language</p>
+          <div class="row"><div class="opt on">English</div><div class="opt">Bahasa Melayu</div></div>
+          <p class="label" style="margin-top:18px">Storage</p>
+          <div class="storage"><svg style="font-size:16px"><use href="#i-cloud"/></svg><span>Synced with PocketBase at http://192.168.1.20:8090</span></div>
+          <div style="height:120px"></div>
+          <div class="btn outline"><svg style="font-size:15px"><use href="#i-logout"/></svg>Log out</div>
+          <div style="height:16px"></div>
+        </div>
+        <div class="tabs">
+          <div class="tab"><svg><use href="#i-albums"/></svg>Library</div>
+          <div class="tab"><svg><use href="#i-cal"/></svg>Diary</div>
+          <div class="tab on"><svg><use href="#i-person"/></svg>Me</div>
+        </div>
+      </div></div>
+      <figcaption><p class="name">Me</p><p class="note">Counts of finished films, series, and books plus your average score out of 10. The Storage line says whether this install syncs with a PocketBase server or keeps everything on the device.</p></figcaption>
+    </figure>
+
+  </div>
+
+  <hr class="rule">
+  <div class="notes">
+    <b>What is not drawn here</b>
+    <ul>
+      <li>The Signup screen (same layout as Login with a Name field), the splash screen, and the loading, error, and empty states.</li>
+      <li>The delete confirmation on the edit form: the Delete link turns into Cancel and "Yes, delete it" buttons.</li>
+      <li>Bahasa Melayu. Every string on these screens has a Malay version.</li>
+      <li>A perfect 10, once confessed, shows as a yellow score pill on the card and in the diary.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+  <section class="changes" id="changes">
+    <h2>Changes to this mockup</h2>
+    <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
+    <ol class="log">
+      <li>
+        <div class="ver"><b>v2</b>9 Sep 2026</div>
+        <ul>
+          <li>Ratings are now a score from 1.0 to 10.0 in tenths instead of five stars. Redrawn: Library cards, Add entry, Entry detail, Diary, Me.</li>
+          <li>Add entry shows the warning that appears when someone taps 10, with its two answers.</li>
+          <li>This change log added; the eyebrow at the top now carries the version.</li>
+        </ul>
+      </li>
+      <li>
+        <div class="ver"><b>v1</b>9 Sep 2026</div>
+        <ul>
+          <li>First mockup of the library revamp: Login, Library, Filters, Add entry, Fill from OMDb, Entry detail, Diary, Me.</li>
+          <li>Me shows the Storage line for PocketBase sync, which landed in the code the same day.</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+</div>

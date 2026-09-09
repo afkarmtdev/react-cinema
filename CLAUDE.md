@@ -19,6 +19,8 @@
   the layout of the existing tests.
 - `/dev <target>`: one entry point for app, test, typecheck, lint, fix,
   format, or all.
+- `/screens-artifact`: update the published screens mockup and its change
+  log after a UI change.
 
 ## Git: never commit or push on your own
 
@@ -52,3 +54,11 @@
   should come with one.
 - `.env` is git-ignored and may be missing on a fresh machine. Do not commit it
   and do not paste the OMDb key into docs or logs.
+
+## Screens mockup artifact
+
+A mockup of every screen is published as an artifact and must track the
+code. Its source is `preview/screens.html`; the URL and the update steps are
+in the `screens-artifact` skill. After any change that alters what a screen
+looks like, update the file, add an entry to the change log inside it, and
+republish to the same URL (never a new one).
