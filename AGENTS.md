@@ -105,7 +105,7 @@ src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
                  ThemeContext, and their tests
 src/components   ItemCard, KindPicker, StatusPicker, DateField, TagInput, FilterSheet,
                  OmdbLookupSheet, SearchBar, BrandHeader, StorageSettings,
-                 MultiProvider, and ui/ primitives (Button, TextField, Chip,
+                 MultiProvider, and ui/ primitives (Button, TextField, Chip, Sheet,
                  StarRating, ...)
 src/screens      SplashScreen, auth/, library/ (Library, ItemDetail, ItemForm),
                  DiaryScreen, ProfileScreen

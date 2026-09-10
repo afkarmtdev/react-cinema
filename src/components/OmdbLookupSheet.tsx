@@ -4,15 +4,11 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fetchMovieById, fetchMovies } from '../api/movies';
 import { useLanguage } from '../context/LanguageContext';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
@@ -20,6 +16,7 @@ import { radius, spacing, typography, type ThemeColors } from '../theme';
 import type { ItemKind } from '../types/library';
 import type { Movie } from '../types/movie';
 import { SearchBar } from './SearchBar';
+import { Sheet } from './ui/Sheet';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 interface OmdbLookupSheetProps {
@@ -43,7 +40,6 @@ export function OmdbLookupSheet({
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
   const { t } = useLanguage();
-  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const debounced = useDebouncedValue(query);
   const [results, setResults] = useState<Movie[]>([]);
@@ -95,120 +91,81 @@ export function OmdbLookupSheet({
   };
 
   return (
-    <Modal
+    <Sheet
       visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
+      onClose={onClose}
+      style={styles.panel}
+      avoidKeyboard
     >
-      <KeyboardAvoidingView
-        style={styles.root}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <Pressable style={styles.backdrop} onPress={onClose} />
-        <View
-          style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}
-        >
-          <View style={styles.handle} />
-          <Text style={styles.title}>{t('lookupTitle')}</Text>
-          <Text style={styles.hint}>{t('lookupHint')}</Text>
-          <SearchBar
-            value={query}
-            onChangeText={setQuery}
-            placeholder={t('lookupPlaceholder')}
-          />
+      <Text style={styles.title}>{t('lookupTitle')}</Text>
+      <Text style={styles.hint}>{t('lookupHint')}</Text>
+      <SearchBar
+        value={query}
+        onChangeText={setQuery}
+        placeholder={t('lookupPlaceholder')}
+      />
 
-          {picking ? (
-            <View style={styles.center}>
-              <ActivityIndicator color={colors.primary} />
-              <Text style={styles.muted}>{t('lookupLoading')}</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={results}
-              keyExtractor={(m) => m.id}
-              keyboardShouldPersistTaps="handled"
-              style={styles.list}
-              ItemSeparatorComponent={() => <View style={styles.gap} />}
-              renderItem={({ item }) => (
-                <Pressable
-                  onPress={() => pick(item)}
-                  style={({ pressed }) => [
-                    styles.row,
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  {item.poster ? (
-                    <Image source={{ uri: item.poster }} style={styles.thumb} />
-                  ) : (
-                    <View style={[styles.thumb, styles.thumbFallback]}>
-                      <Ionicons
-                        name="film-outline"
-                        size={18}
-                        color={colors.textMuted}
-                      />
-                    </View>
-                  )}
-                  <View style={styles.info}>
-                    <Text style={styles.rowTitle} numberOfLines={2}>
-                      {item.title}
-                    </Text>
-                    {!!item.year && (
-                      <Text style={styles.rowMeta}>{item.year}</Text>
-                    )}
-                  </View>
+      {picking ? (
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={styles.muted}>{t('lookupLoading')}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={results}
+          keyExtractor={(m) => m.id}
+          keyboardShouldPersistTaps="handled"
+          style={styles.list}
+          ItemSeparatorComponent={() => <View style={styles.gap} />}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => pick(item)}
+              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+            >
+              {item.poster ? (
+                <Image source={{ uri: item.poster }} style={styles.thumb} />
+              ) : (
+                <View style={[styles.thumb, styles.thumbFallback]}>
                   <Ionicons
-                    name="chevron-forward"
+                    name="film-outline"
                     size={18}
                     color={colors.textMuted}
                   />
-                </Pressable>
-              )}
-              ListEmptyComponent={
-                <View style={styles.center}>
-                  {searching ? (
-                    <ActivityIndicator color={colors.primary} />
-                  ) : error ? (
-                    <Text style={styles.error}>{t('lookupError')}</Text>
-                  ) : debounced.trim() ? (
-                    <Text style={styles.muted}>{t('lookupEmpty')}</Text>
-                  ) : null}
                 </View>
-              }
-            />
+              )}
+              <View style={styles.info}>
+                <Text style={styles.rowTitle} numberOfLines={2}>
+                  {item.title}
+                </Text>
+                {!!item.year && <Text style={styles.rowMeta}>{item.year}</Text>}
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={colors.textMuted}
+              />
+            </Pressable>
           )}
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
+          ListEmptyComponent={
+            <View style={styles.center}>
+              {searching ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : error ? (
+                <Text style={styles.error}>{t('lookupError')}</Text>
+              ) : debounced.trim() ? (
+                <Text style={styles.muted}>{t('lookupEmpty')}</Text>
+              ) : null}
+            </View>
+          }
+        />
+      )}
+    </Sheet>
   );
 }
 
 const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    root: { flex: 1, justifyContent: 'flex-end' },
-    backdrop: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: colors.overlay,
-    },
-    sheet: {
-      height: '75%',
-      backgroundColor: colors.surface,
-      borderTopLeftRadius: radius.xl,
-      borderTopRightRadius: radius.xl,
-      padding: spacing.lg,
-      gap: spacing.md,
-    },
-    handle: {
-      width: 40,
-      height: 4,
-      borderRadius: radius.pill,
-      backgroundColor: colors.border,
-      alignSelf: 'center',
-    },
+    panel: { height: '75%', gap: spacing.md },
     title: { ...typography.h2, color: colors.text },
     hint: { ...typography.caption, color: colors.textSecondary },
     list: { flex: 1 },

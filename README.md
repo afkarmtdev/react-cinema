@@ -87,7 +87,7 @@ between English and Bahasa Melayu. Both choices are remembered on the device.
 src/
 ├─ api/            movies.ts (optional OMDb search and detail, for prefill)
 ├─ components/
-│  ├─ ui/          Button, TextField, Chip, Screen, StarRating, Skeleton, StateViews
+│  ├─ ui/          Button, TextField, Chip, Sheet, Screen, StarRating, Skeleton, StateViews
 │  ├─ BrandHeader, SearchBar, ItemCard, KindPicker, StatusPicker, DateField, TagInput,
 │  │  FilterSheet, OmdbLookupSheet
 ├─ context/        AuthContext, LibraryContext, LanguageContext, ThemeContext

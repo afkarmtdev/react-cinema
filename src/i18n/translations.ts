@@ -118,6 +118,7 @@ export const translations: Record<Language, Record<string, string>> = {
     delete: 'Delete',
     deleteConfirm: 'Yes, delete it',
     cancel: 'Cancel',
+    closeSheet: 'Close',
     errTitleRequired: 'Give it a title first.',
     errSaveGeneric: 'Could not save. Try again.',
 
@@ -304,6 +305,7 @@ export const translations: Record<Language, Record<string, string>> = {
     delete: 'Padam',
     deleteConfirm: 'Ya, padamkan',
     cancel: 'Batal',
+    closeSheet: 'Tutup',
     errTitleRequired: 'Berikan tajuk dahulu.',
     errSaveGeneric: 'Tidak dapat menyimpan. Sila cuba lagi.',
 
