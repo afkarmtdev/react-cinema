@@ -11,7 +11,7 @@ Node 24 is the default in both PowerShell and Bash on this machine, so either
 tool works:
 
 ```powershell
-npm test                 # run everything once (60 tests in 9 files)
+npm test                 # run everything once (69 tests in 10 files)
 npx jest --watch         # watch mode
 npx jest path/to/file    # a single file
 npx jest -t "duplicate"  # tests matching a name
@@ -49,6 +49,12 @@ The OMDb client logs each request with `console.log`, so expect a few
   to the SDK's `collection()` and `authStore`) checks record mapping in both
   directions, which collection calls the store makes, and how SDK errors map
   to AuthError codes (duplicate email, wrong password, no connection).
+- `src/lib/__tests__/sqliteStore.test.ts`: the device store against the
+  in-memory expo-sqlite fake. Row mapping both ways (NULL for unset fields,
+  tags as JSON), create/update/list/remove per owner, newest-updated-first
+  order, one memoised connection, and the one-off import from AsyncStorage
+  (library key, legacy reviews, existing rows win on an id clash, keys
+  removed afterwards).
 - `src/context/__tests__/ThemeContext.test.tsx`: default theme, switching
   and persisting, restoring a saved (or unknown) value, and that
   `useThemedStyles` only rebuilds when the theme changes.
@@ -73,6 +79,11 @@ The OMDb client logs each request with `console.log`, so expect a few
   and its CJS build has no named exports.
 - `jest.setup.js`: mocks `@react-native-async-storage/async-storage` with a
   simple in-memory store; tests call `AsyncStorage.clear()` in `beforeEach`.
+  It also calls `jest.mock('expo-sqlite')`, which picks up
+  `__mocks__/expo-sqlite.ts`: an in-memory fake that does not parse SQL and
+  only understands the named-parameter statements `src/lib/sqliteStore.ts`
+  issues. A global `beforeEach` empties it, so no test has to. If the store's
+  SQL changes shape, update the fake with it.
 - `babel.config.js`: `babel-preset-expo` (needed by both Metro and Jest).
 - `tsconfig.json` sets `"types": ["jest", "node"]` so `tsc --noEmit` sees the
   Jest globals in test files.

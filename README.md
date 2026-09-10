@@ -71,7 +71,7 @@ between English and Bahasa Melayu. Both choices are remembered on the device.
 | State       | React Context API + hooks (`useState`, `useEffect`, `useMemo`, `useCallback`) |
 | i18n        | A small `LanguageContext` + `t()` dictionary (English / Malay)                |
 | Theming     | `ThemeContext` + `useThemedStyles()`; three palettes in `src/theme`           |
-| Persistence | PocketBase (`pocketbase` SDK) or AsyncStorage, behind one store interface     |
+| Persistence | PocketBase (`pocketbase` SDK) or SQLite (`expo-sqlite`), one store interface  |
 | Testing     | Jest + `jest-expo` + React Native Testing Library                             |
 | Icons       | `@expo/vector-icons` (Ionicons)                                               |
 | Lookup      | `fetch` against OMDb, only when a key is configured                           |
@@ -89,8 +89,8 @@ src/
 │  └─ __tests__/   tests for the auth and library contexts
 ├─ i18n/           translations.ts (English / Malay dictionaries)
 ├─ hooks/          useDebouncedValue
-├─ lib/            backend (builds PocketBase or local), auth, libraryStore,
-│                  pocketbase, storage, tags, labels, validation
+├─ lib/            backend (builds PocketBase or device), auth, sqliteStore,
+│                  libraryStore, pocketbase, storage, tags, labels, validation
 ├─ navigation/     RootNavigator, AuthStack, MainTabs, LibraryStack, types
 ├─ screens/        SplashScreen, auth/(Login, Signup),
 │                  library/(Library, ItemDetail, ItemForm), DiaryScreen,
@@ -191,18 +191,24 @@ address in the Storage setting. The session token is cached on the device so the
 opens straight into your library, and if the server is unreachable you stay
 signed in and see an error with a retry.
 
-**On the device (no server).** In device mode everything stays in
-AsyncStorage: accounts, the session, the language choice, and the library as
-one JSON array of entries tagged with the owning account's id. The first time
-this version runs on a device that had the old OMDb-only app, any reviews it
-finds are carried over as "watched" film entries.
+**On the device (no server).** In device mode nothing leaves the phone. The
+library is a SQLite file (`cinereact.db`, through `expo-sqlite`) in the app's
+private sandbox, one row per entry with an index on the owning account, so a
+change writes one row instead of rewriting the whole library. Accounts, the
+session, and the language choice stay in AsyncStorage. The first time this
+version runs on a device that used an earlier one, whatever AsyncStorage held
+(the JSON library, or reviews from the OMDb-only app, carried over as
+"watched" film entries) is copied into the table and removed from
+AsyncStorage. On web, where `expo-sqlite` is still alpha, the library stays in
+AsyncStorage.
 
 Either way `LibraryContext` and `AuthContext` do not know which mode is on.
 `StorageContext` reads the saved choice and asks `src/lib/backend.ts` for a
 `LibraryStore` (list, create, update, remove) and an `AuthBackend` (restore,
-signup, login, logout) to match; the local versions are in `libraryStore.ts`
-and `auth.ts`, the server versions in `pocketbase.ts`. When the choice
-changes, both contexts start over against the new pair.
+signup, login, logout) to match; the device versions are in `sqliteStore.ts`
+(with the AsyncStorage fallback in `libraryStore.ts`) and `auth.ts`, the
+server versions in `pocketbase.ts`. When the choice changes, both contexts
+start over against the new pair.
 
 ## The optional OMDb lookup
 
@@ -229,7 +235,7 @@ that server beyond your Wi-Fi.
 
 ## Tests
 
-`npm test` runs 60 tests across nine files:
+`npm test` runs 69 tests across ten files:
 
 | File                     | What it checks                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------------ |
@@ -238,6 +244,7 @@ that server beyond your Wi-Fi.
 | `lib/score`              | clamping to one decimal, formatting, splitting for the picker, stars to score        |
 | `api/movies`             | the URL it builds (search, filters, page), odd responses, and errors                 |
 | `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)    |
+| `lib/sqliteStore`        | row mapping both ways, per-owner list and order, and the one-off AsyncStorage import |
 | `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password               |
 | `context/LibraryContext` | add, validate, update, finish dates, remove, tag ordering, per-user split, migration |
 | `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles    |
@@ -245,7 +252,10 @@ that server beyond your Wi-Fi.
 
 One thing to know if you touch the test setup: `jest-expo@54` targets the Jest 29
 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the runner.
-AsyncStorage is swapped for a small in-memory mock in `jest.setup.js`.
+AsyncStorage is swapped for a small in-memory mock in `jest.setup.js`, and
+`expo-sqlite` (native, so it cannot load under Node) for the in-memory fake in
+`__mocks__/expo-sqlite.ts`, which only understands the statements the store
+issues.
 
 ## Screenshots
 

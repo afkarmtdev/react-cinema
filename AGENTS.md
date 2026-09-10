@@ -7,7 +7,8 @@ in by hand (title, year, director or author, cover link, description, tags,
 status, a score from 1.0 to 10.0, notes), and finished entries appear in a
 diary. Scoring a 10 triggers a warning by design (see src/lib/score.ts). Accounts and
 the library live either on a PocketBase server (so the library follows the
-user across devices) or on the device in AsyncStorage; the user picks in the
+user across devices) or on the device (the library in a SQLite file through
+expo-sqlite, accounts and settings in AsyncStorage); the user picks in the
 Storage setting at runtime, and EXPO_PUBLIC_POCKETBASE_URL only sets the
 first-launch default. OMDb is only used, when a key is present, to prefill the add form
 for a film or series.
@@ -84,7 +85,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (60 tests in 9 files)
+npm test            Jest, runs once (69 tests in 10 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 ```
@@ -108,8 +109,10 @@ src/screens      SplashScreen, auth/, library/ (Library, ItemDetail, ItemForm),
 src/navigation   RootNavigator, AuthStack, MainTabs, LibraryStack, types
 src/i18n         translations.ts (English and Malay), used through t()
 src/lib          backend (builds the PocketBase or local pair), auth
-                 (AuthBackend + local accounts), libraryStore (LibraryStore +
-                 local entries), pocketbase (both, against the SDK), storage,
+                 (AuthBackend + local accounts), libraryStore (the LibraryStore
+                 interface + the AsyncStorage entries store, used on web and
+                 for the one-off import), sqliteStore (the device entries
+                 store, expo-sqlite), pocketbase (both, against the SDK), storage,
                  score (1 to 10 scale, the 10 rule), tags, labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
 src/theme        three colour themes (cinema, paperback, viceCity) as
