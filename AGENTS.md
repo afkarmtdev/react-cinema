@@ -1,7 +1,7 @@
 # CineReact: agent brief
 
-CineReact is a small Letterboxd-style tracker built with Expo SDK 54 (managed
-workflow), React Native 0.81, React 19.1, TypeScript, and React Navigation 7.
+CineReact is a small Letterboxd-style tracker built with Expo SDK 57 (managed
+workflow), React Native 0.86, React 19.2, TypeScript, and React Navigation 7.
 A signed-in user keeps a personal library of films, series, and books, typed
 in by hand (title, year, director or author, cover link, description, tags,
 status, a score from 1.0 to 10.0, notes), and finished entries appear in a
@@ -13,13 +13,13 @@ Storage setting at runtime, and EXPO_PUBLIC_POCKETBASE_URL only sets the
 first-launch default. OMDb is only used, when a key is present, to prefill the add form
 for a film or series.
 
-## Expo is pinned to SDK 54
+## Expo is pinned to SDK 57
 
 Expo changes a lot between SDK versions. Read the exact versioned docs at
-https://docs.expo.dev/versions/v54.0.0/ before writing any code. Do not use
-the "latest" docs (SDK 57 as of September 2026). Do not upgrade the SDK,
-React Native, or React as a side effect of another task. If a task needs an
-upgrade, say so and stop.
+https://docs.expo.dev/versions/v57.0.0/ before writing any code. Do not use
+the unversioned "latest" docs, which move to the next SDK as soon as it
+ships. Do not upgrade the SDK, React Native, or React as a side effect of
+another task. If a task needs an upgrade, say so and stop.
 
 ## Dependency policy (read before touching package.json)
 
@@ -59,13 +59,13 @@ as the Shai-Hulud worm. The rules:
   npx expo install <pkg> -- --ignore-scripts --before=$(date -d '10 days ago' +%F)
   ```
 
-- `jest` stays on the 29.x line. `jest-expo@54` is built for Jest 29 and
-  Jest 30 crashes the runner.
+- `jest` stays on the 29.x line. `jest-expo@57` still depends on the Jest 29
+  packages, and mixing in Jest 30 crashes the runner.
 
 ## Environment
 
 - Node 24.14.0 (installed at E:\nodejs) is the default in both PowerShell and
-  the Bash tool on this machine. Expo SDK 54 needs Node 20.19 or newer. If
+  the Bash tool on this machine. Expo SDK 57 needs Node 20.19.4 or newer. If
   `node -v` prints something older, stop and report it rather than working
   around it.
 - `.env` (copy `.env.example`, git-ignored) has two optional values.
@@ -76,9 +76,11 @@ as the Shai-Hulud worm. The rules:
   OMDb" button in the add form.
 - The PocketBase server is not part of npm. The binary and its pb_data folder
   live in pocketbase/ and are git-ignored; only the migration is committed.
-- Expo Go from the app stores tracks the latest SDK (57), so it may refuse to
-  open this SDK 54 project. Use the SDK 54 build from the version selector at
-  https://expo.dev/go, or run on web with `npm run web`.
+- Expo Go from the app stores tracks the latest SDK, which is 57 as of
+  September 2026, so the store build opens this project. Once the stores move
+  to SDK 58, the SDK 57 build from the version selector at
+  https://expo.dev/go works on Android and the iOS simulator (a physical
+  iPhone can only run the store build), or run on web with `npm run web`.
 
 ## Commands
 

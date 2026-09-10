@@ -1,14 +1,14 @@
 ---
 name: run-app
-description: Launch, typecheck, or bundle this Expo SDK 54 + TypeScript library tracker (CineReact). Use when asked to run/start the app, check it builds, or reproduce the dev setup. Captures the Node, OMDb key, and Expo Go facts specific to this machine and project.
+description: Launch, typecheck, or bundle this Expo SDK 57 + TypeScript library tracker (CineReact). Use when asked to run/start the app, check it builds, or reproduce the dev setup. Captures the Node, OMDb key, and Expo Go facts specific to this machine and project.
 ---
 
-# Running CineReact (Expo SDK 54 + TypeScript)
+# Running CineReact (Expo SDK 57 + TypeScript)
 
 ## Environment (check first)
 
 - Node 24.14.0 is the default in both the PowerShell and Bash tools on this
-  machine (installed at E:\nodejs, no nvm). Expo SDK 54 needs Node 20.19 or
+  machine (installed at E:\nodejs, no nvm). Expo SDK 57 needs Node 20.19.4 or
   newer. Confirm with `node -v`; if it prints something older, stop and report
   it instead of working around it.
 - `.env` (copy `.env.example`; git-ignored, may be missing) has two optional
@@ -64,12 +64,13 @@ CI=1 npx expo export --platform android --output-dir dist-verify && rm -rf dist-
 
 ## Expo Go caveat
 
-Expo Go from the App Store and Play Store tracks the latest SDK (57 as of
-September 2026) and will not open an SDK 54 project. Options, in order of
-preference:
+Expo Go from the App Store and Play Store tracks the latest SDK, which is 57
+as of September 2026, the same as this project, so the store build opens it.
+If the stores have moved to SDK 58, the options in order of preference are:
 
-1. Install the SDK 54 build of Expo Go from the version selector at
-   https://expo.dev/go (Android APK, or the iOS simulator build).
+1. Install the SDK 57 build of Expo Go from the version selector at
+   https://expo.dev/go (Android APK, or the iOS simulator build; a physical
+   iPhone can only run the store build).
 2. Run on web with `npm run web`.
 3. Upgrading the project to a newer SDK is a separate, deliberate task that
    the user has to ask for. Do not do it to make Expo Go work.

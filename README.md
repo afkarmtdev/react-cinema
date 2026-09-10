@@ -66,7 +66,7 @@ between English and Bahasa Melayu. Both choices are remembered on the device.
 
 | Concern     | Choice                                                                        |
 | ----------- | ----------------------------------------------------------------------------- |
-| Framework   | Expo SDK 54 (managed) + TypeScript                                            |
+| Framework   | Expo SDK 57 (managed) + TypeScript                                            |
 | Navigation  | React Navigation 7 (native-stack + bottom-tabs)                               |
 | State       | React Context API + hooks (`useState`, `useEffect`, `useMemo`, `useCallback`) |
 | i18n        | A small `LanguageContext` + `t()` dictionary (English / Malay)                |
@@ -104,12 +104,13 @@ pocketbase/
 
 ## Getting started
 
-You'll need Node.js 20.19 or newer (the minimum for Expo SDK 54; I built this
-on Node 24) and the Expo Go app on your phone, or an Android emulator / iOS
-simulator. One thing to know about Expo Go: the version in the app stores only
-runs the latest SDK, and this project is on SDK 54. Pick SDK 54 from the
-version selector at https://expo.dev/go to get a build that opens it, or use
-the web target below.
+You'll need Node.js 20.19.4 or newer (the minimum for Expo SDK 57; I built
+this on Node 24) and the Expo Go app on your phone, or an Android emulator /
+iOS simulator. One thing to know about Expo Go: the version in the app stores
+only runs the latest SDK. This project is on SDK 57, which is the current one,
+so the store build opens it. If the stores have moved on by the time you read
+this, pick SDK 57 from the version selector at https://expo.dev/go (Android
+and iOS simulator builds) or use the web target below.
 
 Copy `.env.example` to `.env`. Both values in it are optional:
 
@@ -165,7 +166,7 @@ supply-chain attacks, this project is careful about what it pulls in:
   npm install <pkg>@<version> --ignore-scripts --before=$(date -d '10 days ago' +%F)
   ```
 
-- The project stays on Expo SDK 54 deliberately. Upgrading the SDK is a
+- The project stays on Expo SDK 57 deliberately. Upgrading the SDK is a
   separate job, not something to do while fixing a bug.
 
 ## Where the data lives
@@ -250,8 +251,9 @@ that server beyond your Wi-Fi.
 | `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles    |
 | `context/StorageContext` | device default, switching to a server and persisting, bad saved values, health check |
 
-One thing to know if you touch the test setup: `jest-expo@54` targets the Jest 29
-line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the runner.
+One thing to know if you touch the test setup: `jest-expo@57` still targets the
+Jest 29 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the
+runner.
 AsyncStorage is swapped for a small in-memory mock in `jest.setup.js`, and
 `expo-sqlite` (native, so it cannot load under Node) for the in-memory fake in
 `__mocks__/expo-sqlite.ts`, which only understands the statements the store

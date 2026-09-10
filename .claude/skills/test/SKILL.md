@@ -1,6 +1,6 @@
 ---
 name: test
-description: Run or extend the Jest unit tests for this Expo SDK 54 + TypeScript library tracker (CineReact). Use when asked to run tests, add a test, debug a failing test, or check coverage. Captures the jest-expo/Jest 29 pin and the layout of the existing tests.
+description: Run or extend the Jest unit tests for this Expo SDK 57 + TypeScript library tracker (CineReact). Use when asked to run tests, add a test, debug a failing test, or check coverage. Captures the jest-expo/Jest 29 pin and the layout of the existing tests.
 ---
 
 # Testing CineReact
@@ -23,13 +23,13 @@ The OMDb client logs each request with `console.log`, so expect a few
 
 ## Stack (and a version constraint that matters)
 
-- `jest-expo@54.0.17` is the preset (Expo/RN transform and mocks).
-- `jest-expo@54` is built for the Jest 29 line, so `jest` is pinned to
-  `29.7.0`. Do not bump jest to 30: `jest-expo@54` pulls Jest 29 environment
-  packages, and mixing in Jest 30's runtime crashes with
+- `jest-expo@57.0.5` is the preset (Expo/RN transform and mocks).
+- `jest-expo@57` still depends on the Jest 29 packages (babel-jest,
+  jest-snapshot, jest-environment-jsdom at ^29), so `jest` is pinned to
+  `29.7.0`. Do not bump jest to 30: mixing in Jest 30's runtime crashes with
   `this._moduleMocker.clearMocksOnScope is not a function`.
 - `@testing-library/react-native@13.2.0` (Jest 29 and React 19 compatible) with
-  `react-test-renderer@19.1.0`.
+  `react-test-renderer@19.2.3`, the version jest-expo 57 itself depends on.
 - Like everything else in the project, test dependencies are pinned exactly
   and must be at least 10 days old when added. See the dependency policy in
   AGENTS.md before touching any of them.
