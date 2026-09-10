@@ -11,6 +11,7 @@
     --bg: #0b0b0b;
     --surface: #161616;
     --surface-alt: #1e1e1e;
+    --elevated: #262626;
     --border: #2a2a2a;
     --primary: #fce300;
     --on-primary: #0b0b0b;
@@ -277,18 +278,20 @@
   .card .t { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card .m { color: var(--text-2); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .fab {
-    position: absolute; right: 14px; bottom: 66px; width: 48px; height: 48px; border-radius: 999px;
+    position: absolute; right: 14px; bottom: 80px; width: 48px; height: 48px; border-radius: 999px;
     background: var(--primary); color: var(--on-primary); display: flex; align-items: center; justify-content: center;
     box-shadow: 0 6px 14px rgba(0,0,0,0.5); font-size: 24px;
   }
   .tabs {
-    flex: none; display: flex; justify-content: space-around; align-items: center;
-    height: 54px; background: var(--surface); border-top: 1px solid var(--border);
-    color: var(--muted); font-size: 9.5px; font-weight: 500;
+    position: absolute; left: 24px; right: 24px; bottom: 20px; height: 50px;
+    display: flex; align-items: center; padding: 0 6px;
+    border-radius: 999px; background: var(--elevated); border: 1px solid var(--border);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.5);
+    color: var(--muted); font-size: 9.5px; font-weight: 600;
   }
-  .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 9.5px; }
-  .tab svg { font-size: 18px; }
-  .tab.on { color: var(--primary); }
+  .tab { flex: 1; height: 40px; border-radius: 999px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 9.5px; }
+  .tab svg { font-size: 17px; }
+  .tab.on { color: var(--primary); background: rgba(252,227,0,0.16); }
   .navbar {
     flex: none; display: flex; align-items: center; justify-content: space-between;
     padding: 8px 14px; color: var(--primary); font-size: 16px;
@@ -438,7 +441,7 @@
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v5 · mirrors the code as of 10 Sep 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v6 · mirrors the code as of 10 Sep 2026 · <a href="#changes">changes</a></p>
       <h1>The revamped CineReact, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -542,7 +545,7 @@
               <div class="t">Perfect Days</div><div class="m">2023 / Wim Wenders</div>
             </div>
           </div>
-          <div style="height:70px"></div>
+          <div style="height:100px"></div>
         </div>
         <div class="fab">+</div>
         <div class="tabs">
@@ -710,7 +713,7 @@
           <div class="drow"><div class="day">9</div><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div class="info"><div class="t"><svg><use href="#i-film"/></svg>Abang Adik</div><div class="m">Jin Ong</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>8.4</span><div class="s">Pudu at night. Rewatch with subtitles off.</div></div></div>
           <p class="month">July 2026</p>
           <div class="drow"><div class="day">21</div><div class="thumb"><svg style="font-size:14px"><use href="#i-tv"/></svg></div><div class="info"><div class="t"><svg><use href="#i-tv"/></svg>Shogun</div><div class="m">Rachel Kondo, Justin Marks</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.5</span></div></div>
-          <div style="height:12px"></div>
+          <div style="height:80px"></div>
         </div>
         <div class="tabs">
           <div class="tab"><svg><use href="#i-albums"/></svg>Library</div>
@@ -757,7 +760,7 @@
           </div>
           <div style="height:24px"></div>
           <div class="btn outline"><svg style="font-size:15px"><use href="#i-logout"/></svg>Log out</div>
-          <div style="height:16px"></div>
+          <div style="height:80px"></div>
         </div>
         <div class="tabs">
           <div class="tab"><svg><use href="#i-albums"/></svg>Library</div>
@@ -786,6 +789,12 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v6</b>10 Sep 2026</div>
+        <ul>
+          <li>The bottom tabs are now a floating pill: a detached capsule above the content with a tinted capsule behind the active tab, which slides to the new tab on a switch. The add button sits above it and the lists leave room under their last row. The pill hides on Entry detail and Add entry. Redrawn: Library, Diary, Me.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v5</b>10 Sep 2026</div>
         <ul>

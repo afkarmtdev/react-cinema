@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFloatingTabBarInset } from '../components/FloatingTabBar';
 import { Screen } from '../components/ui/Screen';
 import { Button } from '../components/ui/Button';
 import { StorageSettings } from '../components/StorageSettings';
@@ -23,6 +24,7 @@ import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 export function ProfileScreen() {
   const styles = useThemedStyles(makeStyles);
+  const tabBar = useFloatingTabBarInset();
   const { colors } = useTheme();
   const { user, logout } = useAuth();
   const { items } = useLibrary();
@@ -54,7 +56,10 @@ export function ProfileScreen() {
   return (
     <Screen padded>
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: tabBar.clearance },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.heading}>{t('meHeading')}</Text>
@@ -264,7 +269,7 @@ const makeStyles = (colors: ThemeColors) =>
     },
     statValue: { ...typography.h2, color: colors.text },
     statLabel: { ...typography.caption, color: colors.textSecondary },
-    content: { paddingBottom: spacing.xxl, flexGrow: 1 },
+    content: { flexGrow: 1 },
     settingsHeading: {
       ...typography.h2,
       color: colors.text,

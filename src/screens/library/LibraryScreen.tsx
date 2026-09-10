@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState, type ReactNode } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BrandHeader } from '../../components/BrandHeader';
+import { useFloatingTabBarInset } from '../../components/FloatingTabBar';
 import {
   EMPTY_FILTERS,
   FilterSheet,
@@ -44,7 +44,7 @@ export function LibraryScreen({ navigation }: Props) {
   const { colors } = useTheme();
   const { items, allTags, ready, loadError, reload } = useLibrary();
   const { t } = useLanguage();
-  const insets = useSafeAreaInsets();
+  const tabBar = useFloatingTabBarInset();
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<KindFilter>('all');
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
@@ -142,7 +142,7 @@ export function LibraryScreen({ navigation }: Props) {
         columnWrapperStyle={styles.column}
         contentContainerStyle={[
           styles.listContent,
-          { paddingBottom: insets.bottom + 96 },
+          { paddingBottom: tabBar.clearance + 60 + spacing.md },
         ]}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -184,7 +184,7 @@ export function LibraryScreen({ navigation }: Props) {
         accessibilityLabel={t('add')}
         style={({ pressed }) => [
           styles.fab,
-          { bottom: insets.bottom + spacing.lg },
+          { bottom: tabBar.top + spacing.md },
           pressed && styles.fabPressed,
         ]}
       >

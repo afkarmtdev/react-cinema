@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useFloatingTabBarInset } from '../components/FloatingTabBar';
 import { Screen } from '../components/ui/Screen';
 import { EmptyView } from '../components/ui/StateViews';
 import { ScoreBadge } from '../components/ui/ScoreBadge';
@@ -37,6 +38,7 @@ interface MonthSection {
 /** Everything finished, newest first, grouped by the month it was finished. */
 export function DiaryScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
+  const tabBar = useFloatingTabBarInset();
   const { items } = useLibrary();
   const { t } = useLanguage();
 
@@ -76,7 +78,10 @@ export function DiaryScreen({ navigation }: Props) {
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: tabBar.clearance },
+        ]}
         showsVerticalScrollIndicator={false}
         stickySectionHeadersEnabled={false}
         ListHeaderComponent={
@@ -207,7 +212,7 @@ const makeStyles = (colors: ThemeColors) =>
       color: colors.text,
       paddingVertical: spacing.lg,
     },
-    content: { flexGrow: 1, paddingBottom: spacing.xxl },
+    content: { flexGrow: 1 },
     summary: { flexDirection: 'row', gap: spacing.sm },
     card: {
       flex: 1,
