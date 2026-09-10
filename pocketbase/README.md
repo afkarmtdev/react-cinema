@@ -56,6 +56,7 @@ PocketBase is a single binary with SQLite inside; nothing else to install.
 | `status`      | `status` (select)                                     |
 | `rating`      | `rating` (number 1.0 to 10.0, one decimal, 0 = unset) |
 | `review`      | `review` (text)                                       |
+| `startedAt`   | `startedAt` (date, added by the second migration)     |
 | `finishedAt`  | `finishedAt` (date)                                   |
 | `createdAt`   | `created` (autodate)                                  |
 | `updatedAt`   | `updated` (autodate)                                  |

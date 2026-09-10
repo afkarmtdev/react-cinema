@@ -4,8 +4,9 @@ CineReact is a small Letterboxd-style tracker built with Expo SDK 57 (managed
 workflow), React Native 0.86, React 19.2, TypeScript, and React Navigation 7.
 A signed-in user keeps a personal library of films, series, and books, typed
 in by hand (title, year, director or author, cover link, description, tags,
-status, a score from 1.0 to 10.0, notes), and finished entries appear in a
-diary. Scoring a 10 triggers a warning by design (see src/lib/score.ts). Accounts and
+status, a score from 1.0 to 10.0, notes, and a started and a finished date
+picked on the system calendar so old reads can be backlogged). Finished
+entries appear in a diary that opens with this-month and this-year totals. Scoring a 10 triggers a warning by design (see src/lib/score.ts). Accounts and
 the library live either on a PocketBase server (so the library follows the
 user across devices) or on the device (the library in a SQLite file through
 expo-sqlite, accounts and settings in AsyncStorage); the user picks in the
@@ -87,7 +88,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (69 tests in 10 files)
+npm test            Jest, runs once (79 tests in 11 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 ```
@@ -102,7 +103,7 @@ src/api          movies.ts: optional OMDb search and detail, used only to
 src/hooks        useDebouncedValue
 src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
                  ThemeContext, and their tests
-src/components   ItemCard, KindPicker, StatusPicker, TagInput, FilterSheet,
+src/components   ItemCard, KindPicker, StatusPicker, DateField, TagInput, FilterSheet,
                  OmdbLookupSheet, SearchBar, BrandHeader, StorageSettings,
                  MultiProvider, and ui/ primitives (Button, TextField, Chip,
                  StarRating, ...)
@@ -114,7 +115,8 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  (AuthBackend + local accounts), libraryStore (the LibraryStore
                  interface + the AsyncStorage entries store, used on web and
                  for the one-off import), sqliteStore (the device entries
-                 store, expo-sqlite), pocketbase (both, against the SDK), storage,
+                 store, expo-sqlite), pocketbase (both, against the SDK),
+                 summary (month and year totals for the Diary), storage,
                  score (1 to 10 scale, the 10 rule), tags, labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
 src/theme        three colour themes (cinema, paperback, viceCity) as

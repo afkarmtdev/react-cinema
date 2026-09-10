@@ -52,8 +52,16 @@ function sanitise(input: Partial<LibraryItemInput>): Partial<LibraryItemInput> {
   if (input.rating !== undefined) {
     out.rating = input.rating >= 1 ? clampScore(input.rating) : undefined;
   }
+  if ('startedAt' in input) out.startedAt = validTime(input.startedAt);
+  if ('finishedAt' in input) out.finishedAt = validTime(input.finishedAt);
   return out;
 }
+
+/** A date from the form, or nothing: anything that is not a real time is dropped. */
+const validTime = (value: number | undefined): number | undefined =>
+  typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : undefined;
 
 export function LibraryProvider({
   children,
@@ -144,7 +152,10 @@ export function LibraryProvider({
         ownerId: user.id,
         createdAt: now,
         updatedAt: now,
-        finishedAt: input.status === 'done' ? now : undefined,
+        // A backlogged entry carries the day it was really finished; a fresh
+        // one is finished right now.
+        finishedAt:
+          input.status === 'done' ? (clean.finishedAt ?? now) : undefined,
       };
       const saved = await store.create(item);
       setAll((prev) => [saved, ...prev]);
@@ -162,7 +173,10 @@ export function LibraryProvider({
         throw new Error('Title is required.');
       }
       const status = clean.status ?? existing.status;
-      let finishedAt = existing.finishedAt;
+      // The form sends a finish date (possibly cleared); a status chip on the
+      // detail screen sends none, so the existing one is kept or stamped now.
+      let finishedAt =
+        'finishedAt' in clean ? clean.finishedAt : existing.finishedAt;
       if (status === 'done' && !finishedAt) finishedAt = Date.now();
       if (status !== 'done') finishedAt = undefined;
       const updated: LibraryItem = {

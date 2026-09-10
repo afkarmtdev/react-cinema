@@ -100,8 +100,19 @@ describe('pocketbase mapping', () => {
       status: 'done',
       rating: 5,
       review: 'Great',
+      startedAt: '',
       finishedAt: '2026-09-02T09:00:00.000Z',
     });
+  });
+
+  it('carries the start date both ways', () => {
+    const started = Date.parse('2026-08-20T00:00:00.000Z');
+    expect(
+      toItem(record({ startedAt: '2026-08-20 00:00:00.000Z' })).startedAt,
+    ).toBe(started);
+    expect(toRecord({ ...dune, startedAt: started }).startedAt).toBe(
+      '2026-08-20T00:00:00.000Z',
+    );
   });
 });
 

@@ -1,17 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState, type ReactNode } from 'react';
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { isOmdbConfigured } from '../../api/movies';
+import { DateField } from '../../components/DateField';
 import { KindPicker } from '../../components/KindPicker';
 import { OmdbLookupSheet } from '../../components/OmdbLookupSheet';
 import { StatusPicker } from '../../components/StatusPicker';
@@ -22,6 +15,7 @@ import { TextField } from '../../components/ui/TextField';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
 import { KIND_ICON, creatorKey } from '../../lib/labels';
+import { startOfDay } from '../../lib/summary';
 import { uniqueTags } from '../../lib/tags';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
 import {
@@ -47,6 +41,8 @@ interface Draft {
   status: ItemStatus;
   rating: number;
   review: string;
+  startedAt?: number;
+  finishedAt?: number;
 }
 
 function draftFrom(item: LibraryItem | undefined, kind?: ItemKind): Draft {
@@ -61,6 +57,8 @@ function draftFrom(item: LibraryItem | undefined, kind?: ItemKind): Draft {
     status: item?.status ?? 'want',
     rating: item?.rating ?? 0,
     review: item?.review ?? '',
+    startedAt: item?.startedAt,
+    finishedAt: item?.finishedAt,
   };
 }
 
@@ -84,6 +82,18 @@ export function ItemFormScreen({ navigation, route }: Props) {
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
+
+  // Picking "done" proposes today as the finish date; the field below lets
+  // the user move it back when they are catching up on old reads or watches.
+  const setStatus = (status: ItemStatus) =>
+    setDraft((d) => ({
+      ...d,
+      status,
+      finishedAt:
+        status === 'done'
+          ? (d.finishedAt ?? startOfDay(new Date()))
+          : undefined,
+    }));
 
   const canLookup = !isReadKind(draft.kind) && isOmdbConfigured();
 
@@ -109,6 +119,12 @@ export function ItemFormScreen({ navigation, route }: Props) {
       setError(t('errTitleRequired'));
       return;
     }
+    const startedAt = draft.status === 'want' ? undefined : draft.startedAt;
+    const finishedAt = draft.status === 'done' ? draft.finishedAt : undefined;
+    if (startedAt && finishedAt && finishedAt < startedAt) {
+      setError(t('errDatesOrder'));
+      return;
+    }
     setError(null);
     setSaving(true);
     const year = parseInt(draft.year, 10);
@@ -123,6 +139,8 @@ export function ItemFormScreen({ navigation, route }: Props) {
       status: draft.status,
       rating: draft.rating || undefined,
       review: draft.review,
+      startedAt,
+      finishedAt,
     };
     try {
       if (existing) {
@@ -150,10 +168,13 @@ export function ItemFormScreen({ navigation, route }: Props) {
   const showPoster = !!draft.poster.trim() && !posterFailed;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={styles.flex}>
+      {/*
+        automaticallyAdjustKeyboardInsets (iOS) grows the bottom inset by the
+        keyboard height and scrolls the focused input into view, so the notes
+        field at the end of the form is not hidden behind it. Android resizes
+        the window for the keyboard on its own.
+      */}
       <ScrollView
         style={styles.flex}
         contentContainerStyle={[
@@ -161,6 +182,8 @@ export function ItemFormScreen({ navigation, route }: Props) {
           { paddingBottom: insets.bottom + spacing.xxl },
         ]}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        automaticallyAdjustKeyboardInsets
       >
         <Field label={t('kind')}>
           <KindPicker
@@ -268,9 +291,25 @@ export function ItemFormScreen({ navigation, route }: Props) {
           <StatusPicker
             kind={draft.kind}
             value={draft.status}
-            onChange={(status) => set('status', status)}
+            onChange={setStatus}
           />
         </Field>
+
+        {draft.status !== 'want' && (
+          <DateField
+            label={t('startedDate')}
+            value={draft.startedAt}
+            onChange={(v) => set('startedAt', v)}
+          />
+        )}
+
+        {draft.status === 'done' && (
+          <DateField
+            label={t('finishedDate')}
+            value={draft.finishedAt}
+            onChange={(v) => set('finishedAt', v)}
+          />
+        )}
 
         <Field label={t('yourRating')}>
           <ScoreInput value={draft.rating} onChange={(v) => set('rating', v)} />
@@ -326,7 +365,7 @@ export function ItemFormScreen({ navigation, route }: Props) {
         onPick={applyMovie}
         onClose={() => setLookupOpen(false)}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

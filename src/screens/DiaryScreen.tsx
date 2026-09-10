@@ -15,8 +15,15 @@ import { ScoreBadge } from '../components/ui/ScoreBadge';
 import { useLanguage } from '../context/LanguageContext';
 import { useLibrary } from '../context/LibraryContext';
 import { KIND_ICON, formatMonth } from '../lib/labels';
+import { formatScore } from '../lib/score';
+import {
+  monthRange,
+  summarise,
+  yearRange,
+  type PeriodSummary,
+} from '../lib/summary';
 import { radius, spacing, typography, type ThemeColors } from '../theme';
-import type { LibraryItem } from '../types/library';
+import { ITEM_KINDS, type LibraryItem } from '../types/library';
 import type { TabParamList } from '../navigation/types';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
@@ -47,6 +54,15 @@ export function DiaryScreen({ navigation }: Props) {
     return out;
   }, [items]);
 
+  // What got finished this month and this year, for the two cards on top.
+  const summary = useMemo(() => {
+    const now = new Date();
+    return {
+      month: summarise(items, monthRange(now)),
+      year: summarise(items, yearRange(now)),
+    };
+  }, [items]);
+
   const open = (item: LibraryItem) =>
     navigation.navigate('LibraryTab', {
       screen: 'ItemDetail',
@@ -63,6 +79,14 @@ export function DiaryScreen({ navigation }: Props) {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         stickySectionHeadersEnabled={false}
+        ListHeaderComponent={
+          sections.length > 0 ? (
+            <View style={styles.summary}>
+              <SummaryCard title={t('thisMonth')} summary={summary.month} />
+              <SummaryCard title={t('thisYear')} summary={summary.year} />
+            </View>
+          ) : null
+        }
         renderSectionHeader={({ section }) => (
           <Text style={styles.month}>{section.title}</Text>
         )}
@@ -77,6 +101,48 @@ export function DiaryScreen({ navigation }: Props) {
         }
       />
     </Screen>
+  );
+}
+
+/** One card: total finished, then the count per kind and the average score. */
+function SummaryCard({
+  title,
+  summary,
+}: {
+  title: string;
+  summary: PeriodSummary;
+}) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
+  const { t } = useLanguage();
+  const avg = summary.avgScore ? formatScore(summary.avgScore) : '-';
+  return (
+    <View
+      style={styles.card}
+      accessibilityLabel={`${title}: ${summary.total} ${t('finishedStat')}`}
+    >
+      <Text style={styles.cardTitle}>{title}</Text>
+      <View style={styles.cardTotalRow}>
+        <Text style={styles.cardTotal}>{summary.total}</Text>
+        <Text style={styles.cardTotalLabel}>{t('finishedStat')}</Text>
+      </View>
+      <View style={styles.cardFacts}>
+        {ITEM_KINDS.map((kind) => (
+          <View key={kind} style={styles.cardFact}>
+            <Ionicons
+              name={KIND_ICON[kind]}
+              size={13}
+              color={colors.textSecondary}
+            />
+            <Text style={styles.cardFactText}>{summary.counts[kind]}</Text>
+          </View>
+        ))}
+        <View style={styles.cardFact}>
+          <Ionicons name="star" size={13} color={colors.star} />
+          <Text style={styles.cardFactText}>{avg}</Text>
+        </View>
+      </View>
+    </View>
   );
 }
 
@@ -142,6 +208,39 @@ const makeStyles = (colors: ThemeColors) =>
       paddingVertical: spacing.lg,
     },
     content: { flexGrow: 1, paddingBottom: spacing.xxl },
+    summary: { flexDirection: 'row', gap: spacing.sm },
+    card: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      gap: spacing.xs,
+    },
+    cardTitle: {
+      ...typography.tiny,
+      fontWeight: '700',
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+    },
+    cardTotalRow: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: spacing.xs,
+    },
+    cardTotal: {
+      ...typography.h1,
+      color: colors.primary,
+      fontVariant: ['tabular-nums'],
+    },
+    cardTotalLabel: { ...typography.caption, color: colors.textSecondary },
+    cardFacts: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    cardFact: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+    cardFactText: {
+      ...typography.tiny,
+      color: colors.textSecondary,
+      fontVariant: ['tabular-nums'],
+    },
     month: {
       ...typography.caption,
       fontWeight: '700',

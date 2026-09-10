@@ -130,6 +130,7 @@ export function toItem(r: RecordModel): LibraryItem {
     review: r.review || undefined,
     createdAt: toMillis(r.created) ?? Date.now(),
     updatedAt: toMillis(r.updated) ?? Date.now(),
+    startedAt: toMillis(r.startedAt),
     finishedAt: toMillis(r.finishedAt),
   };
 }
@@ -148,6 +149,7 @@ export function toRecord(item: LibraryItem): Record<string, unknown> {
     status: item.status,
     rating: item.rating ?? 0,
     review: item.review ?? '',
+    startedAt: toIso(item.startedAt),
     finishedAt: toIso(item.finishedAt),
   };
 }

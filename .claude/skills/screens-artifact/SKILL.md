@@ -10,7 +10,9 @@ wants it to track the code. It is one page of phone frames drawn in plain
 HTML and CSS (no library, no external images), plus a change log at the
 bottom.
 
-- Artifact URL: https://claude.ai/code/artifact/69cded94-36a0-4e11-bdca-b7fb3480f67a
+- Artifact URL: https://claude.ai/code/artifact/47563d0b-505d-4bc7-8edd-1ad255b343fe
+  (republished on 10 Sep 2026 because the earlier URL,
+  69cded94-36a0-4e11-bdca-b7fb3480f67a, no longer resolved)
 - Source of truth: `preview/screens.html` in this repo (committed). Edit that
   file; never rebuild the page from scratch in a scratchpad.
 - Favicon is already set (film clapper). Do not pass a new one.

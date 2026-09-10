@@ -331,6 +331,20 @@
   .drow .t svg { color: var(--muted); font-size: 11px; }
   .drow .m, .drow .s { color: var(--text-2); font-size: 10.5px; }
 
+  .sums { display: flex; gap: 8px; margin: 10px 0 2px; }
+  .sum { flex: 1; background: var(--surface); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px; font-variant-numeric: tabular-nums; }
+  .sum .k { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .sum .n { display: flex; align-items: baseline; gap: 4px; }
+  .sum .n b { font-size: 22px; font-weight: 800; color: var(--primary); }
+  .sum .n span { font-size: 10.5px; color: var(--text-2); }
+  .sum .f { display: flex; gap: 8px; flex-wrap: wrap; font-size: 10px; color: var(--text-2); }
+  .sum .f span { display: inline-flex; align-items: center; gap: 3px; }
+  .sum .f svg { font-size: 11px; }
+  .sum .f .st { color: var(--star); }
+  .datef { display: flex; align-items: center; gap: 8px; }
+  .datef svg { font-size: 14px; color: var(--primary); }
+  .datef .x { margin-left: auto; color: var(--text-2); }
+
   /* Profile */
   .avatar-card { background: var(--surface); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .avatar { width: 60px; height: 60px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-size: 26px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
@@ -413,6 +427,7 @@
     <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 4H5v16h5M14 8l4 4-4 4M8 12h10"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7v6M12 16v1" stroke="#0b0b0b" stroke-width="2"/></symbol>
     <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-xc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
     <symbol id="i-chevup" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
     <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol>
     <symbol id="i-cloud-o" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4 4 0 0 1 0 9z"/></symbol>
@@ -423,7 +438,7 @@
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v4 · mirrors the code as of 9 Sep 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v5 · mirrors the code as of 10 Sep 2026 · <a href="#changes">changes</a></p>
       <h1>The revamped CineReact, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -592,7 +607,9 @@
               <p class="tiny" style="margin:6px 0 4px 3px">Your tags</p>
               <div class="chips"><span class="chip">+ sci-fi</span><span class="chip">+ slow burn</span><span class="chip">+ book club</span></div>
             </div>
-            <div><p class="label">Status</p><div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>To read</span><span class="chip on"><svg style="font-size:12px"><use href="#i-play"/></svg>Reading</span><span class="chip"><svg style="font-size:12px"><use href="#i-check"/></svg>Read</span></div></div>
+            <div><p class="label">Status</p><div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>To read</span><span class="chip"><svg style="font-size:12px"><use href="#i-play"/></svg>Reading</span><span class="chip on"><svg style="font-size:12px"><use href="#i-check"/></svg>Read</span></div></div>
+            <div><p class="label">Started</p><div class="field datef"><svg><use href="#i-cal"/></svg>18 Aug 2026<svg class="x"><use href="#i-xc"/></svg></div></div>
+            <div><p class="label">Finished</p><div class="field datef"><svg><use href="#i-cal"/></svg>2 Sept 2026<svg class="x"><use href="#i-xc"/></svg></div></div>
             <div><p class="label">Your score</p>
               <div class="stack" style="gap:6px">
                 <div class="score-head"><span class="score-big">8.7 <small>/ 10</small></span><span class="tiny">Clear score</span></div>
@@ -610,7 +627,7 @@
           </div>
         </div>
       </div></div>
-      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Editing uses the same form plus a two-step Delete.</p></figcaption>
+      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Editing uses the same form plus a two-step Delete.</p></figcaption>
     </figure>
 
     <!-- 5. OMDb lookup -->
@@ -665,12 +682,13 @@
               <div class="cells"><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell on">9</span><span class="cell ten">10</span></div>
               <div class="cells tenths"><span class="cell">.0</span><span class="cell">.1</span><span class="cell on">.2</span><span class="cell">.3</span><span class="cell">.4</span><span class="cell">.5</span><span class="cell">.6</span><span class="cell">.7</span><span class="cell">.8</span><span class="cell">.9</span></div>
               <p class="p">Slow for the first hundred pages and then impossible to put down. The ecology chapters were the surprise favourite.</p>
-              <p class="tiny">Finished 2 Sept 2026</p>
+              <p class="tiny" style="margin:0">Started 18 Aug 2026</p>
+              <p class="tiny" style="margin:0">Finished 2 Sept 2026</p>
             </div>
           </div>
         </div>
       </div></div>
-      <figcaption><p class="name">Entry detail</p><p class="note">Status and score change in place; the pencil opens the edit form. The hero uses a blurred cover when there is one. Marking something finished stamps the date shown at the bottom.</p></figcaption>
+      <figcaption><p class="name">Entry detail</p><p class="note">Status and score change in place; the pencil opens the edit form. The hero uses a blurred cover when there is one. The start and finish dates sit under the score; marking something finished stamps today, and the form can move it or add when you started.</p></figcaption>
     </figure>
 
     <!-- 7. Diary -->
@@ -679,6 +697,10 @@
         <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
         <div class="scroll pad">
           <p class="h1" style="margin:14px 0 2px">Diary</p>
+          <div class="sums">
+            <div class="sum"><span class="k">This month</span><div class="n"><b>2</b><span>Finished</span></div><div class="f"><span><svg><use href="#i-film"/></svg>1</span><span><svg><use href="#i-tv"/></svg>0</span><span><svg><use href="#i-book"/></svg>1</span><span><svg class="fill st"><use href="#i-star"/></svg>8.6</span></div></div>
+            <div class="sum"><span class="k">This year</span><div class="n"><b>16</b><span>Finished</span></div><div class="f"><span><svg><use href="#i-film"/></svg>8</span><span><svg><use href="#i-tv"/></svg>3</span><span><svg><use href="#i-book"/></svg>5</span><span><svg class="fill st"><use href="#i-star"/></svg>8.6</span></div></div>
+          </div>
           <p class="month">September 2026</p>
           <div class="drow"><div class="day">7</div><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div class="info"><div class="t"><svg><use href="#i-film"/></svg>Past Lives</div><div class="m">Celine Song</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>8.1</span><div class="s">Quiet and devastating. The bar scene.</div></div></div>
           <div class="drow"><div class="day">2</div><div class="thumb art-1" style="background:linear-gradient(160deg,#3a2f0b,#0f0e0a 60%,#6b5a1a)"></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Dune</div><div class="m">Frank Herbert</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.2</span><div class="s">Slow for the first hundred pages and then impossible to put down.</div></div></div>
@@ -696,7 +718,7 @@
           <div class="tab"><svg><use href="#i-person"/></svg>Me</div>
         </div>
       </div></div>
-      <figcaption><p class="name">Diary</p><p class="note">Everything finished, newest first, grouped by month with the day in yellow and your score on each row. Tapping a row opens the entry. Replaces the old My Reviews tab.</p></figcaption>
+      <figcaption><p class="name">Diary</p><p class="note">Two cards on top total what you finished this month and this year, split into films, series, and books, with the average score. Below them, everything finished, newest first, grouped by month with the day in yellow and your score on each row. Tapping a row opens the entry.</p></figcaption>
     </figure>
 
     <!-- 8. Me -->
@@ -764,6 +786,14 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v5</b>10 Sep 2026</div>
+        <ul>
+          <li>Entries carry a Started date and a Finished date, picked on the system calendar, so old reads and watches can be backlogged on the day they happened. Finished proposes today when the status becomes done. Redrawn: Add entry (both date fields, with the status moved to Read), Entry detail (the two dates under the score).</li>
+          <li>The Diary opens with two cards, This month and This year: how many were finished, split into films, series, and books, and the average score. Redrawn: Diary.</li>
+          <li>Under the hood the project moved to Expo SDK 57 and the device library to SQLite. Neither changes what the screens show.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v4</b>9 Sep 2026</div>
         <ul>

@@ -54,6 +54,7 @@ const row = (overrides: Partial<EntryRow> = {}): EntryRow => ({
   review: 'Great',
   created_at: 1000,
   updated_at: 2000,
+  started_at: null,
   finished_at: 1500,
   ...overrides,
 });
@@ -79,12 +80,15 @@ describe('sqlite mapping', () => {
       $review: null,
       $createdAt: 10,
       $updatedAt: 20,
+      $startedAt: null,
       $finishedAt: null,
     });
+    expect(toParams({ ...minimal, startedAt: 5 }).$startedAt).toBe(5);
   });
 
   it('reads a row back into an entry without the NULL fields', () => {
     expect(toItem(row())).toEqual(dune);
+    expect(toItem(row({ started_at: 900 })).startedAt).toBe(900);
     const sparse = toItem(
       row({
         year: null,

@@ -99,6 +99,11 @@ export const translations: Record<Language, Record<string, string>> = {
     tagsHint: 'Type a tag, then press enter or comma',
     yourTags: 'Your tags',
     status: 'Status',
+    startedDate: 'Started',
+    finishedDate: 'Finished',
+    pickDate: 'Pick a date',
+    clearDate: 'Clear date',
+    errDatesOrder: 'The finish date is before the start date.',
     yourRating: 'Your score',
     clearRating: 'Clear score',
     tenWarningTitle: 'A 10? Really?',
@@ -131,6 +136,7 @@ export const translations: Record<Language, Record<string, string>> = {
     noDescription: 'No description yet.',
     noRating: 'Not scored yet',
     edit: 'Edit',
+    startedOn: 'Started {date}',
     finishedOn: 'Finished {date}',
     addedOn: 'Added {date}',
     itemNotFound: 'This entry no longer exists.',
@@ -138,6 +144,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Diary
     diaryHeading: 'Diary',
+    thisMonth: 'This month',
+    thisYear: 'This year',
     diaryEmptyTitle: 'Nothing finished yet',
     diaryEmptyMessage:
       'Mark something as watched or read and it will show up here.',
@@ -277,6 +285,11 @@ export const translations: Record<Language, Record<string, string>> = {
     tagsHint: 'Taip tag, kemudian tekan enter atau koma',
     yourTags: 'Tag anda',
     status: 'Status',
+    startedDate: 'Mula',
+    finishedDate: 'Selesai',
+    pickDate: 'Pilih tarikh',
+    clearDate: 'Buang tarikh',
+    errDatesOrder: 'Tarikh selesai lebih awal daripada tarikh mula.',
     yourRating: 'Skor anda',
     clearRating: 'Buang skor',
     tenWarningTitle: '10? Betul ke?',
@@ -309,6 +322,7 @@ export const translations: Record<Language, Record<string, string>> = {
     noDescription: 'Belum ada keterangan.',
     noRating: 'Belum diberi skor',
     edit: 'Sunting',
+    startedOn: 'Mula {date}',
     finishedOn: 'Selesai {date}',
     addedOn: 'Ditambah {date}',
     itemNotFound: 'Entri ini sudah tiada.',
@@ -316,6 +330,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Diary
     diaryHeading: 'Diari',
+    thisMonth: 'Bulan ini',
+    thisYear: 'Tahun ini',
     diaryEmptyTitle: 'Belum ada yang selesai',
     diaryEmptyMessage:
       'Tandakan sesuatu sebagai sudah tonton atau sudah baca dan ia akan muncul di sini.',

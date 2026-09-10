@@ -43,7 +43,10 @@ score from 1.0 to 10.0 with one decimal, and free-text notes. The status wording
 type: watchlist, watching, watched for films and series; to read, reading, read
 for books. Tags are free text and the form suggests ones you have used before.
 The detail screen shows all of it and lets you change the status or rating in
-place. When you mark something finished, the date is recorded.
+place. An entry also carries a Started date and a Finished date, picked on the
+system calendar. Marking something finished proposes today, and the form lets
+you move it back, so a book you read last winter lands in the right month of
+the diary instead of this one.
 
 **Scores, not stars.** Ratings run from 1.0 to 10.0 in tenths, pizza-review
 style, picked from a whole-number row and a tenths row. Tapping 10 brings up a
@@ -52,7 +55,9 @@ offers 9.9 instead. There is one exception, and the button for it says so.
 Old five-star reviews from the previous version are mapped onto the new
 scale, with five stars landing on 9.9.
 
-**Diary.** The second tab lists everything you have finished, newest first,
+**Diary.** The second tab opens with two cards, This month and This year,
+that total what you have finished, split into films, series, and books, with
+the average score. Below them is everything you have finished, newest first,
 grouped by month, with the day, your score, and a snippet of your notes.
 
 **Settings.** The Me tab shows how many films, series, and books you have
@@ -83,14 +88,15 @@ src/
 ├─ api/            movies.ts (optional OMDb search and detail, for prefill)
 ├─ components/
 │  ├─ ui/          Button, TextField, Chip, Screen, StarRating, Skeleton, StateViews
-│  ├─ BrandHeader, SearchBar, ItemCard, KindPicker, StatusPicker, TagInput,
+│  ├─ BrandHeader, SearchBar, ItemCard, KindPicker, StatusPicker, DateField, TagInput,
 │  │  FilterSheet, OmdbLookupSheet
 ├─ context/        AuthContext, LibraryContext, LanguageContext, ThemeContext
 │  └─ __tests__/   tests for the auth and library contexts
 ├─ i18n/           translations.ts (English / Malay dictionaries)
 ├─ hooks/          useDebouncedValue
 ├─ lib/            backend (builds PocketBase or device), auth, sqliteStore,
-│                  libraryStore, pocketbase, storage, tags, labels, validation
+│                  libraryStore, pocketbase, storage, summary, tags, labels,
+│                  validation
 ├─ navigation/     RootNavigator, AuthStack, MainTabs, LibraryStack, types
 ├─ screens/        SplashScreen, auth/(Login, Signup),
 │                  library/(Library, ItemDetail, ItemForm), DiaryScreen,
@@ -236,7 +242,7 @@ that server beyond your Wi-Fi.
 
 ## Tests
 
-`npm test` runs 69 tests across ten files:
+`npm test` runs 79 tests across eleven files:
 
 | File                     | What it checks                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------------ |
@@ -246,6 +252,7 @@ that server beyond your Wi-Fi.
 | `api/movies`             | the URL it builds (search, filters, page), odd responses, and errors                 |
 | `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)    |
 | `lib/sqliteStore`        | row mapping both ways, per-owner list and order, and the one-off AsyncStorage import |
+| `lib/summary`            | month and year ranges, counts per kind in a range, average of the scored entries    |
 | `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password               |
 | `context/LibraryContext` | add, validate, update, finish dates, remove, tag ordering, per-user split, migration |
 | `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles    |

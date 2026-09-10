@@ -108,6 +108,55 @@ describe('LibraryContext', () => {
     expect(result.current.lib.getItem(id)!.finishedAt).toBeUndefined();
   });
 
+  it('keeps the dates given when backlogging a finished entry', async () => {
+    const { result } = await mountWithUser();
+    const started = new Date(2026, 0, 5).getTime();
+    const finished = new Date(2026, 0, 20).getTime();
+    await act(async () => {
+      await result.current.lib.addItem({
+        ...dune,
+        status: 'done',
+        startedAt: started,
+        finishedAt: finished,
+      });
+    });
+    expect(result.current.lib.items[0]).toMatchObject({
+      startedAt: started,
+      finishedAt: finished,
+    });
+  });
+
+  it('moves the finish date from the form and stamps today if it is cleared', async () => {
+    const { result } = await mountWithUser();
+    const before = Date.now();
+    let id = '';
+    await act(async () => {
+      id = (await result.current.lib.addItem({ ...dune, status: 'done' })).id;
+    });
+    expect(result.current.lib.getItem(id)!.finishedAt).toBeGreaterThanOrEqual(
+      before,
+    );
+
+    const earlier = new Date(2025, 5, 1).getTime();
+    await act(async () => {
+      await result.current.lib.updateItem(id, { finishedAt: earlier });
+    });
+    expect(result.current.lib.getItem(id)!.finishedAt).toBe(earlier);
+
+    // A status chip alone (no finishedAt key) leaves the date as it is.
+    await act(async () => {
+      await result.current.lib.updateItem(id, { rating: 7 });
+    });
+    expect(result.current.lib.getItem(id)!.finishedAt).toBe(earlier);
+
+    await act(async () => {
+      await result.current.lib.updateItem(id, { finishedAt: undefined });
+    });
+    expect(result.current.lib.getItem(id)!.finishedAt).toBeGreaterThanOrEqual(
+      before,
+    );
+  });
+
   it('removes an entry', async () => {
     const { result } = await mountWithUser();
     let id = '';

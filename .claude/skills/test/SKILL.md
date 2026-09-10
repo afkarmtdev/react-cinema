@@ -11,7 +11,7 @@ Node 24 is the default in both PowerShell and Bash on this machine, so either
 tool works:
 
 ```powershell
-npm test                 # run everything once (69 tests in 10 files)
+npm test                 # run everything once (79 tests in 11 files)
 npx jest --watch         # watch mode
 npx jest path/to/file    # a single file
 npx jest -t "duplicate"  # tests matching a name
@@ -49,6 +49,10 @@ The OMDb client logs each request with `console.log`, so expect a few
   to the SDK's `collection()` and `authStore`) checks record mapping in both
   directions, which collection calls the store makes, and how SDK errors map
   to AuthError codes (duplicate email, wrong password, no connection).
+- `src/lib/__tests__/summary.test.ts`: the Diary cards' maths. Month and
+  year ranges in local time (December rolls over), local midnight, counts
+  per kind for finished entries inside a range, the average of the scored
+  ones only, and that unfinished or undated entries are skipped.
 - `src/lib/__tests__/sqliteStore.test.ts`: the device store against the
   in-memory expo-sqlite fake. Row mapping both ways (NULL for unset fields,
   tags as JSON), create/update/list/remove per owner, newest-updated-first

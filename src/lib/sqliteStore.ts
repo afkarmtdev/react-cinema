@@ -39,6 +39,7 @@ export interface EntryRow {
   review: string | null;
   created_at: number;
   updated_at: number;
+  started_at: number | null;
   finished_at: number | null;
 }
 
@@ -59,18 +60,27 @@ const SCHEMA = `
     review TEXT,
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL,
+    started_at INTEGER,
     finished_at INTEGER
   );
   CREATE INDEX IF NOT EXISTS entries_owner_updated
     ON entries (owner_id, updated_at DESC);
 `;
 
+/**
+ * Columns added after the table first shipped, applied to databases created
+ * before them. SQLite has no "add column if missing", so each statement is
+ * run and a "duplicate column" error means it was already there.
+ */
+const COLUMN_UPGRADES = ['ALTER TABLE entries ADD COLUMN started_at INTEGER'];
+
 const COLUMNS =
   'id, owner_id, kind, title, year, creator, description, poster, tags, ' +
-  'status, rating, review, created_at, updated_at, finished_at';
+  'status, rating, review, created_at, updated_at, started_at, finished_at';
 const VALUES =
   '$id, $ownerId, $kind, $title, $year, $creator, $description, $poster, ' +
-  '$tags, $status, $rating, $review, $createdAt, $updatedAt, $finishedAt';
+  '$tags, $status, $rating, $review, $createdAt, $updatedAt, $startedAt, ' +
+  '$finishedAt';
 
 const INSERT = `INSERT INTO entries (${COLUMNS}) VALUES (${VALUES})`;
 const INSERT_IF_MISSING = `INSERT OR IGNORE INTO entries (${COLUMNS}) VALUES (${VALUES})`;
@@ -78,7 +88,8 @@ const UPDATE = `UPDATE entries SET
   owner_id = $ownerId, kind = $kind, title = $title, year = $year,
   creator = $creator, description = $description, poster = $poster,
   tags = $tags, status = $status, rating = $rating, review = $review,
-  created_at = $createdAt, updated_at = $updatedAt, finished_at = $finishedAt
+  created_at = $createdAt, updated_at = $updatedAt, started_at = $startedAt,
+  finished_at = $finishedAt
   WHERE id = $id`;
 const DELETE = 'DELETE FROM entries WHERE id = $id';
 const SELECT_BY_OWNER = `SELECT ${COLUMNS} FROM entries WHERE owner_id = $ownerId ORDER BY updated_at DESC`;
@@ -99,6 +110,7 @@ export type EntryParams = {
   $review: string | null;
   $createdAt: number;
   $updatedAt: number;
+  $startedAt: number | null;
   $finishedAt: number | null;
 };
 
@@ -117,6 +129,7 @@ export const toParams = (item: LibraryItem): EntryParams => ({
   $review: item.review ?? null,
   $createdAt: item.createdAt,
   $updatedAt: item.updatedAt,
+  $startedAt: item.startedAt ?? null,
   $finishedAt: item.finishedAt ?? null,
 });
 
@@ -149,6 +162,7 @@ export function toItem(row: EntryRow): LibraryItem {
   if (row.poster !== null) item.poster = row.poster;
   if (row.rating !== null) item.rating = row.rating;
   if (row.review !== null) item.review = row.review;
+  if (row.started_at !== null) item.startedAt = row.started_at;
   if (row.finished_at !== null) item.finishedAt = row.finished_at;
   return item;
 }
@@ -161,6 +175,13 @@ function open(): Promise<SQLite.SQLiteDatabase> {
     dbPromise = SQLite.openDatabaseAsync(DATABASE_NAME)
       .then(async (db) => {
         await db.execAsync(SCHEMA);
+        for (const statement of COLUMN_UPGRADES) {
+          try {
+            await db.execAsync(statement);
+          } catch (error) {
+            if (!/duplicate column/i.test(String(error))) throw error;
+          }
+        }
         return db;
       })
       .catch((error) => {

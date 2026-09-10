@@ -111,11 +111,18 @@ export function ItemDetailScreen({ navigation, route }: Props) {
           ) : !item.rating ? (
             <Text style={styles.muted}>{t('noRating')}</Text>
           ) : null}
-          <Text style={styles.dates}>
-            {item.finishedAt
-              ? t('finishedOn', { date: formatDate(item.finishedAt) })
-              : t('addedOn', { date: formatDate(item.createdAt) })}
-          </Text>
+          <View style={styles.datesBlock}>
+            {!!item.startedAt && (
+              <Text style={styles.dates}>
+                {t('startedOn', { date: formatDate(item.startedAt) })}
+              </Text>
+            )}
+            <Text style={styles.dates}>
+              {item.finishedAt
+                ? t('finishedOn', { date: formatDate(item.finishedAt) })
+                : t('addedOn', { date: formatDate(item.createdAt) })}
+            </Text>
+          </View>
         </Section>
       </View>
     </ScrollView>
@@ -279,5 +286,6 @@ const makeStyles = (colors: ThemeColors) =>
       lineHeight: 22,
     },
     muted: { ...typography.body, color: colors.textMuted },
+    datesBlock: { gap: 2 },
     dates: { ...typography.tiny, color: colors.textMuted },
   });
