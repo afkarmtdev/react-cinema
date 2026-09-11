@@ -15,7 +15,7 @@ import { EmptyView } from '../components/ui/StateViews';
 import { ScoreBadge } from '../components/ui/ScoreBadge';
 import { useLanguage } from '../context/LanguageContext';
 import { useLibrary } from '../context/LibraryContext';
-import { KIND_ICON, formatMonth } from '../lib/labels';
+import { KIND_ICON, formatDay, formatMonth } from '../lib/labels';
 import { formatScore } from '../lib/score';
 import {
   monthRange,
@@ -160,13 +160,13 @@ function DiaryRow({
 }) {
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
-  const day = new Date(item.finishedAt ?? item.updatedAt).getDate();
+  const { t } = useLanguage();
+  const finished = formatDay(item.finishedAt ?? item.updatedAt);
   return (
     <Pressable
       onPress={() => onPress(item)}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
-      <Text style={styles.day}>{day}</Text>
       {item.poster ? (
         <Image source={{ uri: item.poster }} style={styles.thumb} />
       ) : (
@@ -194,7 +194,19 @@ function DiaryRow({
             {item.creator}
           </Text>
         )}
-        {!!item.rating && <ScoreBadge value={item.rating} />}
+        <View style={styles.facts}>
+          {!!item.rating && <ScoreBadge value={item.rating} />}
+          <View style={styles.when}>
+            <Ionicons
+              name="calendar-outline"
+              size={12}
+              color={colors.textMuted}
+            />
+            <Text style={styles.whenText}>
+              {t('finishedOn', { date: finished })}
+            </Text>
+          </View>
+        </View>
         {!!item.review && (
           <Text style={styles.snippet} numberOfLines={2}>
             {item.review}
@@ -265,12 +277,6 @@ const makeStyles = (colors: ThemeColors) =>
       padding: spacing.md,
     },
     pressed: { opacity: 0.8 },
-    day: {
-      ...typography.h2,
-      color: colors.primary,
-      width: 32,
-      textAlign: 'center',
-    },
     thumb: {
       width: 52,
       height: 78,
@@ -282,5 +288,13 @@ const makeStyles = (colors: ThemeColors) =>
     titleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     title: { ...typography.bodyStrong, color: colors.text, flex: 1 },
     meta: { ...typography.caption, color: colors.textSecondary },
+    facts: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+    },
+    when: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    whenText: { ...typography.tiny, color: colors.textMuted },
     snippet: { ...typography.caption, color: colors.textSecondary },
   });
