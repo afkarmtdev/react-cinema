@@ -12,6 +12,7 @@ import {
 } from '../../components/FilterSheet';
 import { ItemCard } from '../../components/ItemCard';
 import { SearchBar } from '../../components/SearchBar';
+import { SwipePager } from '../../components/SwipePager';
 import { Button } from '../../components/ui/Button';
 import { Screen } from '../../components/ui/Screen';
 import { EmptyView, ErrorView, Loading } from '../../components/ui/StateViews';
@@ -39,6 +40,9 @@ const KIND_LABEL: Record<KindFilter, string> = {
   book: 'kindsBook',
 };
 
+/** One swipeable page per entry, left to right. */
+const KIND_FILTERS: KindFilter[] = ['all', ...ITEM_KINDS];
+
 export function LibraryScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
@@ -51,10 +55,10 @@ export function LibraryScreen({ navigation }: Props) {
   const [filterOpen, setFilterOpen] = useState(false);
   const debouncedQuery = useDebouncedValue(query);
 
+  // Search, status, and tags apply to every page; the kind is the page.
   const filtered = useMemo(() => {
     const term = debouncedQuery.trim().toLowerCase();
     return items.filter((item) => {
-      if (kind !== 'all' && item.kind !== kind) return false;
       if (filters.status && item.status !== filters.status) return false;
       if (filters.tags.some((tag) => !hasTag(item.tags, tag))) return false;
       if (!term) return true;
@@ -68,7 +72,23 @@ export function LibraryScreen({ navigation }: Props) {
         .toLowerCase();
       return haystack.includes(term);
     });
-  }, [items, kind, filters, debouncedQuery]);
+  }, [items, filters, debouncedQuery]);
+
+  const byKind = useMemo(
+    () =>
+      Object.fromEntries(
+        KIND_FILTERS.map((k) => [
+          k,
+          k === 'all' ? filtered : filtered.filter((item) => item.kind === k),
+        ]),
+      ) as Record<KindFilter, LibraryItem[]>,
+    [filtered],
+  );
+
+  const pages = useMemo(
+    () => KIND_FILTERS.map((k) => ({ key: k, label: t(KIND_LABEL[k]) })),
+    [t],
+  );
 
   const openDetail = (item: LibraryItem) =>
     navigation.navigate('ItemDetail', { itemId: item.id, title: item.title });
@@ -114,32 +134,24 @@ export function LibraryScreen({ navigation }: Props) {
           {filtersOn && <View style={styles.filterDot} />}
         </Pressable>
       </View>
-      <View style={styles.segments}>
-        {(['all', ...ITEM_KINDS] as KindFilter[]).map((k) => (
-          <SegmentButton
-            key={k}
-            label={t(KIND_LABEL[k])}
-            active={kind === k}
-            onPress={() => setKind(k)}
-          />
-        ))}
-      </View>
     </View>
   );
 
-  let content: ReactNode;
-  if (!ready) {
-    content = <Loading message={t('loadingLibrary')} />;
-  } else if (loadError) {
-    content = <ErrorView message={t('libraryLoadError')} onRetry={reload} />;
-  } else {
-    content = (
+  const renderPage = ({ key }: { key: KindFilter }): ReactNode => {
+    if (!ready) return <Loading message={t('loadingLibrary')} />;
+    if (loadError) {
+      return <ErrorView message={t('libraryLoadError')} onRetry={reload} />;
+    }
+    return (
       <FlatList
-        data={filtered}
+        data={byKind[key]}
         keyExtractor={(item) => item.id}
         numColumns={2}
-        renderItem={({ item }) => <ItemCard item={item} onPress={openDetail} />}
-        columnWrapperStyle={styles.column}
+        renderItem={({ item }) => (
+          <View style={styles.cell}>
+            <ItemCard item={item} onPress={openDetail} />
+          </View>
+        )}
         contentContainerStyle={[
           styles.listContent,
           { paddingBottom: tabBar.clearance + 60 + spacing.md },
@@ -171,12 +183,18 @@ export function LibraryScreen({ navigation }: Props) {
         }
       />
     );
-  }
+  };
 
   return (
     <Screen padded>
       {header}
-      {content}
+      <SwipePager
+        pages={pages}
+        index={KIND_FILTERS.indexOf(kind)}
+        onIndexChange={(i) => setKind(KIND_FILTERS[i])}
+        renderPage={renderPage}
+        pageInset={spacing.lg}
+      />
 
       <Pressable
         onPress={openAdd}
@@ -205,32 +223,12 @@ export function LibraryScreen({ navigation }: Props) {
   );
 }
 
-function SegmentButton({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <Pressable onPress={onPress} style={styles.segment}>
-      <Text style={[styles.segmentLabel, active && styles.segmentLabelActive]}>
-        {label}
-      </Text>
-      <View style={[styles.segmentBar, active && styles.segmentBarActive]} />
-    </Pressable>
-  );
-}
-
 const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     header: {
       paddingTop: spacing.sm,
       gap: spacing.lg,
-      marginBottom: spacing.md,
+      marginBottom: spacing.lg,
     },
     headingRow: {
       flexDirection: 'row',
@@ -261,17 +259,8 @@ const makeStyles = (colors: ThemeColors) =>
       borderRadius: 4,
       backgroundColor: colors.primary,
     },
-    segments: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
-    segment: { gap: spacing.sm },
-    segmentLabel: { ...typography.h3, color: colors.textMuted },
-    segmentLabelActive: { color: colors.text },
-    segmentBar: {
-      height: 3,
-      borderRadius: radius.pill,
-      backgroundColor: 'transparent',
-    },
-    segmentBarActive: { backgroundColor: colors.primary },
-    column: { gap: spacing.sm },
+    // A fixed half width so a lone card in the last row keeps its size.
+    cell: { width: '50%' },
     listContent: { flexGrow: 1 },
     empty: { flex: 1, alignItems: 'center', paddingBottom: spacing.xxl },
     emptyBtn: { paddingHorizontal: spacing.xxl },

@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import {
   Animated,
-  Easing,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -14,7 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../context/LanguageContext';
 import { useThemedStyles } from '../../context/ThemeContext';
-import { radius, spacing, type ThemeColors } from '../../theme';
+import { motion, radius, spacing, type ThemeColors } from '../../theme';
 
 interface SheetProps {
   visible: boolean;
@@ -49,10 +48,11 @@ export function Sheet({
       offset.setValue(height);
       return;
     }
-    const slide = Animated.timing(offset, {
+    // A spring rather than a curve, so the panel eases into place the way
+    // an iOS sheet does instead of stopping dead.
+    const slide = Animated.spring(offset, {
       toValue: 0,
-      duration: 280,
-      easing: Easing.out(Easing.cubic),
+      ...motion.enter,
       useNativeDriver: true,
     });
     slide.start();

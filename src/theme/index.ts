@@ -137,3 +137,19 @@ export const typography = {
   caption: { fontSize: 13, fontWeight: '400' as const },
   tiny: { fontSize: 11, fontWeight: '500' as const },
 } as const;
+
+/**
+ * Motion tuned after iOS 26 Liquid Glass: a quick start, a hint of
+ * overshoot, a soft settle, and a control that stretches along its travel
+ * while it moves. Every spring in the app reads from here.
+ */
+export const motion = {
+  /** A control sliding to a new slot (the tab capsule, the kind underline). */
+  glide: { damping: 15, stiffness: 200, mass: 0.9 },
+  /** A panel entering the screen (bottom sheets). */
+  enter: { damping: 22, stiffness: 240, mass: 1 },
+  /** How far a moving control stretches along its travel before settling. */
+  stretch: 1.18,
+  /** How long the stretch takes to build before the spring pulls it back. */
+  stretchMs: 90,
+} as const;

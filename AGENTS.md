@@ -88,7 +88,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (79 tests in 11 files)
+npm test            Jest, runs once (89 tests in 13 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 ```
@@ -104,7 +104,7 @@ src/hooks        useDebouncedValue
 src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
                  ThemeContext, and their tests
 src/components   ItemCard, KindPicker, StatusPicker, DateField, TagInput, FilterSheet,
-                 OmdbLookupSheet, SearchBar, BrandHeader, StorageSettings,
+                 OmdbLookupSheet, SearchBar, SwipePager, BrandHeader, StorageSettings,
                  MultiProvider, and ui/ primitives (Button, TextField, Chip, Sheet,
                  StarRating, ...)
 src/screens      SplashScreen, auth/, library/ (Library, ItemDetail, ItemForm),
@@ -120,7 +120,8 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  score (1 to 10 scale, the 10 rule), tags, labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
 src/theme        three colour themes (cinema, paperback, viceCity) as
-                 ThemeColors, plus spacing, radius, and typography tokens
+                 ThemeColors, plus spacing, radius, typography, and motion
+                 (Liquid Glass springs) tokens
 src/types        library.ts (LibraryItem, ItemKind, ItemStatus), movie.ts
 ```
 
