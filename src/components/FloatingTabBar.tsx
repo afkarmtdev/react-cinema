@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemedStyles } from '../context/ThemeContext';
+import { haptics } from '../lib/haptics';
 import { radius, spacing, typography, type ThemeColors } from '../theme';
 import type { TabParamList } from '../navigation/types';
 
@@ -120,6 +121,7 @@ export function FloatingTabBar({
             canPreventDefault: true,
           });
           if (!active && !event.defaultPrevented) {
+            haptics.select();
             navigation.navigate(route.name, route.params);
           }
         };

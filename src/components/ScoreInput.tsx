@@ -9,6 +9,7 @@ import {
   formatScore,
   splitScore,
 } from '../lib/score';
+import { haptics } from '../lib/haptics';
 import { radius, spacing, typography, type ThemeColors } from '../theme';
 import { Button } from './ui/Button';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
@@ -39,6 +40,7 @@ export function ScoreInput({ value, onChange }: ScoreInputProps) {
   const pickWhole = (next: number) => {
     setAskingAboutTen(false);
     if (next === SCORE_MAX) {
+      haptics.warn();
       setAskingAboutTen(true);
       return;
     }
