@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useMemo, useState, type ReactNode } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { BrandHeader } from '../../components/BrandHeader';
 import { useFloatingTabBarInset } from '../../components/FloatingTabBar';
 import {
@@ -10,16 +10,19 @@ import {
   hasActiveFilters,
   type LibraryFilters,
 } from '../../components/FilterSheet';
-import { ItemCard } from '../../components/ItemCard';
+import { ItemCard, type ItemCardSize } from '../../components/ItemCard';
 import { SearchBar } from '../../components/SearchBar';
 import { SwipePager } from '../../components/SwipePager';
+import { TimelineGrid } from '../../components/TimelineGrid';
 import { Button } from '../../components/ui/Button';
 import { Screen } from '../../components/ui/Screen';
 import { EmptyView, ErrorView, Loading } from '../../components/ui/StateViews';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
+import { StorageKeys, storage } from '../../lib/storage';
 import { hasTag } from '../../lib/tags';
+import { DEFAULT_ZOOM, isZoomLevel, type ZoomLevel } from '../../lib/timeline';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
 import {
   ITEM_KINDS,
@@ -43,6 +46,14 @@ const KIND_LABEL: Record<KindFilter, string> = {
 /** One swipeable page per entry, left to right. */
 const KIND_FILTERS: KindFilter[] = ['all', ...ITEM_KINDS];
 
+/** The card each zoom level draws, from one wide row to a wall of covers. */
+const CARD_SIZE: Record<ZoomLevel, ItemCardSize> = {
+  0: 'lg',
+  1: 'md',
+  2: 'sm',
+  3: 'xs',
+};
+
 export function LibraryScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
@@ -53,7 +64,24 @@ export function LibraryScreen({ navigation }: Props) {
   const [kind, setKind] = useState<KindFilter>('all');
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [zoom, setZoom] = useState<ZoomLevel>(DEFAULT_ZOOM);
   const debouncedQuery = useDebouncedValue(query);
+
+  // The zoom is remembered across launches, like the camera roll's.
+  useEffect(() => {
+    let cancelled = false;
+    storage.get<unknown>(StorageKeys.libraryZoom).then((saved) => {
+      if (!cancelled && isZoomLevel(saved)) setZoom(saved);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const changeZoom = (next: ZoomLevel) => {
+    setZoom(next);
+    storage.set(StorageKeys.libraryZoom, next).catch(() => {});
+  };
 
   // Search, status, and tags apply to every page; the kind is the page.
   const filtered = useMemo(() => {
@@ -143,22 +171,16 @@ export function LibraryScreen({ navigation }: Props) {
       return <ErrorView message={t('libraryLoadError')} onRetry={reload} />;
     }
     return (
-      <FlatList
-        data={byKind[key]}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        renderItem={({ item }) => (
-          <View style={styles.cell}>
-            <ItemCard item={item} onPress={openDetail} />
-          </View>
+      <TimelineGrid
+        items={byKind[key]}
+        zoom={zoom}
+        onZoomChange={changeZoom}
+        renderItem={(item) => (
+          <ItemCard item={item} size={CARD_SIZE[zoom]} onPress={openDetail} />
         )}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: tabBar.clearance + 60 + spacing.md },
-        ]}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: tabBar.clearance + 60 + spacing.md,
+        }}
         ListEmptyComponent={
           items.length === 0 ? (
             <View style={styles.empty}>
@@ -259,9 +281,6 @@ const makeStyles = (colors: ThemeColors) =>
       borderRadius: 4,
       backgroundColor: colors.primary,
     },
-    // A fixed half width so a lone card in the last row keeps its size.
-    cell: { width: '50%' },
-    listContent: { flexGrow: 1 },
     empty: { flex: 1, alignItems: 'center', paddingBottom: spacing.xxl },
     emptyBtn: { paddingHorizontal: spacing.xxl },
     fab: {

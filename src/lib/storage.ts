@@ -28,6 +28,8 @@ export const StorageKeys = {
   pocketbaseAuth: '@gscreviews/pocketbase-auth',
   language: '@gscreviews/language',
   theme: '@gscreviews/theme',
+  /** The zoom level the library grid was last pinched to. */
+  libraryZoom: '@gscreviews/library-zoom',
   /** The Storage setting: device or server, plus the server address. */
   storageSettings: '@gscreviews/storage-settings',
 } as const;

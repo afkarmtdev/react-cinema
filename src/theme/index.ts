@@ -148,6 +148,11 @@ export const motion = {
   glide: { damping: 15, stiffness: 200, mass: 0.9 },
   /** A panel entering the screen (bottom sheets). */
   enter: { damping: 22, stiffness: 240, mass: 1 },
+  /**
+   * Content that followed the finger settling where it belongs (the grid
+   * after a pinch). Overdamped on purpose: no overshoot, no bounce.
+   */
+  settle: { damping: 32, stiffness: 260, mass: 1 },
   /** How far a moving control stretches along its travel before settling. */
   stretch: 1.18,
   /** How long the stretch takes to build before the spring pulls it back. */

@@ -88,7 +88,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (89 tests in 13 files)
+npm test            Jest, runs once (106 tests in 15 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 ```
@@ -103,8 +103,10 @@ src/api          movies.ts: optional OMDb search and detail, used only to
 src/hooks        useDebouncedValue
 src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
                  ThemeContext, and their tests
-src/components   ItemCard, KindPicker, StatusPicker, DateField, TagInput, FilterSheet,
-                 OmdbLookupSheet, SearchBar, SwipePager, BrandHeader, StorageSettings,
+src/components   ItemCard (four sizes, one per zoom level), TimelineGrid (the
+                 pinch-zoomed, month-sectioned library grid), KindPicker,
+                 StatusPicker, DateField, TagInput, FilterSheet, OmdbLookupSheet,
+                 SearchBar, SwipePager, BrandHeader, StorageSettings,
                  MultiProvider, and ui/ primitives (Button, TextField, Chip, Sheet,
                  StarRating, ...)
 src/screens      SplashScreen, auth/, library/ (Library, ItemDetail, ItemForm),
@@ -116,8 +118,10 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  interface + the AsyncStorage entries store, used on web and
                  for the one-off import), sqliteStore (the device entries
                  store, expo-sqlite), pocketbase (both, against the SDK),
-                 summary (month and year totals for the Diary), storage,
-                 score (1 to 10 scale, the 10 rule), tags, labels, validation
+                 summary (month and year totals for the Diary), timeline (the
+                 zoom ladder, pinch steps, and month or year grouping behind
+                 the library grid), storage, score (1 to 10 scale, the 10
+                 rule), tags, labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
 src/theme        three colour themes (cinema, paperback, viceCity) as
                  ThemeColors, plus spacing, radius, typography, and motion

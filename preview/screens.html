@@ -277,6 +277,15 @@
   .badge.done { background: var(--primary); color: var(--on-primary); }
   .card .t { font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card .m { color: var(--text-2); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* The timeline: month (or year) headers run across the grid like Photos. */
+  .cards .month { grid-column: 1 / -1; margin: 6px 0 0; }
+  .cards.wall { grid-template-columns: repeat(5, 1fr); gap: 3px; }
+  .wall .poster { border-radius: 5px; padding: 4px; gap: 0; font-size: 8px; }
+  .wall .poster svg { font-size: 12px; }
+  .wall .tick { position: absolute; left: 3px; bottom: 3px; width: 12px; height: 12px; border-radius: 6px; background: var(--primary); color: var(--on-primary); display: flex; align-items: center; justify-content: center; }
+  .wall .tick svg { font-size: 8px; stroke-width: 3; }
+  .wall .tick.pending { background: var(--overlay); color: var(--text); }
+  .wall .tick.pending svg { stroke-width: 2.2; }
   .fab {
     position: absolute; right: 14px; bottom: 80px; width: 48px; height: 48px; border-radius: 999px;
     background: var(--primary); color: var(--on-primary); display: flex; align-items: center; justify-content: center;
@@ -327,8 +336,10 @@
   /* Diary */
   .month { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
   .drow { display: flex; gap: 10px; align-items: center; background: var(--surface); border-radius: 10px; padding: 8px; margin-bottom: 8px; }
-  .drow .day { width: 26px; text-align: center; font-size: 16px; font-weight: 700; color: var(--primary); flex: none; }
   .drow .thumb { width: 40px; height: 60px; }
+  .drow .facts { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .drow .when { display: inline-flex; align-items: center; gap: 3px; color: var(--muted); font-size: 10px; }
+  .drow .when svg { font-size: 10px; }
   .drow .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   .drow .t { font-weight: 600; display: flex; gap: 4px; align-items: center; }
   .drow .t svg { color: var(--muted); font-size: 11px; }
@@ -441,7 +452,7 @@
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v6 · mirrors the code as of 10 Sep 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v8 · mirrors the code as of 11 Sep 2026 · <a href="#changes">changes</a></p>
       <h1>The revamped CineReact, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -499,6 +510,7 @@
           </div>
           <div class="segments"><span class="seg on">All</span><span class="seg">Films</span><span class="seg">Series</span><span class="seg">Books</span></div>
           <div class="cards">
+            <p class="month" style="margin-top:0">September 2026</p>
             <div class="card">
               <div class="poster art-1"><span class="big">DUNE</span>
                 <span class="badge tl"><svg style="font-size:11px"><use href="#i-book"/></svg></span>
@@ -514,6 +526,7 @@
               </div>
               <div class="t">Severance</div><div class="m">2022 / Ben Stiller</div>
             </div>
+            <p class="month">August 2026</p>
             <div class="card">
               <div class="poster"><svg style="font-size:26px"><use href="#i-film"/></svg><span>Past Lives</span>
                 <span class="badge tl"><svg style="font-size:11px"><use href="#i-film"/></svg></span>
@@ -537,6 +550,7 @@
               </div>
               <div class="t">The Bear</div><div class="m">2022 / Christopher Storer</div>
             </div>
+            <p class="month">July 2026</p>
             <div class="card">
               <div class="poster art-4"><span class="big">PERFECT DAYS</span>
                 <span class="badge tl"><svg style="font-size:11px"><use href="#i-film"/></svg></span>
@@ -554,7 +568,51 @@
           <div class="tab"><svg><use href="#i-person"/></svg>Me</div>
         </div>
       </div></div>
-      <figcaption><p class="name">Library</p><p class="note">The home tab. Cards carry the kind (top left), your rating (top right), and the status pill, yellow once finished. Entries without a cover link fall back to the icon and title. The filter dot shows a filter is on.</p></figcaption>
+      <figcaption><p class="name">Library</p><p class="note">The home tab, laid out like a camera roll: the grid runs down a timeline with a month header over each stretch, using the day an entry was finished (else started, else added). Cards carry the kind (top left), your rating (top right), and the status pill, yellow once finished. Entries without a cover link fall back to the icon and title. Pinch the grid to zoom: two fingers apart gives one wide row per entry with its notes, together gives three columns and then the wall on the next phone. The filter dot shows a filter is on.</p></figcaption>
+    </figure>
+
+    <!-- 2b. Library, zoomed out -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="scroll pad">
+          <div class="brand"><span class="tile">CINE</span><span class="tag">REACT</span></div>
+          <div class="row" style="justify-content:space-between;align-items:baseline"><p class="h1">Library</p><span class="tiny">16 entries</span></div>
+          <div class="row" style="margin-top:12px">
+            <div class="search"><svg style="font-size:14px"><use href="#i-search"/></svg>Search titles, people, or tags</div>
+            <div class="iconbtn"><svg style="font-size:16px"><use href="#i-options"/></svg></div>
+          </div>
+          <div class="segments"><span class="seg on">All</span><span class="seg">Films</span><span class="seg">Series</span><span class="seg">Books</span></div>
+          <div class="cards wall">
+            <p class="month" style="margin-top:0">2026</p>
+            <div class="card"><div class="poster art-1"><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster art-2"><span class="tick pending"><svg><use href="#i-play"/></svg></span></div></div>
+            <div class="card"><div class="poster"><svg><use href="#i-film"/></svg><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster art-5"><span class="tick pending"><svg><use href="#i-bookmark"/></svg></span></div></div>
+            <div class="card"><div class="poster art-3"><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster art-4"><span class="tick pending"><svg><use href="#i-bookmark"/></svg></span></div></div>
+            <div class="card"><div class="poster"><svg><use href="#i-book"/></svg><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster"><svg><use href="#i-film"/></svg><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster"><svg><use href="#i-tv"/></svg><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster art-2"><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster"><svg><use href="#i-book"/></svg><span class="tick pending"><svg><use href="#i-play"/></svg></span></div></div>
+            <p class="month">2025</p>
+            <div class="card"><div class="poster art-4"><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster"><svg><use href="#i-film"/></svg><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster art-5"><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster"><svg><use href="#i-book"/></svg><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+            <div class="card"><div class="poster art-3"><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
+          </div>
+          <div style="height:100px"></div>
+        </div>
+        <div class="fab">+</div>
+        <div class="tabs">
+          <div class="tab on"><svg><use href="#i-albums"/></svg>Library</div>
+          <div class="tab"><svg><use href="#i-cal"/></svg>Diary</div>
+          <div class="tab"><svg><use href="#i-person"/></svg>Me</div>
+        </div>
+      </div></div>
+      <figcaption><p class="name">Library, zoomed out</p><p class="note">The widest of the four zoom levels (1, 2, 3, and 5 columns): a wall of covers with the headers stepped up from months to years, the way Photos goes from Days to Months to Years. Every cover keeps its status in a small dot: a yellow tick once finished, a play sign while watching or reading, a bookmark on the watchlist or to-read pile. The grid scales under your fingers as you pinch and eases into the new layout when you let go. The level you leave it at is remembered.</p></figcaption>
     </figure>
 
     <!-- 3. Filters sheet -->
@@ -705,14 +763,14 @@
             <div class="sum"><span class="k">This year</span><div class="n"><b>16</b><span>Finished</span></div><div class="f"><span><svg><use href="#i-film"/></svg>8</span><span><svg><use href="#i-tv"/></svg>3</span><span><svg><use href="#i-book"/></svg>5</span><span><svg class="fill st"><use href="#i-star"/></svg>8.6</span></div></div>
           </div>
           <p class="month">September 2026</p>
-          <div class="drow"><div class="day">7</div><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div class="info"><div class="t"><svg><use href="#i-film"/></svg>Past Lives</div><div class="m">Celine Song</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>8.1</span><div class="s">Quiet and devastating. The bar scene.</div></div></div>
-          <div class="drow"><div class="day">2</div><div class="thumb art-1" style="background:linear-gradient(160deg,#3a2f0b,#0f0e0a 60%,#6b5a1a)"></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Dune</div><div class="m">Frank Herbert</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.2</span><div class="s">Slow for the first hundred pages and then impossible to put down.</div></div></div>
+          <div class="drow"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div class="info"><div class="t"><svg><use href="#i-film"/></svg>Past Lives</div><div class="m">Celine Song</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>8.1</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 7 Sep</span></div><div class="s">Quiet and devastating. The bar scene.</div></div></div>
+          <div class="drow"><div class="thumb art-1" style="background:linear-gradient(160deg,#3a2f0b,#0f0e0a 60%,#6b5a1a)"></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Dune</div><div class="m">Frank Herbert</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.2</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 2 Sep</span></div><div class="s">Slow for the first hundred pages and then impossible to put down.</div></div></div>
           <p class="month">August 2026</p>
-          <div class="drow"><div class="day">30</div><div class="thumb" style="background:linear-gradient(150deg,#33131a,#120608 55%,#6a2b36)"></div><div class="info"><div class="t"><svg><use href="#i-tv"/></svg>The Bear</div><div class="m">Christopher Storer</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.6</span><div class="s">Season 3. Yes chef.</div></div></div>
-          <div class="drow"><div class="day">18</div><div class="thumb"><svg style="font-size:14px"><use href="#i-book"/></svg></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Tomorrow, and Tomorrow, and Tomorrow</div><div class="m">Gabrielle Zevin</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>6.8</span></div></div>
-          <div class="drow"><div class="day">9</div><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div class="info"><div class="t"><svg><use href="#i-film"/></svg>Abang Adik</div><div class="m">Jin Ong</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>8.4</span><div class="s">Pudu at night. Rewatch with subtitles off.</div></div></div>
+          <div class="drow"><div class="thumb" style="background:linear-gradient(150deg,#33131a,#120608 55%,#6a2b36)"></div><div class="info"><div class="t"><svg><use href="#i-tv"/></svg>The Bear</div><div class="m">Christopher Storer</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.6</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 30 Aug</span></div><div class="s">Season 3. Yes chef.</div></div></div>
+          <div class="drow"><div class="thumb"><svg style="font-size:14px"><use href="#i-book"/></svg></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Tomorrow, and Tomorrow, and Tomorrow</div><div class="m">Gabrielle Zevin</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>6.8</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 18 Aug</span></div></div></div>
+          <div class="drow"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div class="info"><div class="t"><svg><use href="#i-film"/></svg>Abang Adik</div><div class="m">Jin Ong</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>8.4</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 9 Aug</span></div><div class="s">Pudu at night. Rewatch with subtitles off.</div></div></div>
           <p class="month">July 2026</p>
-          <div class="drow"><div class="day">21</div><div class="thumb"><svg style="font-size:14px"><use href="#i-tv"/></svg></div><div class="info"><div class="t"><svg><use href="#i-tv"/></svg>Shogun</div><div class="m">Rachel Kondo, Justin Marks</div><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.5</span></div></div>
+          <div class="drow"><div class="thumb"><svg style="font-size:14px"><use href="#i-tv"/></svg></div><div class="info"><div class="t"><svg><use href="#i-tv"/></svg>Shogun</div><div class="m">Rachel Kondo, Justin Marks</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.5</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 21 Jul</span></div></div></div>
           <div style="height:80px"></div>
         </div>
         <div class="tabs">
@@ -721,7 +779,7 @@
           <div class="tab"><svg><use href="#i-person"/></svg>Me</div>
         </div>
       </div></div>
-      <figcaption><p class="name">Diary</p><p class="note">Two cards on top total what you finished this month and this year, split into films, series, and books, with the average score. Below them, everything finished, newest first, grouped by month with the day in yellow and your score on each row. Tapping a row opens the entry.</p></figcaption>
+      <figcaption><p class="name">Diary</p><p class="note">Two cards on top total what you finished this month and this year, split into films, series, and books, with the average score. Below them, everything finished, newest first, grouped by month. Each row shows your score and a small "Finished 7 Sep" line; the bare day number that used to sit beside the cover is gone. Tapping a row opens the entry.</p></figcaption>
     </figure>
 
     <!-- 8. Me -->
@@ -781,6 +839,7 @@
       <li>The delete confirmation on the edit form: the Delete link turns into Cancel and "Yes, delete it" buttons.</li>
       <li>Bahasa Melayu. Every string on these screens has a Malay version.</li>
       <li>A perfect 10, once confessed, shows as a yellow score pill on the card and in the diary.</li>
+      <li>The two middle zoom levels of the Library: one wide row per entry with its notes, and the three-column grid with a score and a title under each cover.</li>
     </ul>
   </div>
 
@@ -789,6 +848,20 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v8</b>11 Sep 2026</div>
+        <ul>
+          <li>The three-column and five-column tiles show every status, not only finished: a play dot while watching or reading and a bookmark dot for the watchlist or to-read pile, with the yellow tick kept for finished. Redrawn: Library, zoomed out.</li>
+          <li>The pinch no longer pops: the grid scales under the fingers, switches layout at the halfway point without a jump, and eases into place on release with no bounce. Nothing new to draw.</li>
+        </ul>
+      </li>
+      <li>
+        <div class="ver"><b>v7</b>11 Sep 2026</div>
+        <ul>
+          <li>The Library grid is a timeline now, like the Photos camera roll: entries run newest first under month headers (finished date, else started, else added), and a pinch steps the grid through 1, 2, 3, and 5 columns. At 5 columns the headers become years. The chosen level is remembered. Redrawn: Library (month headers); added: Library, zoomed out.</li>
+          <li>The Diary rows drop the bare day number beside the cover and show "Finished 7 Sep" next to the score instead. Redrawn: Diary.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v6</b>10 Sep 2026</div>
         <ul>
