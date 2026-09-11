@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import {
   Animated,
+  Easing,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -26,9 +27,22 @@ interface SheetProps {
 }
 
 /**
- * A bottom sheet on a dimmed backdrop. The Modal only fades, so the backdrop
- * stays put while the panel slides up on its own; with the Modal's built-in
- * slide the backdrop would ride up together with the panel.
+ * How far the panel extends below the screen edge. The entering spring
+ * overshoots by a few percent of its travel; this keeps the bottom edge
+ * covered while it does, so the bounce never opens a gap.
+ */
+const BLEED = 48;
+
+const FADE_IN_MS = 200;
+const FADE_OUT_MS = 160;
+const SLIDE_OUT_MS = 220;
+
+/**
+ * A bottom sheet on a dimmed backdrop. The Modal itself does not animate:
+ * it would fade the panel too, and a panel that fades in while it slides
+ * seems to appear halfway up its travel. Instead the backdrop fades and
+ * the panel slides, both from the first frame, and on close the two run
+ * back before the Modal is taken down.
  */
 export function Sheet({
   visible,
@@ -41,36 +55,66 @@ export function Sheet({
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
+  const [mounted, setMounted] = useState(visible);
   const [offset] = useState(() => new Animated.Value(height));
+  const [dim] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
-    if (!visible) {
+    if (visible) {
+      setMounted(true);
       offset.setValue(height);
-      return;
+      dim.setValue(0);
+      // A spring rather than a curve, so the panel eases into place the
+      // way an iOS sheet does instead of stopping dead.
+      const enter = Animated.parallel([
+        Animated.timing(dim, {
+          toValue: 1,
+          duration: FADE_IN_MS,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.spring(offset, {
+          toValue: 0,
+          ...motion.enter,
+          useNativeDriver: true,
+        }),
+      ]);
+      enter.start();
+      return () => enter.stop();
     }
-    // A spring rather than a curve, so the panel eases into place the way
-    // an iOS sheet does instead of stopping dead.
-    const slide = Animated.spring(offset, {
-      toValue: 0,
-      ...motion.enter,
-      useNativeDriver: true,
+    const leave = Animated.parallel([
+      Animated.timing(dim, {
+        toValue: 0,
+        duration: FADE_OUT_MS,
+        useNativeDriver: true,
+      }),
+      Animated.timing(offset, {
+        toValue: height,
+        duration: SLIDE_OUT_MS,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]);
+    leave.start(({ finished }) => {
+      if (finished) setMounted(false);
     });
-    slide.start();
-    return () => slide.stop();
-  }, [visible, height, offset]);
+    return () => leave.stop();
+  }, [visible, height, offset, dim]);
 
   const content = (
     <>
-      <Pressable
-        style={styles.backdrop}
-        onPress={onClose}
-        accessibilityRole="button"
-        accessibilityLabel={t('closeSheet')}
-      />
+      <Animated.View style={[styles.backdrop, { opacity: dim }]}>
+        <Pressable
+          style={styles.fill}
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel={t('closeSheet')}
+        />
+      </Animated.View>
       <Animated.View
         style={[
           styles.sheet,
-          { paddingBottom: insets.bottom + spacing.lg },
+          { paddingBottom: insets.bottom + spacing.lg + BLEED },
           style,
           { transform: [{ translateY: offset }] },
         ]}
@@ -83,9 +127,9 @@ export function Sheet({
 
   return (
     <Modal
-      visible={visible}
+      visible={mounted}
       transparent
-      animationType="fade"
+      animationType="none"
       onRequestClose={onClose}
     >
       {avoidKeyboard ? (
@@ -113,8 +157,10 @@ const makeStyles = (colors: ThemeColors) =>
       bottom: 0,
       backgroundColor: colors.overlay,
     },
+    fill: { flex: 1 },
     sheet: {
       maxHeight: '80%',
+      marginBottom: -BLEED,
       backgroundColor: colors.surface,
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
