@@ -6,6 +6,11 @@ beforeEach(() => {
   require('expo-sqlite').__reset();
 });
 
+// Haptics and the photo picker are native too. Their stand-ins in __mocks__
+// resolve and do nothing (the picker always cancels).
+jest.mock('expo-haptics');
+jest.mock('expo-image-picker');
+
 // Replace AsyncStorage with a simple in-memory store so the auth and reviews
 // tests can run without a device. Each test file gets its own store; call
 // AsyncStorage.clear() in beforeEach to reset between tests.
