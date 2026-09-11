@@ -21,9 +21,11 @@ PocketBase is a single binary with SQLite inside; nothing else to install.
 
 3. On first start it prints a link to create the superuser account. Open it
    and set one up. The dashboard is at http://127.0.0.1:8090/_/ afterwards.
-4. The migration in `pb_migrations/` runs automatically and creates the
-   `entries` collection. Check the dashboard: you should see `users` and
-   `entries` under Collections. If `entries` is missing, run
+4. The migrations in `pb_migrations/` run automatically: they create the
+   `entries` collection and add a `favourites` list (the top four shelf) to
+   `users`. The profile picture uses the `avatar` file field that every
+   PocketBase auth collection already has. Check the dashboard: you should
+   see `users` and `entries` under Collections. If `entries` is missing, run
    `./pocketbase migrate up` once and restart.
 5. In the app, open the Storage setting: on the Login screen tap "Advanced",
    or when signed in go to the Me tab, Settings, Advanced. Choose "PocketBase

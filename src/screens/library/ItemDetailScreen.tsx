@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useLayoutEffect, type ReactNode } from 'react';
+import { useCallback, useLayoutEffect, type ReactNode } from 'react';
 import {
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -15,8 +16,11 @@ import { StatusPicker } from '../../components/StatusPicker';
 import { Button } from '../../components/ui/Button';
 import { Chip } from '../../components/ui/Chip';
 import { EmptyView } from '../../components/ui/StateViews';
+import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
+import { isFavourite, toggleFavourite } from '../../lib/favourites';
+import { haptics } from '../../lib/haptics';
 import { KIND_ICON, creatorKey, formatDate, kindKey } from '../../lib/labels';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
 import type { LibraryItem } from '../../types/library';
@@ -31,31 +35,73 @@ export function ItemDetailScreen({ navigation, route }: Props) {
   const { itemId } = route.params;
   const insets = useSafeAreaInsets();
   const { getItem, updateItem } = useLibrary();
+  const { user, updateProfile } = useAuth();
   const { t } = useLanguage();
   const item = getItem(itemId);
+  const favourite = isFavourite(user?.favourites, itemId);
 
-  // Keep the header in step with edits, and expose the edit action there.
+  const toggleShelf = useCallback(() => {
+    const next = toggleFavourite(user?.favourites, itemId);
+    if (!next) {
+      Alert.alert(t('favouritesFullTitle'), t('favouritesFull'));
+      return;
+    }
+    haptics.tap();
+    updateProfile({ favourites: next }).catch(() => {});
+  }, [user?.favourites, itemId, t, updateProfile]);
+
+  // Keep the header in step with edits, and expose the shelf and edit
+  // actions there.
   useLayoutEffect(() => {
     navigation.setOptions({
       title: item?.title ?? '',
       headerRight: item
         ? () => (
-            <Pressable
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel={t('edit')}
-              onPress={() => navigation.navigate('ItemForm', { itemId })}
-            >
-              <Ionicons
-                name="create-outline"
-                size={24}
-                color={colors.primary}
-              />
-            </Pressable>
+            <View style={styles.headerActions}>
+              <Pressable
+                hitSlop={4}
+                accessibilityRole="button"
+                accessibilityLabel={t(
+                  favourite ? 'removeFavourite' : 'addFavourite',
+                )}
+                onPress={toggleShelf}
+                style={styles.headerBtn}
+              >
+                <Ionicons
+                  name={favourite ? 'heart' : 'heart-outline'}
+                  size={24}
+                  color={colors.primary}
+                />
+              </Pressable>
+              <Pressable
+                hitSlop={4}
+                accessibilityRole="button"
+                accessibilityLabel={t('edit')}
+                onPress={() => navigation.navigate('ItemForm', { itemId })}
+                style={[styles.headerBtn, styles.headerBtnLast]}
+              >
+                <Ionicons
+                  name="create-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+              </Pressable>
+            </View>
           )
         : undefined,
     });
-  }, [navigation, item, itemId, t, colors.primary]);
+  }, [
+    navigation,
+    item,
+    itemId,
+    t,
+    colors.primary,
+    favourite,
+    toggleShelf,
+    styles.headerActions,
+    styles.headerBtn,
+    styles.headerBtnLast,
+  ]);
 
   if (!item) {
     return (
@@ -216,6 +262,11 @@ function Section({
 const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    // Two separate targets. Margins rather than gap: the native header
+    // container on iOS lays this row out itself and ignores gap.
+    headerActions: { flexDirection: 'row', alignItems: 'center' },
+    headerBtn: { padding: spacing.xs },
+    headerBtnLast: { marginLeft: spacing.lg },
     missing: {
       flex: 1,
       backgroundColor: colors.background,

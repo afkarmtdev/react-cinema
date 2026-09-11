@@ -60,6 +60,7 @@ function fakeClient() {
   const client = {
     collection: jest.fn(() => collection),
     authStore,
+    files: { getURL: jest.fn(() => '') },
   } as unknown as Client;
   return { client, collection, authStore };
 }
@@ -146,7 +147,11 @@ describe('pocketbase auth backend', () => {
     const auth = createAuthBackend(client);
 
     const result = await auth.signup('Ali', 'ali@example.com', 'secret');
-    expect(result).toEqual({ id: 'u1', name: 'Ali', email: 'ali@example.com' });
+    expect(result).toMatchObject({
+      id: 'u1',
+      name: 'Ali',
+      email: 'ali@example.com',
+    });
     expect(collection.create).toHaveBeenCalledWith({
       name: 'Ali',
       email: 'ali@example.com',
@@ -199,7 +204,7 @@ describe('pocketbase auth backend', () => {
     (authStore as { record: unknown }).record = user;
     collection.authRefresh.mockRejectedValue(responseError(0));
     const auth = createAuthBackend(client);
-    expect(await auth.restore()).toEqual({
+    expect(await auth.restore()).toMatchObject({
       id: 'u1',
       name: 'Ali',
       email: 'ali@example.com',

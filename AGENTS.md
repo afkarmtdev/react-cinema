@@ -88,7 +88,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (106 tests in 15 files)
+npm test            Jest, runs once (125 tests in 18 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 ```
@@ -106,6 +106,7 @@ src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
 src/components   ItemCard (four sizes, one per zoom level), TimelineGrid (the
                  pinch-zoomed, month-sectioned library grid), KindPicker,
                  StatusPicker, DateField, TagInput, FilterSheet, OmdbLookupSheet,
+                 EditProfileSheet (name and picture, expo-image-picker),
                  SearchBar, SwipePager, BrandHeader, StorageSettings,
                  MultiProvider, and ui/ primitives (Button, TextField, Chip, Sheet,
                  StarRating, ...)
@@ -120,8 +121,9 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  store, expo-sqlite), pocketbase (both, against the SDK),
                  summary (month and year totals for the Diary), timeline (the
                  zoom ladder, pinch steps, and month or year grouping behind
-                 the library grid), storage, score (1 to 10 scale, the 10
-                 rule), tags, labels, validation
+                 the library grid), favourites (the top four shelf, max four),
+                 haptics (expo-haptics behind a no-throw wrapper), storage,
+                 score (1 to 10 scale, the 10 rule), tags, labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
 src/theme        three colour themes (cinema, paperback, viceCity) as
                  ThemeColors, plus spacing, radius, typography, and motion
@@ -131,8 +133,9 @@ src/types        library.ts (LibraryItem, ItemKind, ItemStatus), movie.ts
 
 Contexts never touch storage directly. `StorageContext` owns the saved
 Storage setting and has `src/lib/backend.ts` build a `LibraryStore` (list,
-create, update, remove) and an `AuthBackend` (restore, signup, login, logout)
-for it; AuthProvider and LibraryProvider read that pair, and fall back to the
+create, update, remove) and an `AuthBackend` (restore, signup, login, logout,
+updateProfile: name, picture, and the top four favourites, which live on the
+user rather than on the entries) for it; AuthProvider and LibraryProvider read that pair, and fall back to the
 local pair outside a StorageProvider, which is what the tests get. Changing
 the setting swaps the pair and both contexts start over (the user is signed
 out first). The `pocketbase`

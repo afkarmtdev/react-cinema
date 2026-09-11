@@ -362,6 +362,13 @@
   /* Profile */
   .avatar-card { background: var(--surface); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .avatar { width: 60px; height: 60px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-size: 26px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+  .avatar.photo { background: radial-gradient(circle at 35% 30%, #d9b56a, #6b5a1a 55%, #1e1a10); overflow: hidden; }
+  .editpill { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--primary); font-size: 10.5px; }
+  .editpill svg { font-size: 12px; }
+  .shelf { display: flex; gap: 8px; margin-top: 12px; }
+  .shelf .poster { flex: 1; border-radius: 8px; padding: 6px; font-size: 9px; }
+  .shelf .poster.empty { background: transparent; border: 1.5px dashed var(--border); }
+  .shelf .poster svg { font-size: 16px; }
   .stats { display: flex; gap: 6px; }
   .stat { flex: 1; background: var(--surface); border-radius: 10px; padding: 10px 0; display: flex; flex-direction: column; align-items: center; gap: 2px; font-variant-numeric: tabular-nums; }
   .stat svg { color: var(--primary); font-size: 16px; }
@@ -446,13 +453,15 @@
     <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol>
     <symbol id="i-cloud-o" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4 4 0 0 1 0 9z"/></symbol>
     <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke="#0b0b0b" stroke-width="2"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21s-7.2-4.7-9.4-9.2A5.3 5.3 0 0 1 12 6.5a5.3 5.3 0 0 1 9.4 5.3C19.2 16.3 12 21 12 21z"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
   </defs>
 </svg>
 
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v8 · mirrors the code as of 11 Sep 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v9 · mirrors the code as of 11 Sep 2026 · <a href="#changes">changes</a></p>
       <h1>The revamped CineReact, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -514,6 +523,7 @@
             <div class="card">
               <div class="poster art-1"><span class="big">DUNE</span>
                 <span class="badge tl"><svg style="font-size:11px"><use href="#i-book"/></svg></span>
+                <span class="badge tl" style="left:32px"><svg class="fill" style="font-size:11px;color:var(--primary)"><use href="#i-heart"/></svg></span>
                 <span class="badge tr"><svg class="fill" style="font-size:10px;color:var(--star)"><use href="#i-star"/></svg>9.2</span>
                 <span class="badge bl done"><svg style="font-size:10px"><use href="#i-check"/></svg>Read</span>
               </div>
@@ -721,7 +731,7 @@
     <figure>
       <div class="phone"><div class="screen">
         <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
-        <div class="navbar"><svg><use href="#i-back"/></svg><span class="title">Dune</span><svg><use href="#i-edit"/></svg></div>
+        <div class="navbar"><svg><use href="#i-back"/></svg><span class="title">Dune</span><span class="row" style="gap:14px"><svg class="fill"><use href="#i-heart"/></svg><svg><use href="#i-edit"/></svg></span></div>
         <div class="scroll">
           <div class="hero">
             <div class="poster art-1"><span class="big">DUNE</span></div>
@@ -749,7 +759,7 @@
           </div>
         </div>
       </div></div>
-      <figcaption><p class="name">Entry detail</p><p class="note">Status and score change in place; the pencil opens the edit form. The hero uses a blurred cover when there is one. The start and finish dates sit under the score; marking something finished stamps today, and the form can move it or add when you started.</p></figcaption>
+      <figcaption><p class="name">Entry detail</p><p class="note">Status and score change in place; the heart puts the entry on your top four (filled when it is there), the pencil opens the edit form. The hero uses a blurred cover when there is one. The start and finish dates sit under the score; marking something finished stamps today, and the form can move it or add when you started.</p></figcaption>
     </figure>
 
     <!-- 7. Diary -->
@@ -788,12 +798,19 @@
         <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
         <div class="scroll pad">
           <p class="h1" style="margin:14px 0 12px">Me</p>
-          <div class="avatar-card"><div class="avatar">A</div><p class="h2">Afkar</p><p class="sub" style="margin:0">afkar@example.com</p></div>
+          <div class="avatar-card"><div class="avatar photo"></div><p class="h2">Afkar</p><p class="sub" style="margin:0">afkar@example.com</p><span class="editpill"><svg><use href="#i-edit"/></svg>Edit profile</span></div>
           <div class="stats" style="margin-top:12px">
             <div class="stat"><svg><use href="#i-film"/></svg><span class="v">8</span><span class="l">Films</span></div>
             <div class="stat"><svg><use href="#i-tv"/></svg><span class="v">3</span><span class="l">Series</span></div>
             <div class="stat"><svg><use href="#i-book"/></svg><span class="v">5</span><span class="l">Books</span></div>
             <div class="stat"><svg class="fill"><use href="#i-star"/></svg><span class="v">8.6</span><span class="l">Avg score</span></div>
+          </div>
+          <p class="h2" style="margin-top:22px">Top four</p>
+          <div class="shelf">
+            <div class="poster art-1"><span class="big" style="font-size:10px">DUNE</span></div>
+            <div class="poster art-3"><span class="big" style="font-size:9px">THE BEAR</span></div>
+            <div class="poster"><svg><use href="#i-film"/></svg>Past Lives</div>
+            <div class="poster empty"><svg style="color:var(--muted)"><use href="#i-heart"/></svg></div>
           </div>
           <p class="h2" style="margin-top:22px">Settings</p>
           <p class="label" style="margin-top:12px">Appearance</p>
@@ -826,7 +843,7 @@
           <div class="tab on"><svg><use href="#i-person"/></svg>Me</div>
         </div>
       </div></div>
-      <figcaption><p class="name">Me</p><p class="note">Counts of finished films, series, and books plus your average score out of 10, then Settings: Appearance (Cinema, Paperback, Vice City) and Language. An Advanced group holds the Storage picker: the status line says where things live now, the two options are a draft, and picking the other one brings up the confirmation drawn here, since switching signs you out. The server address field and Test connection appear when PocketBase server is selected (see Login). The whole screen scrolls.</p></figcaption>
+      <figcaption><p class="name">Me</p><p class="note">Your picture and name, with Edit profile opening a sheet to change either (the picture comes from the photo library, cropped square). Counts of finished films, series, and books plus your average score out of 10, then the Top four shelf: up to four covers you put there with a long press on a library card or the heart on an entry's page, tap one to open it. Then Settings: Appearance (Cinema, Paperback, Vice City) and Language. An Advanced group holds the Storage picker: the status line says where things live now, the two options are a draft, and picking the other one brings up the confirmation drawn here, since switching signs you out. The server address field and Test connection appear when PocketBase server is selected (see Login). The whole screen scrolls.</p></figcaption>
     </figure>
 
   </div>
@@ -848,6 +865,14 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v9</b>11 Sep 2026</div>
+        <ul>
+          <li>Me has an Edit profile sheet: a profile picture from the photo library and an editable name, on both storage backends. Redrawn: Me (photo avatar, Edit profile pill).</li>
+          <li>A Top four shelf on Me, filled by a long press on a library card or the new heart in the entry header; a heart marks those cards in the library. Redrawn: Me (the shelf), Entry detail (the heart), Library (heart on the Dune card).</li>
+          <li>Haptics: a light tick when the zoom steps, the selection click on a tab switch, a firmer tap on a top four change, the warning buzz on the 10 confession. Nothing to draw.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v8</b>11 Sep 2026</div>
         <ul>

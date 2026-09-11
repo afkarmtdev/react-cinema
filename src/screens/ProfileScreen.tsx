@@ -1,6 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useMemo, useState } from 'react';
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { EditProfileSheet } from '../components/EditProfileSheet';
 import { useFloatingTabBarInset } from '../components/FloatingTabBar';
 import { Screen } from '../components/ui/Screen';
 import { Button } from '../components/ui/Button';
@@ -8,6 +17,7 @@ import { StorageSettings } from '../components/StorageSettings';
 import { useAuth } from '../context/AuthContext';
 import { useLibrary } from '../context/LibraryContext';
 import { useLanguage } from '../context/LanguageContext';
+import { MAX_FAVOURITES } from '../lib/favourites';
 import { KIND_ICON } from '../lib/labels';
 import { formatScore } from '../lib/score';
 import {
@@ -19,17 +29,21 @@ import {
   type ThemeColors,
   type ThemeName,
 } from '../theme';
-import type { ItemKind } from '../types/library';
+import type { ItemKind, LibraryItem } from '../types/library';
+import type { TabParamList } from '../navigation/types';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
-export function ProfileScreen() {
+type Props = BottomTabScreenProps<TabParamList, 'ProfileTab'>;
+
+export function ProfileScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const tabBar = useFloatingTabBarInset();
   const { colors } = useTheme();
   const { user, logout } = useAuth();
-  const { items } = useLibrary();
+  const { items, getItem } = useLibrary();
   const { t, language, setLanguage } = useLanguage();
   const { name: themeName, setTheme } = useTheme();
+  const [editing, setEditing] = useState(false);
 
   const stats = useMemo(() => {
     const done = items.filter((item) => item.status === 'done');
@@ -51,7 +65,23 @@ export function ProfileScreen() {
     };
   }, [items]);
 
+  // The shelf, skipping ids whose entry has since been deleted.
+  const shelf = useMemo(
+    () =>
+      (user?.favourites ?? [])
+        .map((id) => getItem(id))
+        .filter((item): item is LibraryItem => !!item),
+    [user?.favourites, getItem],
+  );
+
   if (!user) return null;
+
+  const openItem = (item: LibraryItem) =>
+    navigation.navigate('LibraryTab', {
+      screen: 'ItemDetail',
+      params: { itemId: item.id, title: item.title },
+      initial: false,
+    });
 
   return (
     <Screen padded>
@@ -66,12 +96,24 @@ export function ProfileScreen() {
 
         <View style={styles.card}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {user.name.charAt(0).toUpperCase()}
-            </Text>
+            {user.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarText}>
+                {user.name.charAt(0).toUpperCase()}
+              </Text>
+            )}
           </View>
           <Text style={styles.name}>{user.name}</Text>
           <Text style={styles.email}>{user.email}</Text>
+          <Pressable
+            onPress={() => setEditing(true)}
+            accessibilityRole="button"
+            style={({ pressed }) => [styles.editBtn, pressed && styles.pressed]}
+          >
+            <Ionicons name="create-outline" size={16} color={colors.primary} />
+            <Text style={styles.editText}>{t('editProfile')}</Text>
+          </Pressable>
         </View>
 
         <View style={styles.stats}>
@@ -92,6 +134,27 @@ export function ProfileScreen() {
           />
           <Stat icon="star" value={stats.avg} label={t('avgRating')} />
         </View>
+
+        <Text style={styles.settingsHeading}>{t('favourites')}</Text>
+        <View style={styles.shelf}>
+          {Array.from({ length: MAX_FAVOURITES }, (_, i) => {
+            const item = shelf[i];
+            return item ? (
+              <ShelfSlot key={item.id} item={item} onPress={openItem} />
+            ) : (
+              <View key={`empty-${i}`} style={[styles.slot, styles.slotEmpty]}>
+                <Ionicons
+                  name="heart-outline"
+                  size={20}
+                  color={colors.textMuted}
+                />
+              </View>
+            );
+          })}
+        </View>
+        {shelf.length === 0 && (
+          <Text style={styles.hint}>{t('favouritesHint')}</Text>
+        )}
 
         <Text style={styles.settingsHeading}>{t('settings')}</Text>
 
@@ -144,7 +207,44 @@ export function ProfileScreen() {
           }
         />
       </ScrollView>
+
+      <EditProfileSheet visible={editing} onClose={() => setEditing(false)} />
     </Screen>
+  );
+}
+
+/** One cover on the top four shelf. */
+function ShelfSlot({
+  item,
+  onPress,
+}: {
+  item: LibraryItem;
+  onPress: (item: LibraryItem) => void;
+}) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      onPress={() => onPress(item)}
+      accessibilityRole="button"
+      accessibilityLabel={item.title}
+      style={({ pressed }) => [styles.slot, pressed && styles.pressed]}
+    >
+      {item.poster ? (
+        <Image source={{ uri: item.poster }} style={styles.slotImage} />
+      ) : (
+        <View style={styles.slotFallback}>
+          <Ionicons
+            name={KIND_ICON[item.kind]}
+            size={20}
+            color={colors.textMuted}
+          />
+          <Text style={styles.slotTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
+        </View>
+      )}
+    </Pressable>
   );
 }
 
@@ -254,10 +354,25 @@ const makeStyles = (colors: ThemeColors) =>
       backgroundColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
     },
+    avatarImage: { width: 80, height: 80 },
     avatarText: { fontSize: 34, fontWeight: '800', color: colors.onPrimary },
     name: { ...typography.h2, color: colors.text },
     email: { ...typography.body, color: colors.textSecondary },
+    editBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      marginTop: spacing.xs,
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.md,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    editText: { ...typography.caption, color: colors.primary },
+    pressed: { opacity: 0.7 },
     stats: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
     stat: {
       flex: 1,
@@ -270,6 +385,41 @@ const makeStyles = (colors: ThemeColors) =>
     statValue: { ...typography.h2, color: colors.text },
     statLabel: { ...typography.caption, color: colors.textSecondary },
     content: { flexGrow: 1 },
+    shelf: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
+    slot: {
+      flex: 1,
+      aspectRatio: 2 / 3,
+      borderRadius: radius.md,
+      overflow: 'hidden',
+      backgroundColor: colors.surface,
+    },
+    slotEmpty: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1.5,
+      borderStyle: 'dashed',
+      borderColor: colors.border,
+      backgroundColor: 'transparent',
+    },
+    slotImage: { width: '100%', height: '100%' },
+    slotFallback: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.xs,
+      padding: spacing.sm,
+    },
+    slotTitle: {
+      ...typography.tiny,
+      color: colors.textMuted,
+      textAlign: 'center',
+    },
+    hint: {
+      ...typography.caption,
+      color: colors.textMuted,
+      marginTop: spacing.sm,
+      marginLeft: spacing.xs,
+    },
     settingsHeading: {
       ...typography.h2,
       color: colors.text,

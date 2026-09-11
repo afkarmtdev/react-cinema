@@ -19,11 +19,21 @@ export type ItemCardSize = 'lg' | 'md' | 'sm' | 'xs';
 interface ItemCardProps {
   item: LibraryItem;
   onPress: (item: LibraryItem) => void;
+  /** A long press, used by the library to put the entry on the top four. */
+  onLongPress?: (item: LibraryItem) => void;
+  /** On the top four shelf: a heart on the cover. */
+  favourite?: boolean;
   size?: ItemCardSize;
 }
 
 /** Poster-first card for a library entry, drawn at the size the grid asks. */
-function ItemCardBase({ item, onPress, size = 'md' }: ItemCardProps) {
+function ItemCardBase({
+  item,
+  onPress,
+  onLongPress,
+  favourite = false,
+  size = 'md',
+}: ItemCardProps) {
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
   const [imageFailed, setImageFailed] = useState(false);
@@ -32,6 +42,7 @@ function ItemCardBase({ item, onPress, size = 'md' }: ItemCardProps) {
   const meta = [item.year, item.creator].filter(Boolean).join(' / ');
   const done = item.status === 'done';
   const label = `${item.title}${item.year ? `, ${item.year}` : ''}`;
+  const longPress = onLongPress ? () => onLongPress(item) : undefined;
 
   const poster = (
     <View style={[styles.posterWrap, size === 'lg' && styles.posterWrapRow]}>
@@ -65,6 +76,21 @@ function ItemCardBase({ item, onPress, size = 'md' }: ItemCardProps) {
             name={KIND_ICON[item.kind]}
             size={12}
             color={colors.onOverlay}
+          />
+        </View>
+      )}
+      {favourite && size !== 'lg' && (
+        <View
+          style={[
+            styles.heartBadge,
+            size === 'md' && styles.heartBadgeBesideKind,
+            size === 'xs' && styles.heartBadgeXs,
+          ]}
+        >
+          <Ionicons
+            name="heart"
+            size={size === 'xs' ? 9 : 12}
+            color={colors.primary}
           />
         </View>
       )}
@@ -109,13 +135,19 @@ function ItemCardBase({ item, onPress, size = 'md' }: ItemCardProps) {
         accessibilityRole="button"
         accessibilityLabel={label}
         onPress={() => onPress(item)}
+        onLongPress={longPress}
         style={({ pressed }) => [styles.row, pressed && styles.pressed]}
       >
         {poster}
         <View style={styles.rowInfo}>
-          <Text style={styles.rowTitle} numberOfLines={2}>
-            {item.title}
-          </Text>
+          <View style={styles.rowTitleLine}>
+            <Text style={styles.rowTitle} numberOfLines={2}>
+              {item.title}
+            </Text>
+            {favourite && (
+              <Ionicons name="heart" size={16} color={colors.primary} />
+            )}
+          </View>
           <View style={styles.rowMeta}>
             <Ionicons
               name={KIND_ICON[item.kind]}
@@ -158,6 +190,7 @@ function ItemCardBase({ item, onPress, size = 'md' }: ItemCardProps) {
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={() => onPress(item)}
+      onLongPress={longPress}
       style={({ pressed }) => [
         styles.card,
         size === 'xs' && styles.cardXs,
@@ -221,6 +254,10 @@ const makeStyles = (colors: ThemeColors) => {
     },
     tinyText: { ...typography.tiny },
     kindBadge: { ...badge, top: spacing.sm, left: spacing.sm, padding: 5 },
+    heartBadge: { ...badge, top: spacing.sm, left: spacing.sm, padding: 5 },
+    // Next to the kind badge, which is 22 wide, on the full card.
+    heartBadgeBesideKind: { left: spacing.sm + 22 + spacing.xs },
+    heartBadgeXs: { top: 3, left: 3, padding: 3 },
     ratingBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm },
     statusBadge: { ...badge, bottom: spacing.sm, left: spacing.sm },
     statusBadgeDone: { backgroundColor: colors.primary },
@@ -251,7 +288,12 @@ const makeStyles = (colors: ThemeColors) => {
       padding: spacing.md,
     },
     rowInfo: { flex: 1, gap: spacing.xs },
-    rowTitle: { ...typography.h3, color: colors.text },
+    rowTitleLine: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+    },
+    rowTitle: { ...typography.h3, color: colors.text, flex: 1 },
     rowMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     rowFacts: {
       flexDirection: 'row',

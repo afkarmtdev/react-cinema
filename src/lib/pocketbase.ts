@@ -19,7 +19,7 @@ const ENTRIES = 'entries';
 const USERS = 'users';
 
 /** The subset of the SDK that this module uses, so tests can fake it. */
-export type Client = Pick<PocketBase, 'collection' | 'authStore'>;
+export type Client = Pick<PocketBase, 'collection' | 'authStore' | 'files'>;
 
 export function createClient(url: string): PocketBase {
   const initial = AsyncStorage.getItem(StorageKeys.pocketbaseAuth);
@@ -48,10 +48,21 @@ function toAuthError(error: unknown, fallback: string): AuthError {
   return new AuthError(fallback);
 }
 
-const toUser = (record: RecordModel): User => ({
+/**
+ * A users record to the app's shape. The avatar is the file field every
+ * PocketBase auth collection has, served as a thumbnail; favourites is the
+ * JSON list added by the pb_migrations file of the same name.
+ */
+export const toUser = (pb: Client, record: RecordModel): User => ({
   id: record.id,
   name: String(record.name ?? ''),
   email: String(record.email ?? ''),
+  avatar: record.avatar
+    ? pb.files.getURL(record, String(record.avatar), { thumb: '256x256' })
+    : undefined,
+  favourites: Array.isArray(record.favourites)
+    ? record.favourites.map(String)
+    : [],
 });
 
 export function createAuthBackend(pb: Client): AuthBackend {
@@ -63,11 +74,11 @@ export function createAuthBackend(pb: Client): AuthBackend {
       if (!pb.authStore.isValid || !pb.authStore.record) return null;
       try {
         const res = await pb.collection(USERS).authRefresh();
-        return toUser(res.record);
+        return toUser(pb, res.record);
       } catch (error) {
         // Offline: keep the cached session. Rejected token: drop it.
         if (error instanceof ClientResponseError && error.status === 0) {
-          return toUser(pb.authStore.record);
+          return toUser(pb, pb.authStore.record);
         }
         pb.authStore.clear();
         return null;
@@ -93,7 +104,7 @@ export function createAuthBackend(pb: Client): AuthBackend {
         const res = await pb
           .collection(USERS)
           .authWithPassword(email, password);
-        return toUser(res.record);
+        return toUser(pb, res.record);
       } catch (error) {
         throw toAuthError(error, 'errIncorrect');
       }
@@ -101,6 +112,34 @@ export function createAuthBackend(pb: Client): AuthBackend {
 
     async logout() {
       pb.authStore.clear();
+    },
+
+    async updateProfile(user, patch) {
+      const fields: Record<string, unknown> = {};
+      if (patch.name !== undefined) fields.name = patch.name;
+      if (patch.favourites !== undefined) fields.favourites = patch.favourites;
+      // An empty value on a file field tells PocketBase to delete the file.
+      if (patch.avatar === null) fields.avatar = null;
+      try {
+        let record: RecordModel | null = null;
+        if (Object.keys(fields).length > 0) {
+          record = await pb.collection(USERS).update(user.id, fields);
+        }
+        if (patch.avatar) {
+          // A picked file goes up as multipart form data, the way React
+          // Native's fetch sends files: a { uri, name, type } part.
+          const form = new FormData();
+          form.append('avatar', {
+            uri: patch.avatar.uri,
+            name: 'avatar.jpg',
+            type: patch.avatar.mimeType ?? 'image/jpeg',
+          } as unknown as Blob);
+          record = await pb.collection(USERS).update(user.id, form);
+        }
+        return record ? toUser(pb, record) : user;
+      } catch (error) {
+        throw toAuthError(error, 'errProfileSave');
+      }
     },
   };
 }

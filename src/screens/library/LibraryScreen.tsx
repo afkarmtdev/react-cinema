@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BrandHeader } from '../../components/BrandHeader';
 import { useFloatingTabBarInset } from '../../components/FloatingTabBar';
 import {
@@ -17,9 +17,12 @@ import { TimelineGrid } from '../../components/TimelineGrid';
 import { Button } from '../../components/ui/Button';
 import { Screen } from '../../components/ui/Screen';
 import { EmptyView, ErrorView, Loading } from '../../components/ui/StateViews';
+import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
+import { isFavourite, toggleFavourite } from '../../lib/favourites';
+import { haptics } from '../../lib/haptics';
 import { StorageKeys, storage } from '../../lib/storage';
 import { hasTag } from '../../lib/tags';
 import { DEFAULT_ZOOM, isZoomLevel, type ZoomLevel } from '../../lib/timeline';
@@ -58,6 +61,7 @@ export function LibraryScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
   const { items, allTags, ready, loadError, reload } = useLibrary();
+  const { user, updateProfile } = useAuth();
   const { t } = useLanguage();
   const tabBar = useFloatingTabBarInset();
   const [query, setQuery] = useState('');
@@ -79,8 +83,20 @@ export function LibraryScreen({ navigation }: Props) {
   }, []);
 
   const changeZoom = (next: ZoomLevel) => {
+    haptics.tick();
     setZoom(next);
     storage.set(StorageKeys.libraryZoom, next).catch(() => {});
+  };
+
+  // A long press on a card puts the entry on the top four, or takes it off.
+  const toggleShelf = (item: LibraryItem) => {
+    const next = toggleFavourite(user?.favourites, item.id);
+    if (!next) {
+      Alert.alert(t('favouritesFullTitle'), t('favouritesFull'));
+      return;
+    }
+    haptics.tap();
+    updateProfile({ favourites: next }).catch(() => {});
   };
 
   // Search, status, and tags apply to every page; the kind is the page.
@@ -176,7 +192,13 @@ export function LibraryScreen({ navigation }: Props) {
         zoom={zoom}
         onZoomChange={changeZoom}
         renderItem={(item) => (
-          <ItemCard item={item} size={CARD_SIZE[zoom]} onPress={openDetail} />
+          <ItemCard
+            item={item}
+            size={CARD_SIZE[zoom]}
+            favourite={isFavourite(user?.favourites, item.id)}
+            onPress={openDetail}
+            onLongPress={toggleShelf}
+          />
         )}
         contentContainerStyle={{
           paddingBottom: tabBar.clearance + 60 + spacing.md,
