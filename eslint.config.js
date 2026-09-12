@@ -56,6 +56,13 @@ module.exports = defineConfig([
     },
   },
   {
+    // The service worker runs in the browser worker scope, not in the app.
+    files: ['public/sw.js'],
+    languageOptions: {
+      globals: { self: 'readonly', caches: 'readonly' },
+    },
+  },
+  {
     // pocketbase/ holds server-side migrations that run inside PocketBase's
     // own JS runtime (migrate, Collection globals), not in the app.
     ignores: [

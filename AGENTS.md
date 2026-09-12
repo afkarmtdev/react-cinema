@@ -12,6 +12,12 @@ Storage setting at runtime, and EXPO_PUBLIC_POCKETBASE_URL only sets the
 first-launch default. OMDb is only used, when a key is present, to prefill the add form
 for a film or series.
 
+The app also ships as a website. `react-native-web`, `react-dom`, and
+`@expo/metro-runtime` are installed for that, and `npm run export:web`
+writes a static progressive web app (manifest, service worker, icons from
+`public/`) that can be installed to a phone's home screen. The web layout is
+deliberately phone-shaped; do not add desktop-specific layouts unless asked.
+
 ## Expo is pinned to SDK 54
 
 Expo changes a lot between SDK versions. Read the exact versioned docs at
@@ -87,6 +93,7 @@ npm run lint        ESLint (flat config: expo, prettier, unused-imports)
 npm test            Jest, runs once (60 tests in 9 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
+npm run export:web  Static web build (a PWA) in dist/, ready for any host
 ```
 
 Run typecheck, lint, and test before calling a change done.
@@ -112,6 +119,8 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  local entries), pocketbase (both, against the SDK), storage,
                  score (1 to 10 scale, the 10 rule), tags, labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
+public/          web only: index.html template, manifest.json, sw.js, and
+                 the PWA icons. Copied verbatim into the web export.
 src/theme        three colour themes (cinema, paperback, viceCity) as
                  ThemeColors, plus spacing, radius, and typography tokens
 src/types        library.ts (LibraryItem, ItemKind, ItemStatus), movie.ts

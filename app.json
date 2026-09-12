@@ -25,7 +25,14 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single",
+      "name": "CineReact",
+      "shortName": "CineReact",
+      "lang": "en",
+      "themeColor": "#0B0B0B",
+      "backgroundColor": "#0B0B0B"
     }
   }
 }

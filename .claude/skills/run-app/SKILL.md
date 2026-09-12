@@ -62,6 +62,19 @@ Bash equivalent:
 CI=1 npx expo export --platform android --output-dir dist-verify && rm -rf dist-verify
 ```
 
+Same check for the web target (also confirms the PWA files in `public/` land
+in the output; look for manifest.json, sw.js, and the icons in dist-verify):
+
+```bash
+CI=1 npx expo export --platform web --output-dir dist-verify && ls dist-verify && rm -rf dist-verify
+```
+
+To see it actually render without a device, serve dist-verify with a tiny
+node http server on a spare port and open it in headless Edge
+(`msedge.exe --headless=new --dump-dom` or `--screenshot`); the login
+screen text (Log in, Email, Password) in the DOM means the bundle booted.
+The real build is `npm run export:web` (writes dist/, git-ignored).
+
 ## Expo Go caveat
 
 Expo Go from the App Store and Play Store tracks the latest SDK (57 as of
@@ -82,7 +95,7 @@ preference:
   reachable from the device. Typecheck and the bundle check above work
   offline either way.
 - Starting PocketBase is separate from Metro: `./pocketbase serve
-  --http=0.0.0.0:8090` from the pocketbase/ folder (see its README).
+--http=0.0.0.0:8090` from the pocketbase/ folder (see its README).
 - `npx expo` and `npx tsc` resolve to the copies in `node_modules`. Do not run
   `npx expo-doctor` or other tools that are not in package.json; they fetch
   the latest version from the registry.

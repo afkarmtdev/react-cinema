@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+    />
+    <title>%WEB_TITLE%</title>
+
+    <!-- Progressive web app: lets the site be added to a phone's home screen
+         and opened without the browser chrome. Only the files in public/ are
+         involved; the app code is unchanged. -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="/favicon.png" />
+    <meta name="theme-color" content="#0B0B0B" />
+    <meta name="application-name" content="CineReact" />
+    <!-- iOS reads these instead of (and alongside) the manifest. -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="CineReact" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+        /* Matches the splash colour so there is no white flash on launch. */
+        background-color: #0b0b0b;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+
+    <!-- The service worker caches the app shell so it opens offline. It is
+         registered only over https, which skips the Metro dev server
+         (localhost, http) where a cache would only get in the way. -->
+    <script>
+      if ('serviceWorker' in navigator && location.protocol === 'https:') {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
+  </body>
+</html>

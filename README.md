@@ -72,6 +72,7 @@ between English and Bahasa Melayu. Both choices are remembered on the device.
 | i18n        | A small `LanguageContext` + `t()` dictionary (English / Malay)                |
 | Theming     | `ThemeContext` + `useThemedStyles()`; three palettes in `src/theme`           |
 | Persistence | PocketBase (`pocketbase` SDK) or AsyncStorage, behind one store interface     |
+| Web         | `react-native-web` through Expo Metro web, exported as a static PWA           |
 | Testing     | Jest + `jest-expo` + React Native Testing Library                             |
 | Icons       | `@expo/vector-icons` (Ionicons)                                               |
 | Lookup      | `fetch` against OMDb, only when a key is configured                           |
@@ -147,6 +148,38 @@ npm run format        # Prettier across the whole project
 
 Prettier, ESLint, and EditorConfig are set up so the code stays formatted the
 same way for everyone, and VS Code applies it on save (see `.vscode/`).
+
+### Running it as a website (and installing it as a PWA)
+
+The same code runs in the browser through `react-native-web`. `npm run web`
+serves it from Metro for development, and
+
+```bash
+npm run export:web    # writes a static site to dist/
+```
+
+produces a plain static site you can put on any static host (Netlify,
+Cloudflare Pages, GitHub Pages, and so on). There is no server-side part; the
+app talks to PocketBase or to the browser's local storage directly. The
+layout stays phone-shaped on a wide screen, which is intended: the point of
+the web build is the phone.
+
+The web build is a progressive web app. On a phone, "Add to Home Screen" (iOS
+Safari) or "Install app" (Android Chrome) puts a CineReact icon on the home
+screen that opens without the browser bars. The pieces live in `public/`
+and are copied into the export as they are:
+
+- `manifest.json`: name, icons, colours, and `display: standalone`.
+- `index.html`: the page template with the manifest link and the Apple
+  meta tags, and a script that registers the service worker.
+- `sw.js`: a small service worker that caches the app shell (page, bundle,
+  fonts, icons) so the site opens offline. Requests to PocketBase, OMDb, and
+  cover images always go to the network. It only registers over https, so
+  the Metro dev server is never cached. Bump `CACHE` in it when you change it.
+- `icon-192.png`, `icon-512.png`, `favicon.png`: resized from `assets/icon.png`.
+
+The host must serve the site over https for the install prompt and the
+service worker to work (every host listed above does).
 
 ## Dependencies
 
