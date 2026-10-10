@@ -125,7 +125,10 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  (AuthBackend + local accounts), libraryStore (the LibraryStore
                  interface + the AsyncStorage entries store, used on web and
                  for the one-off import), sqliteStore (the device entries
-                 store, expo-sqlite), pocketbase (both, against the SDK),
+                 store, expo-sqlite), deviceStore (SQLite on a phone,
+                 AsyncStorage on web through deviceStore.web.ts, so the web
+                 bundle never loads expo-sqlite), pocketbase (both, against
+                 the SDK),
                  summary (month and year totals for the Diary), timeline (the
                  zoom ladder, pinch steps, and month or year grouping behind
                  the library grid), favourites (the top four shelf, max four),
