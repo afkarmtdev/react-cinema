@@ -4,6 +4,26 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  /** Profile picture: a data URI on the device, a file URL on the server. */
+  avatar?: string;
+  /** Entry ids on the top four shelf, in the order they were added. */
+  favourites?: string[];
+}
+
+/** A picture picked from the photo library, before it is stored. */
+export interface NewAvatar {
+  uri: string;
+  /** The image bytes, so the device backend can keep them past the cache. */
+  base64?: string;
+  mimeType?: string;
+}
+
+/** The parts of a profile the user can change. Absent means unchanged. */
+export interface ProfilePatch {
+  name?: string;
+  /** A new picture, or null to remove the current one. */
+  avatar?: NewAvatar | null;
+  favourites?: string[];
 }
 
 /**
@@ -24,12 +44,20 @@ export interface AuthBackend {
   signup: (name: string, email: string, password: string) => Promise<User>;
   login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
+  /** Applies the patch to the signed-in user and returns the result. */
+  updateProfile: (user: User, patch: ProfilePatch) => Promise<User>;
 }
 
 // Stored locally to emulate a credential check (demo only, no real backend).
 interface StoredAccount extends User {
   password: string;
 }
+
+/** What the device keeps for a picked picture: the bytes, or the path. */
+export const avatarUri = (avatar: NewAvatar): string =>
+  avatar.base64
+    ? `data:${avatar.mimeType ?? 'image/jpeg'};base64,${avatar.base64}`
+    : avatar.uri;
 
 /** Accounts kept on this device only, in AsyncStorage. */
 export const localAuthBackend: AuthBackend = {
@@ -67,4 +95,23 @@ export const localAuthBackend: AuthBackend = {
   },
 
   logout: () => storage.remove(StorageKeys.session),
+
+  async updateProfile(user, patch) {
+    const next: User = { ...user };
+    if (patch.name !== undefined) next.name = patch.name;
+    if (patch.favourites !== undefined) next.favourites = patch.favourites;
+    if (patch.avatar === null) delete next.avatar;
+    else if (patch.avatar) next.avatar = avatarUri(patch.avatar);
+
+    const accounts =
+      (await storage.get<StoredAccount[]>(StorageKeys.users)) ?? [];
+    await storage.set(
+      StorageKeys.users,
+      accounts.map((a) =>
+        a.id === user.id ? { ...next, password: a.password } : a,
+      ),
+    );
+    await storage.set(StorageKeys.session, next);
+    return next;
+  },
 };

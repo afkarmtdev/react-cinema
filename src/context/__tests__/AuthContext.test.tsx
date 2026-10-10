@@ -85,4 +85,34 @@ describe('AuthContext', () => {
       ).rejects.toThrow('errIncorrect');
     });
   });
+
+  it('updates the name and the top four of the signed-in user', async () => {
+    const { result } = await mountAuth();
+    await act(async () => {
+      await result.current.signup('Ali', 'ali@example.com', 'secret');
+    });
+    await act(async () => {
+      await result.current.updateProfile({
+        name: '  Ali Baba ',
+        favourites: ['i1'],
+      });
+    });
+    expect(result.current.user).toMatchObject({
+      name: 'Ali Baba',
+      favourites: ['i1'],
+    });
+  });
+
+  it('refuses a blank name', async () => {
+    const { result } = await mountAuth();
+    await act(async () => {
+      await result.current.signup('Ali', 'ali@example.com', 'secret');
+    });
+    await act(async () => {
+      await expect(
+        result.current.updateProfile({ name: '   ' }),
+      ).rejects.toThrow('errFillAll');
+    });
+    expect(result.current.user?.name).toBe('Ali');
+  });
 });

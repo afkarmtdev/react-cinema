@@ -6,11 +6,16 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { AuthError, type AuthBackend, type User } from '../lib/auth';
+import {
+  AuthError,
+  type AuthBackend,
+  type ProfilePatch,
+  type User,
+} from '../lib/auth';
 import { isValidEmail, isValidPassword } from '../lib/validation';
 import { useStorageBackend } from './StorageContext';
 
-export { AuthError, type User } from '../lib/auth';
+export { AuthError, type ProfilePatch, type User } from '../lib/auth';
 
 interface AuthContextValue {
   user: User | null;
@@ -19,6 +24,8 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Changes the name, picture, or top four of the signed-in user. */
+  updateProfile: (patch: ProfilePatch) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -100,9 +107,22 @@ export function AuthProvider({
     setUser(null);
   }, [backend]);
 
+  const updateProfile = useCallback(
+    async (patch: ProfilePatch) => {
+      if (!user) return;
+      const cleaned = { ...patch };
+      if (patch.name !== undefined) {
+        cleaned.name = patch.name.trim();
+        if (!cleaned.name) throw new AuthError('errFillAll');
+      }
+      setUser(await backend.updateProfile(user, cleaned));
+    },
+    [backend, user],
+  );
+
   const value = useMemo(
-    () => ({ user, initializing, login, signup, logout }),
-    [user, initializing, login, signup, logout],
+    () => ({ user, initializing, login, signup, logout, updateProfile }),
+    [user, initializing, login, signup, logout, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -4,9 +4,10 @@ import type { LibraryItem } from '../types/library';
 
 /**
  * Persistence for library entries. LibraryContext talks to nothing else, so a
- * backend only has to implement these four functions. Two exist: this file
- * (AsyncStorage on the device) and pocketbase.ts (a PocketBase server).
- * backend.ts picks one at startup.
+ * backend only has to implement these four functions. Three exist:
+ * sqliteStore.ts (a SQLite file on the device, the normal device store),
+ * this file (AsyncStorage, kept for web and for the one-off import into
+ * SQLite), and pocketbase.ts (a PocketBase server). backend.ts picks one.
  */
 export interface LibraryStore {
   /**
@@ -22,7 +23,7 @@ export interface LibraryStore {
 }
 
 /** Shape of a review from the OMDb-only version, kept for the migration. */
-interface LegacyReview {
+export interface LegacyReview {
   id: string;
   movieTitle: string;
   moviePoster?: string;
@@ -33,7 +34,7 @@ interface LegacyReview {
 }
 
 /** Turns the old per-movie reviews (1 to 5 stars) into "watched" film entries. */
-function migrateReviews(reviews: LegacyReview[]): LibraryItem[] {
+export function migrateReviews(reviews: LegacyReview[]): LibraryItem[] {
   return reviews.map((r) => ({
     id: `legacy-${r.id}`,
     ownerId: r.userId,

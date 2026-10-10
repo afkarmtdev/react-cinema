@@ -34,14 +34,24 @@ export interface LibraryItem {
   review?: string;
   createdAt: number;
   updatedAt: number;
-  /** Set when the status is "done"; drives the diary order. */
+  /** When the user started it, if they recorded that. Optional for every kind. */
+  startedAt?: number;
+  /**
+   * When it was finished. Set while the status is "done": the date picked on
+   * the form, or the moment the status changed. Drives the diary order and
+   * the month and year summaries.
+   */
   finishedAt?: number;
 }
 
-/** The editable part of an entry, as collected by the add and edit form. */
+/**
+ * The editable part of an entry, as collected by the add and edit form. The
+ * two dates are included so an old read or watch can be backlogged with the
+ * day it actually happened.
+ */
 export type LibraryItemInput = Omit<
   LibraryItem,
-  'id' | 'ownerId' | 'createdAt' | 'updatedAt' | 'finishedAt'
+  'id' | 'ownerId' | 'createdAt' | 'updatedAt'
 >;
 
 /** Films and series are watched; books are read. */

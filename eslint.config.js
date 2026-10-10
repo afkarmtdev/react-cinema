@@ -36,6 +36,12 @@ module.exports = defineConfig([
       // catch a stray `import React` that's only there for legacy JSX.
       'react/react-in-jsx-scope': 'off',
       'react/jsx-uses-react': 'off',
+      // eslint-config-expo 57 turns this React Compiler rule on. It flags
+      // the "reset state, then load" effects in AuthContext, LibraryContext,
+      // StorageSettings, FilterSheet, and OmdbLookupSheet. Rewriting those
+      // as derived or render-time state is a separate job; until then the
+      // rule is off rather than left as five permanent errors.
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
   {

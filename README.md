@@ -43,7 +43,10 @@ score from 1.0 to 10.0 with one decimal, and free-text notes. The status wording
 type: watchlist, watching, watched for films and series; to read, reading, read
 for books. Tags are free text and the form suggests ones you have used before.
 The detail screen shows all of it and lets you change the status or rating in
-place. When you mark something finished, the date is recorded.
+place. An entry also carries a Started date and a Finished date, picked on the
+system calendar. Marking something finished proposes today, and the form lets
+you move it back, so a book you read last winter lands in the right month of
+the diary instead of this one.
 
 **Scores, not stars.** Ratings run from 1.0 to 10.0 in tenths, pizza-review
 style, picked from a whole-number row and a tenths row. Tapping 10 brings up a
@@ -52,7 +55,9 @@ offers 9.9 instead. There is one exception, and the button for it says so.
 Old five-star reviews from the previous version are mapped onto the new
 scale, with five stars landing on 9.9.
 
-**Diary.** The second tab lists everything you have finished, newest first,
+**Diary.** The second tab opens with two cards, This month and This year,
+that total what you have finished, split into films, series, and books, with
+the average score. Below them is everything you have finished, newest first,
 grouped by month, with the day, your score, and a snippet of your notes.
 
 **Settings.** The Me tab shows how many films, series, and books you have
@@ -66,12 +71,12 @@ between English and Bahasa Melayu. Both choices are remembered on the device.
 
 | Concern     | Choice                                                                        |
 | ----------- | ----------------------------------------------------------------------------- |
-| Framework   | Expo SDK 54 (managed) + TypeScript                                            |
+| Framework   | Expo SDK 57 (managed) + TypeScript                                            |
 | Navigation  | React Navigation 7 (native-stack + bottom-tabs)                               |
 | State       | React Context API + hooks (`useState`, `useEffect`, `useMemo`, `useCallback`) |
 | i18n        | A small `LanguageContext` + `t()` dictionary (English / Malay)                |
 | Theming     | `ThemeContext` + `useThemedStyles()`; three palettes in `src/theme`           |
-| Persistence | PocketBase (`pocketbase` SDK) or AsyncStorage, behind one store interface     |
+| Persistence | PocketBase (`pocketbase` SDK) or SQLite (`expo-sqlite`), one store interface  |
 | Web         | `react-native-web` through Expo Metro web, exported as a static PWA           |
 | Testing     | Jest + `jest-expo` + React Native Testing Library                             |
 | Icons       | `@expo/vector-icons` (Ionicons)                                               |
@@ -83,15 +88,16 @@ between English and Bahasa Melayu. Both choices are remembered on the device.
 src/
 ├─ api/            movies.ts (optional OMDb search and detail, for prefill)
 ├─ components/
-│  ├─ ui/          Button, TextField, Chip, Screen, StarRating, Skeleton, StateViews
-│  ├─ BrandHeader, SearchBar, ItemCard, KindPicker, StatusPicker, TagInput,
+│  ├─ ui/          Button, TextField, Chip, Sheet, Screen, StarRating, Skeleton, StateViews
+│  ├─ BrandHeader, SearchBar, ItemCard, KindPicker, StatusPicker, DateField, TagInput,
 │  │  FilterSheet, OmdbLookupSheet
 ├─ context/        AuthContext, LibraryContext, LanguageContext, ThemeContext
 │  └─ __tests__/   tests for the auth and library contexts
 ├─ i18n/           translations.ts (English / Malay dictionaries)
 ├─ hooks/          useDebouncedValue
-├─ lib/            backend (builds PocketBase or local), auth, libraryStore,
-│                  pocketbase, storage, tags, labels, validation
+├─ lib/            backend (builds PocketBase or device), auth, sqliteStore,
+│                  libraryStore, pocketbase, storage, summary, tags, labels,
+│                  validation
 ├─ navigation/     RootNavigator, AuthStack, MainTabs, LibraryStack, types
 ├─ screens/        SplashScreen, auth/(Login, Signup),
 │                  library/(Library, ItemDetail, ItemForm), DiaryScreen,
@@ -105,12 +111,13 @@ pocketbase/
 
 ## Getting started
 
-You'll need Node.js 20.19 or newer (the minimum for Expo SDK 54; I built this
-on Node 24) and the Expo Go app on your phone, or an Android emulator / iOS
-simulator. One thing to know about Expo Go: the version in the app stores only
-runs the latest SDK, and this project is on SDK 54. Pick SDK 54 from the
-version selector at https://expo.dev/go to get a build that opens it, or use
-the web target below.
+You'll need Node.js 20.19.4 or newer (the minimum for Expo SDK 57; I built
+this on Node 24) and the Expo Go app on your phone, or an Android emulator /
+iOS simulator. One thing to know about Expo Go: the version in the app stores
+only runs the latest SDK. This project is on SDK 57, which is the current one,
+so the store build opens it. If the stores have moved on by the time you read
+this, pick SDK 57 from the version selector at https://expo.dev/go (Android
+and iOS simulator builds) or use the web target below.
 
 Copy `.env.example` to `.env`. Both values in it are optional:
 
@@ -198,7 +205,7 @@ supply-chain attacks, this project is careful about what it pulls in:
   npm install <pkg>@<version> --ignore-scripts --before=$(date -d '10 days ago' +%F)
   ```
 
-- The project stays on Expo SDK 54 deliberately. Upgrading the SDK is a
+- The project stays on Expo SDK 57 deliberately. Upgrading the SDK is a
   separate job, not something to do while fixing a bug.
 
 ## Where the data lives
@@ -224,18 +231,24 @@ address in the Storage setting. The session token is cached on the device so the
 opens straight into your library, and if the server is unreachable you stay
 signed in and see an error with a retry.
 
-**On the device (no server).** In device mode everything stays in
-AsyncStorage: accounts, the session, the language choice, and the library as
-one JSON array of entries tagged with the owning account's id. The first time
-this version runs on a device that had the old OMDb-only app, any reviews it
-finds are carried over as "watched" film entries.
+**On the device (no server).** In device mode nothing leaves the phone. The
+library is a SQLite file (`cinereact.db`, through `expo-sqlite`) in the app's
+private sandbox, one row per entry with an index on the owning account, so a
+change writes one row instead of rewriting the whole library. Accounts, the
+session, and the language choice stay in AsyncStorage. The first time this
+version runs on a device that used an earlier one, whatever AsyncStorage held
+(the JSON library, or reviews from the OMDb-only app, carried over as
+"watched" film entries) is copied into the table and removed from
+AsyncStorage. On web, where `expo-sqlite` is still alpha, the library stays in
+AsyncStorage.
 
 Either way `LibraryContext` and `AuthContext` do not know which mode is on.
 `StorageContext` reads the saved choice and asks `src/lib/backend.ts` for a
 `LibraryStore` (list, create, update, remove) and an `AuthBackend` (restore,
-signup, login, logout) to match; the local versions are in `libraryStore.ts`
-and `auth.ts`, the server versions in `pocketbase.ts`. When the choice
-changes, both contexts start over against the new pair.
+signup, login, logout) to match; the device versions are in `sqliteStore.ts`
+(with the AsyncStorage fallback in `libraryStore.ts`) and `auth.ts`, the
+server versions in `pocketbase.ts`. When the choice changes, both contexts
+start over against the new pair.
 
 ## The optional OMDb lookup
 
@@ -262,7 +275,7 @@ that server beyond your Wi-Fi.
 
 ## Tests
 
-`npm test` runs 60 tests across nine files:
+`npm test` runs 79 tests across eleven files:
 
 | File                     | What it checks                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------------ |
@@ -271,14 +284,20 @@ that server beyond your Wi-Fi.
 | `lib/score`              | clamping to one decimal, formatting, splitting for the picker, stars to score        |
 | `api/movies`             | the URL it builds (search, filters, page), odd responses, and errors                 |
 | `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)    |
+| `lib/sqliteStore`        | row mapping both ways, per-owner list and order, and the one-off AsyncStorage import |
+| `lib/summary`            | month and year ranges, counts per kind in a range, average of the scored entries     |
 | `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password               |
 | `context/LibraryContext` | add, validate, update, finish dates, remove, tag ordering, per-user split, migration |
 | `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles    |
 | `context/StorageContext` | device default, switching to a server and persisting, bad saved values, health check |
 
-One thing to know if you touch the test setup: `jest-expo@54` targets the Jest 29
-line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the runner.
-AsyncStorage is swapped for a small in-memory mock in `jest.setup.js`.
+One thing to know if you touch the test setup: `jest-expo@57` still targets the
+Jest 29 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the
+runner.
+AsyncStorage is swapped for a small in-memory mock in `jest.setup.js`, and
+`expo-sqlite` (native, so it cannot load under Node) for the in-memory fake in
+`__mocks__/expo-sqlite.ts`, which only understands the statements the store
+issues.
 
 ## Screenshots
 

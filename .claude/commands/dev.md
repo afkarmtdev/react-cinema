@@ -3,14 +3,14 @@ description: Run this project's dev scripts (app, tests, lint, format) and repor
 argument-hint: '[app | test | typecheck | lint | fix | format | all]'
 ---
 
-The user wants to run a CineReact (Expo SDK 54 + TypeScript) dev task.
+The user wants to run a CineReact (Expo SDK 57 + TypeScript) dev task.
 Requested target: "$ARGUMENTS" (if empty, default to starting the app).
 
 ## Environment (check first)
 
 - Node 24.14.0 is the default in both the PowerShell and Bash tools on this
-  machine. Expo SDK 54 needs Node 20.19 or newer. If `node -v` prints something
-  older, stop and report it.
+  machine. Expo SDK 57 needs Node 20.19.4 or newer. If `node -v` prints
+  something older, stop and report it.
 - If `node_modules` is missing, run `npm ci --ignore-scripts` before anything
   else. Do not add or bump packages (see the dependency policy in AGENTS.md).
 - An OMDb key in `.env` is optional (it only enables the lookup button in
@@ -21,9 +21,9 @@ Requested target: "$ARGUMENTS" (if empty, default to starting the app).
 - empty, `app`, or `start`: `npm start` (Metro bundler plus QR code). This is
   long-running: start it in the background, then tell the user the dev server
   is up and they can press `a` (Android), `i` (iOS, macOS only), or `w` (web).
-  Mention that the store version of Expo Go targets SDK 57 and will not open
-  this SDK 54 project; the SDK 54 build is at https://expo.dev/go. Do not
-  block waiting on the server.
+  The store version of Expo Go targets SDK 57, which matches this project;
+  if the stores have moved on, the SDK 57 build is at https://expo.dev/go.
+  Do not block waiting on the server.
 - `test`: `npm test`
 - `typecheck`: `npm run typecheck`
 - `lint`: `npm run lint`

@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { localAuthBackend, type AuthBackend } from './auth';
 import { localLibraryStore, type LibraryStore } from './libraryStore';
 import {
@@ -5,6 +6,7 @@ import {
   createClient,
   createLibraryStore,
 } from './pocketbase';
+import { sqliteLibraryStore } from './sqliteStore';
 
 /**
  * Where accounts and the library live: on this device in AsyncStorage, or on
@@ -45,11 +47,18 @@ export const defaultStorageSettings: StorageSettings = {
   serverUrl: envUrl,
 };
 
+/**
+ * On a phone the library is a SQLite file. expo-sqlite on web is still alpha
+ * and needs extra Metro setup, so web keeps the AsyncStorage store.
+ */
+export const deviceLibraryStore: LibraryStore =
+  Platform.OS === 'web' ? localLibraryStore : sqliteLibraryStore;
+
 export const localBackend: Backend = {
   mode: 'device',
   serverUrl: null,
   auth: localAuthBackend,
-  library: localLibraryStore,
+  library: deviceLibraryStore,
 };
 
 export function createBackend(settings: StorageSettings): Backend {

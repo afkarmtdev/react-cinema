@@ -4,7 +4,7 @@ const preset = require('jest-expo/jest-preset');
 // rest of node_modules alone. The PocketBase SDK ships as ES modules with
 // named exports, so it has to be added to that list to load under Jest.
 const transformIgnorePatterns = preset.transformIgnorePatterns.map((pattern) =>
-  pattern.replace('|native-base))', '|native-base|pocketbase))'),
+  pattern.replace('|native-base', '|native-base|pocketbase'),
 );
 
 module.exports = {

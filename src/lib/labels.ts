@@ -42,6 +42,14 @@ export function formatDate(timestamp: number): string {
   });
 }
 
+/** "7 Sep": the day inside a month that is already named, as in the Diary. */
+export function formatDay(timestamp: number): string {
+  return new Date(timestamp).toLocaleDateString(undefined, {
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
 export function formatMonth(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString(undefined, {
     month: 'long',

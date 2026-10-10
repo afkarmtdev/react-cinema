@@ -1,24 +1,31 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useMemo, useState, type ReactNode } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BrandHeader } from '../../components/BrandHeader';
+import { useFloatingTabBarInset } from '../../components/FloatingTabBar';
 import {
   EMPTY_FILTERS,
   FilterSheet,
   hasActiveFilters,
   type LibraryFilters,
 } from '../../components/FilterSheet';
-import { ItemCard } from '../../components/ItemCard';
+import { ItemCard, type ItemCardSize } from '../../components/ItemCard';
 import { SearchBar } from '../../components/SearchBar';
+import { SwipePager } from '../../components/SwipePager';
+import { TimelineGrid } from '../../components/TimelineGrid';
 import { Button } from '../../components/ui/Button';
 import { Screen } from '../../components/ui/Screen';
 import { EmptyView, ErrorView, Loading } from '../../components/ui/StateViews';
+import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
+import { isFavourite, toggleFavourite } from '../../lib/favourites';
+import { haptics } from '../../lib/haptics';
+import { StorageKeys, storage } from '../../lib/storage';
 import { hasTag } from '../../lib/tags';
+import { DEFAULT_ZOOM, isZoomLevel, type ZoomLevel } from '../../lib/timeline';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
 import {
   ITEM_KINDS,
@@ -39,22 +46,63 @@ const KIND_LABEL: Record<KindFilter, string> = {
   book: 'kindsBook',
 };
 
+/** One swipeable page per entry, left to right. */
+const KIND_FILTERS: KindFilter[] = ['all', ...ITEM_KINDS];
+
+/** The card each zoom level draws, from one wide row to a wall of covers. */
+const CARD_SIZE: Record<ZoomLevel, ItemCardSize> = {
+  0: 'lg',
+  1: 'md',
+  2: 'sm',
+  3: 'xs',
+};
+
 export function LibraryScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
   const { items, allTags, ready, loadError, reload } = useLibrary();
+  const { user, updateProfile } = useAuth();
   const { t } = useLanguage();
-  const insets = useSafeAreaInsets();
+  const tabBar = useFloatingTabBarInset();
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<KindFilter>('all');
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [zoom, setZoom] = useState<ZoomLevel>(DEFAULT_ZOOM);
   const debouncedQuery = useDebouncedValue(query);
 
+  // The zoom is remembered across launches, like the camera roll's.
+  useEffect(() => {
+    let cancelled = false;
+    storage.get<unknown>(StorageKeys.libraryZoom).then((saved) => {
+      if (!cancelled && isZoomLevel(saved)) setZoom(saved);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const changeZoom = (next: ZoomLevel) => {
+    haptics.tick();
+    setZoom(next);
+    storage.set(StorageKeys.libraryZoom, next).catch(() => {});
+  };
+
+  // A long press on a card puts the entry on the top four, or takes it off.
+  const toggleShelf = (item: LibraryItem) => {
+    const next = toggleFavourite(user?.favourites, item.id);
+    if (!next) {
+      Alert.alert(t('favouritesFullTitle'), t('favouritesFull'));
+      return;
+    }
+    haptics.tap();
+    updateProfile({ favourites: next }).catch(() => {});
+  };
+
+  // Search, status, and tags apply to every page; the kind is the page.
   const filtered = useMemo(() => {
     const term = debouncedQuery.trim().toLowerCase();
     return items.filter((item) => {
-      if (kind !== 'all' && item.kind !== kind) return false;
       if (filters.status && item.status !== filters.status) return false;
       if (filters.tags.some((tag) => !hasTag(item.tags, tag))) return false;
       if (!term) return true;
@@ -68,7 +116,23 @@ export function LibraryScreen({ navigation }: Props) {
         .toLowerCase();
       return haystack.includes(term);
     });
-  }, [items, kind, filters, debouncedQuery]);
+  }, [items, filters, debouncedQuery]);
+
+  const byKind = useMemo(
+    () =>
+      Object.fromEntries(
+        KIND_FILTERS.map((k) => [
+          k,
+          k === 'all' ? filtered : filtered.filter((item) => item.kind === k),
+        ]),
+      ) as Record<KindFilter, LibraryItem[]>,
+    [filtered],
+  );
+
+  const pages = useMemo(
+    () => KIND_FILTERS.map((k) => ({ key: k, label: t(KIND_LABEL[k]) })),
+    [t],
+  );
 
   const openDetail = (item: LibraryItem) =>
     navigation.navigate('ItemDetail', { itemId: item.id, title: item.title });
@@ -114,39 +178,31 @@ export function LibraryScreen({ navigation }: Props) {
           {filtersOn && <View style={styles.filterDot} />}
         </Pressable>
       </View>
-      <View style={styles.segments}>
-        {(['all', ...ITEM_KINDS] as KindFilter[]).map((k) => (
-          <SegmentButton
-            key={k}
-            label={t(KIND_LABEL[k])}
-            active={kind === k}
-            onPress={() => setKind(k)}
-          />
-        ))}
-      </View>
     </View>
   );
 
-  let content: ReactNode;
-  if (!ready) {
-    content = <Loading message={t('loadingLibrary')} />;
-  } else if (loadError) {
-    content = <ErrorView message={t('libraryLoadError')} onRetry={reload} />;
-  } else {
-    content = (
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        renderItem={({ item }) => <ItemCard item={item} onPress={openDetail} />}
-        columnWrapperStyle={styles.column}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: insets.bottom + 96 },
-        ]}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        showsVerticalScrollIndicator={false}
+  const renderPage = ({ key }: { key: KindFilter }): ReactNode => {
+    if (!ready) return <Loading message={t('loadingLibrary')} />;
+    if (loadError) {
+      return <ErrorView message={t('libraryLoadError')} onRetry={reload} />;
+    }
+    return (
+      <TimelineGrid
+        items={byKind[key]}
+        zoom={zoom}
+        onZoomChange={changeZoom}
+        renderItem={(item) => (
+          <ItemCard
+            item={item}
+            size={CARD_SIZE[zoom]}
+            favourite={isFavourite(user?.favourites, item.id)}
+            onPress={openDetail}
+            onLongPress={toggleShelf}
+          />
+        )}
+        contentContainerStyle={{
+          paddingBottom: tabBar.clearance + 60 + spacing.md,
+        }}
         ListEmptyComponent={
           items.length === 0 ? (
             <View style={styles.empty}>
@@ -171,12 +227,18 @@ export function LibraryScreen({ navigation }: Props) {
         }
       />
     );
-  }
+  };
 
   return (
     <Screen padded>
       {header}
-      {content}
+      <SwipePager
+        pages={pages}
+        index={KIND_FILTERS.indexOf(kind)}
+        onIndexChange={(i) => setKind(KIND_FILTERS[i])}
+        renderPage={renderPage}
+        pageInset={spacing.lg}
+      />
 
       <Pressable
         onPress={openAdd}
@@ -184,7 +246,7 @@ export function LibraryScreen({ navigation }: Props) {
         accessibilityLabel={t('add')}
         style={({ pressed }) => [
           styles.fab,
-          { bottom: insets.bottom + spacing.lg },
+          { bottom: tabBar.top + spacing.md },
           pressed && styles.fabPressed,
         ]}
       >
@@ -205,32 +267,12 @@ export function LibraryScreen({ navigation }: Props) {
   );
 }
 
-function SegmentButton({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  const styles = useThemedStyles(makeStyles);
-  return (
-    <Pressable onPress={onPress} style={styles.segment}>
-      <Text style={[styles.segmentLabel, active && styles.segmentLabelActive]}>
-        {label}
-      </Text>
-      <View style={[styles.segmentBar, active && styles.segmentBarActive]} />
-    </Pressable>
-  );
-}
-
 const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     header: {
       paddingTop: spacing.sm,
       gap: spacing.lg,
-      marginBottom: spacing.md,
+      marginBottom: spacing.lg,
     },
     headingRow: {
       flexDirection: 'row',
@@ -261,18 +303,6 @@ const makeStyles = (colors: ThemeColors) =>
       borderRadius: 4,
       backgroundColor: colors.primary,
     },
-    segments: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
-    segment: { gap: spacing.sm },
-    segmentLabel: { ...typography.h3, color: colors.textMuted },
-    segmentLabelActive: { color: colors.text },
-    segmentBar: {
-      height: 3,
-      borderRadius: radius.pill,
-      backgroundColor: 'transparent',
-    },
-    segmentBarActive: { backgroundColor: colors.primary },
-    column: { gap: spacing.sm },
-    listContent: { flexGrow: 1 },
     empty: { flex: 1, alignItems: 'center', paddingBottom: spacing.xxl },
     emptyBtn: { paddingHorizontal: spacing.xxl },
     fab: {

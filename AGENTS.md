@@ -1,13 +1,15 @@
 # CineReact: agent brief
 
-CineReact is a small Letterboxd-style tracker built with Expo SDK 54 (managed
-workflow), React Native 0.81, React 19.1, TypeScript, and React Navigation 7.
+CineReact is a small Letterboxd-style tracker built with Expo SDK 57 (managed
+workflow), React Native 0.86, React 19.2, TypeScript, and React Navigation 7.
 A signed-in user keeps a personal library of films, series, and books, typed
 in by hand (title, year, director or author, cover link, description, tags,
-status, a score from 1.0 to 10.0, notes), and finished entries appear in a
-diary. Scoring a 10 triggers a warning by design (see src/lib/score.ts). Accounts and
+status, a score from 1.0 to 10.0, notes, and a started and a finished date
+picked on the system calendar so old reads can be backlogged). Finished
+entries appear in a diary that opens with this-month and this-year totals. Scoring a 10 triggers a warning by design (see src/lib/score.ts). Accounts and
 the library live either on a PocketBase server (so the library follows the
-user across devices) or on the device in AsyncStorage; the user picks in the
+user across devices) or on the device (the library in a SQLite file through
+expo-sqlite, accounts and settings in AsyncStorage); the user picks in the
 Storage setting at runtime, and EXPO_PUBLIC_POCKETBASE_URL only sets the
 first-launch default. OMDb is only used, when a key is present, to prefill the add form
 for a film or series.
@@ -18,13 +20,13 @@ writes a static progressive web app (manifest, service worker, icons from
 `public/`) that can be installed to a phone's home screen. The web layout is
 deliberately phone-shaped; do not add desktop-specific layouts unless asked.
 
-## Expo is pinned to SDK 54
+## Expo is pinned to SDK 57
 
 Expo changes a lot between SDK versions. Read the exact versioned docs at
-https://docs.expo.dev/versions/v54.0.0/ before writing any code. Do not use
-the "latest" docs (SDK 57 as of September 2026). Do not upgrade the SDK,
-React Native, or React as a side effect of another task. If a task needs an
-upgrade, say so and stop.
+https://docs.expo.dev/versions/v57.0.0/ before writing any code. Do not use
+the unversioned "latest" docs, which move to the next SDK as soon as it
+ships. Do not upgrade the SDK, React Native, or React as a side effect of
+another task. If a task needs an upgrade, say so and stop.
 
 ## Dependency policy (read before touching package.json)
 
@@ -64,13 +66,13 @@ as the Shai-Hulud worm. The rules:
   npx expo install <pkg> -- --ignore-scripts --before=$(date -d '10 days ago' +%F)
   ```
 
-- `jest` stays on the 29.x line. `jest-expo@54` is built for Jest 29 and
-  Jest 30 crashes the runner.
+- `jest` stays on the 29.x line. `jest-expo@57` still depends on the Jest 29
+  packages, and mixing in Jest 30 crashes the runner.
 
 ## Environment
 
 - Node 24.14.0 (installed at E:\nodejs) is the default in both PowerShell and
-  the Bash tool on this machine. Expo SDK 54 needs Node 20.19 or newer. If
+  the Bash tool on this machine. Expo SDK 57 needs Node 20.19.4 or newer. If
   `node -v` prints something older, stop and report it rather than working
   around it.
 - `.env` (copy `.env.example`, git-ignored) has two optional values.
@@ -81,16 +83,18 @@ as the Shai-Hulud worm. The rules:
   OMDb" button in the add form.
 - The PocketBase server is not part of npm. The binary and its pb_data folder
   live in pocketbase/ and are git-ignored; only the migration is committed.
-- Expo Go from the app stores tracks the latest SDK (57), so it may refuse to
-  open this SDK 54 project. Use the SDK 54 build from the version selector at
-  https://expo.dev/go, or run on web with `npm run web`.
+- Expo Go from the app stores tracks the latest SDK, which is 57 as of
+  September 2026, so the store build opens this project. Once the stores move
+  to SDK 58, the SDK 57 build from the version selector at
+  https://expo.dev/go works on Android and the iOS simulator (a physical
+  iPhone can only run the store build), or run on web with `npm run web`.
 
 ## Commands
 
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (60 tests in 9 files)
+npm test            Jest, runs once (125 tests in 18 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 npm run export:web  Static web build (a PWA) in dist/, ready for any host
@@ -106,30 +110,41 @@ src/api          movies.ts: optional OMDb search and detail, used only to
 src/hooks        useDebouncedValue
 src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
                  ThemeContext, and their tests
-src/components   ItemCard, KindPicker, StatusPicker, TagInput, FilterSheet,
-                 OmdbLookupSheet, SearchBar, BrandHeader, StorageSettings,
-                 MultiProvider, and ui/ primitives (Button, TextField, Chip,
+src/components   ItemCard (four sizes, one per zoom level), TimelineGrid (the
+                 pinch-zoomed, month-sectioned library grid), KindPicker,
+                 StatusPicker, DateField, TagInput, FilterSheet, OmdbLookupSheet,
+                 EditProfileSheet (name and picture, expo-image-picker),
+                 SearchBar, SwipePager, BrandHeader, StorageSettings,
+                 MultiProvider, and ui/ primitives (Button, TextField, Chip, Sheet,
                  StarRating, ...)
 src/screens      SplashScreen, auth/, library/ (Library, ItemDetail, ItemForm),
                  DiaryScreen, ProfileScreen
 src/navigation   RootNavigator, AuthStack, MainTabs, LibraryStack, types
 src/i18n         translations.ts (English and Malay), used through t()
 src/lib          backend (builds the PocketBase or local pair), auth
-                 (AuthBackend + local accounts), libraryStore (LibraryStore +
-                 local entries), pocketbase (both, against the SDK), storage,
+                 (AuthBackend + local accounts), libraryStore (the LibraryStore
+                 interface + the AsyncStorage entries store, used on web and
+                 for the one-off import), sqliteStore (the device entries
+                 store, expo-sqlite), pocketbase (both, against the SDK),
+                 summary (month and year totals for the Diary), timeline (the
+                 zoom ladder, pinch steps, and month or year grouping behind
+                 the library grid), favourites (the top four shelf, max four),
+                 haptics (expo-haptics behind a no-throw wrapper), storage,
                  score (1 to 10 scale, the 10 rule), tags, labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
 public/          web only: index.html template, manifest.json, sw.js, and
                  the PWA icons. Copied verbatim into the web export.
 src/theme        three colour themes (cinema, paperback, viceCity) as
-                 ThemeColors, plus spacing, radius, and typography tokens
+                 ThemeColors, plus spacing, radius, typography, and motion
+                 (Liquid Glass springs) tokens
 src/types        library.ts (LibraryItem, ItemKind, ItemStatus), movie.ts
 ```
 
 Contexts never touch storage directly. `StorageContext` owns the saved
 Storage setting and has `src/lib/backend.ts` build a `LibraryStore` (list,
-create, update, remove) and an `AuthBackend` (restore, signup, login, logout)
-for it; AuthProvider and LibraryProvider read that pair, and fall back to the
+create, update, remove) and an `AuthBackend` (restore, signup, login, logout,
+updateProfile: name, picture, and the top four favourites, which live on the
+user rather than on the entries) for it; AuthProvider and LibraryProvider read that pair, and fall back to the
 local pair outside a StorageProvider, which is what the tests get. Changing
 the setting swaps the pair and both contexts start over (the user is signed
 out first). The `pocketbase`

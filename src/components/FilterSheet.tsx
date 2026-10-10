@@ -1,20 +1,13 @@
 import { useEffect, useState } from 'react';
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { STATUS_ICON, statusKey } from '../lib/labels';
 import { hasTag } from '../lib/tags';
-import { radius, spacing, typography, type ThemeColors } from '../theme';
+import { spacing, typography, type ThemeColors } from '../theme';
 import { ITEM_STATUSES, type ItemStatus } from '../types/library';
 import { Button } from './ui/Button';
 import { Chip } from './ui/Chip';
+import { Sheet } from './ui/Sheet';
 import { useThemedStyles } from '../context/ThemeContext';
 
 export interface LibraryFilters {
@@ -47,7 +40,6 @@ export function FilterSheet({
 }: FilterSheetProps) {
   const styles = useThemedStyles(makeStyles);
   const { t } = useLanguage();
-  const insets = useSafeAreaInsets();
   const [draft, setDraft] = useState<LibraryFilters>(filters);
 
   // Sync the draft with the active filters whenever the sheet opens.
@@ -64,106 +56,68 @@ export function FilterSheet({
     }));
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
-        <View
-          style={[styles.sheet, { paddingBottom: insets.bottom + spacing.lg }]}
-        >
-          <View style={styles.handle} />
-          <Text style={styles.title}>{t('filters')}</Text>
+    <Sheet visible={visible} onClose={onClose}>
+      <Text style={styles.title}>{t('filters')}</Text>
 
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Text style={styles.label}>{t('filterStatus')}</Text>
-            <View style={styles.chips}>
-              <Chip
-                label={t('filterAll')}
-                active={!draft.status}
-                onPress={() => setDraft((d) => ({ ...d, status: undefined }))}
-              />
-              {ITEM_STATUSES.map((status) => (
-                <Chip
-                  key={status}
-                  label={t(statusKey(status))}
-                  icon={STATUS_ICON[status]}
-                  active={draft.status === status}
-                  onPress={() => setDraft((d) => ({ ...d, status }))}
-                />
-              ))}
-            </View>
-
-            <Text style={styles.label}>{t('filterTags')}</Text>
-            {availableTags.length === 0 ? (
-              <Text style={styles.muted}>{t('noTagsYet')}</Text>
-            ) : (
-              <View style={styles.chips}>
-                {availableTags.map((tag) => (
-                  <Chip
-                    key={tag}
-                    label={tag}
-                    active={hasTag(draft.tags, tag)}
-                    onPress={() => toggleTag(tag)}
-                  />
-                ))}
-              </View>
-            )}
-          </ScrollView>
-
-          <View style={styles.actions}>
-            <Button
-              label={t('clearFilters')}
-              variant="outline"
-              onPress={() => onApply(EMPTY_FILTERS)}
-              style={styles.actionBtn}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.label}>{t('filterStatus')}</Text>
+        <View style={styles.chips}>
+          <Chip
+            label={t('filterAll')}
+            active={!draft.status}
+            onPress={() => setDraft((d) => ({ ...d, status: undefined }))}
+          />
+          {ITEM_STATUSES.map((status) => (
+            <Chip
+              key={status}
+              label={t(statusKey(status))}
+              icon={STATUS_ICON[status]}
+              active={draft.status === status}
+              onPress={() => setDraft((d) => ({ ...d, status }))}
             />
-            <Button
-              label={t('apply')}
-              onPress={() => onApply(draft)}
-              style={styles.actionBtn}
-            />
-          </View>
+          ))}
         </View>
+
+        <Text style={styles.label}>{t('filterTags')}</Text>
+        {availableTags.length === 0 ? (
+          <Text style={styles.muted}>{t('noTagsYet')}</Text>
+        ) : (
+          <View style={styles.chips}>
+            {availableTags.map((tag) => (
+              <Chip
+                key={tag}
+                label={tag}
+                active={hasTag(draft.tags, tag)}
+                onPress={() => toggleTag(tag)}
+              />
+            ))}
+          </View>
+        )}
+      </ScrollView>
+
+      <View style={styles.actions}>
+        <Button
+          label={t('clearFilters')}
+          variant="outline"
+          onPress={() => onApply(EMPTY_FILTERS)}
+          style={styles.actionBtn}
+        />
+        <Button
+          label={t('apply')}
+          onPress={() => onApply(draft)}
+          style={styles.actionBtn}
+        />
       </View>
-    </Modal>
+    </Sheet>
   );
 }
 
 const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    root: { flex: 1, justifyContent: 'flex-end' },
-    backdrop: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: colors.overlay,
-    },
-    sheet: {
-      maxHeight: '80%',
-      backgroundColor: colors.surface,
-      borderTopLeftRadius: radius.xl,
-      borderTopRightRadius: radius.xl,
-      padding: spacing.lg,
-      gap: spacing.sm,
-    },
-    handle: {
-      width: 40,
-      height: 4,
-      borderRadius: radius.pill,
-      backgroundColor: colors.border,
-      alignSelf: 'center',
-      marginBottom: spacing.sm,
-    },
     title: { ...typography.h2, color: colors.text },
     scroll: { flexGrow: 0 },
     scrollContent: { gap: spacing.sm, paddingBottom: spacing.sm },

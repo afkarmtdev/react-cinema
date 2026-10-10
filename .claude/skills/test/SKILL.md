@@ -1,6 +1,6 @@
 ---
 name: test
-description: Run or extend the Jest unit tests for this Expo SDK 54 + TypeScript library tracker (CineReact). Use when asked to run tests, add a test, debug a failing test, or check coverage. Captures the jest-expo/Jest 29 pin and the layout of the existing tests.
+description: Run or extend the Jest unit tests for this Expo SDK 57 + TypeScript library tracker (CineReact). Use when asked to run tests, add a test, debug a failing test, or check coverage. Captures the jest-expo/Jest 29 pin and the layout of the existing tests.
 ---
 
 # Testing CineReact
@@ -11,7 +11,7 @@ Node 24 is the default in both PowerShell and Bash on this machine, so either
 tool works:
 
 ```powershell
-npm test                 # run everything once (60 tests in 9 files)
+npm test                 # run everything once (79 tests in 11 files)
 npx jest --watch         # watch mode
 npx jest path/to/file    # a single file
 npx jest -t "duplicate"  # tests matching a name
@@ -23,13 +23,13 @@ The OMDb client logs each request with `console.log`, so expect a few
 
 ## Stack (and a version constraint that matters)
 
-- `jest-expo@54.0.17` is the preset (Expo/RN transform and mocks).
-- `jest-expo@54` is built for the Jest 29 line, so `jest` is pinned to
-  `29.7.0`. Do not bump jest to 30: `jest-expo@54` pulls Jest 29 environment
-  packages, and mixing in Jest 30's runtime crashes with
+- `jest-expo@57.0.5` is the preset (Expo/RN transform and mocks).
+- `jest-expo@57` still depends on the Jest 29 packages (babel-jest,
+  jest-snapshot, jest-environment-jsdom at ^29), so `jest` is pinned to
+  `29.7.0`. Do not bump jest to 30: mixing in Jest 30's runtime crashes with
   `this._moduleMocker.clearMocksOnScope is not a function`.
 - `@testing-library/react-native@13.2.0` (Jest 29 and React 19 compatible) with
-  `react-test-renderer@19.1.0`.
+  `react-test-renderer@19.2.3`, the version jest-expo 57 itself depends on.
 - Like everything else in the project, test dependencies are pinned exactly
   and must be at least 10 days old when added. See the dependency policy in
   AGENTS.md before touching any of them.
@@ -49,6 +49,16 @@ The OMDb client logs each request with `console.log`, so expect a few
   to the SDK's `collection()` and `authStore`) checks record mapping in both
   directions, which collection calls the store makes, and how SDK errors map
   to AuthError codes (duplicate email, wrong password, no connection).
+- `src/lib/__tests__/summary.test.ts`: the Diary cards' maths. Month and
+  year ranges in local time (December rolls over), local midnight, counts
+  per kind for finished entries inside a range, the average of the scored
+  ones only, and that unfinished or undated entries are skipped.
+- `src/lib/__tests__/sqliteStore.test.ts`: the device store against the
+  in-memory expo-sqlite fake. Row mapping both ways (NULL for unset fields,
+  tags as JSON), create/update/list/remove per owner, newest-updated-first
+  order, one memoised connection, and the one-off import from AsyncStorage
+  (library key, legacy reviews, existing rows win on an id clash, keys
+  removed afterwards).
 - `src/context/__tests__/ThemeContext.test.tsx`: default theme, switching
   and persisting, restoring a saved (or unknown) value, and that
   `useThemedStyles` only rebuilds when the theme changes.
@@ -73,6 +83,11 @@ The OMDb client logs each request with `console.log`, so expect a few
   and its CJS build has no named exports.
 - `jest.setup.js`: mocks `@react-native-async-storage/async-storage` with a
   simple in-memory store; tests call `AsyncStorage.clear()` in `beforeEach`.
+  It also calls `jest.mock('expo-sqlite')`, which picks up
+  `__mocks__/expo-sqlite.ts`: an in-memory fake that does not parse SQL and
+  only understands the named-parameter statements `src/lib/sqliteStore.ts`
+  issues. A global `beforeEach` empties it, so no test has to. If the store's
+  SQL changes shape, update the fake with it.
 - `babel.config.js`: `babel-preset-expo` (needed by both Metro and Jest).
 - `tsconfig.json` sets `"types": ["jest", "node"]` so `tsc --noEmit` sees the
   Jest globals in test files.
