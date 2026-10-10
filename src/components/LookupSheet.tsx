@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -9,46 +9,66 @@ import {
   Text,
   View,
 } from 'react-native';
-import { fetchMovieById, fetchMovies } from '../api/movies';
+import { pickSource, sourcesFor } from '../api/lookup';
 import { useLanguage } from '../context/LanguageContext';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { storage, StorageKeys } from '../lib/storage';
 import { radius, spacing, typography, type ThemeColors } from '../theme';
 import type { ItemKind } from '../types/library';
-import type { Movie } from '../types/movie';
+import type { LookupResult, LookupSourceId } from '../types/lookup';
 import { SearchBar } from './SearchBar';
+import { Chip } from './ui/Chip';
 import { Sheet } from './ui/Sheet';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
-interface OmdbLookupSheetProps {
+type SavedSources = Partial<Record<ItemKind, LookupSourceId>>;
+
+interface LookupSheetProps {
   visible: boolean;
-  /** Narrows the OMDb search to movies or series. */
+  /** Decides which sources are offered and what they search for. */
   kind: ItemKind;
-  onPick: (movie: Movie) => void;
+  onPick: (result: LookupResult) => void;
   onClose: () => void;
 }
 
 /**
- * Optional helper for films and series: search OMDb and pick a result to
- * prefill the add form. Only offered when an OMDb key is configured.
+ * Optional helper for the add form: search one of the free sources for the
+ * kind (TMDB, OMDb, TVmaze, Open Library, Google Books) and pick a result to
+ * prefill the form. Sources that need a key only appear when it is set, and
+ * the last source picked for each kind is remembered.
  */
-export function OmdbLookupSheet({
+export function LookupSheet({
   visible,
   kind,
   onPick,
   onClose,
-}: OmdbLookupSheetProps) {
+}: LookupSheetProps) {
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
   const { t } = useLanguage();
+  const available = useMemo(() => sourcesFor(kind), [kind]);
+  const [sourceId, setSourceId] = useState<LookupSourceId | null>(null);
+  const source = pickSource(available, sourceId);
   const [query, setQuery] = useState('');
   const debounced = useDebouncedValue(query);
-  const [results, setResults] = useState<Movie[]>([]);
+  const [results, setResults] = useState<LookupResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [picking, setPicking] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
+    let active = true;
+    storage.get<SavedSources>(StorageKeys.lookupSource).then((saved) => {
+      if (active) setSourceId(saved?.[kind] ?? null);
+    });
+    return () => {
+      active = false;
+    };
+  }, [visible, kind]);
+
+  useEffect(() => {
+    if (!visible || !source) return;
     const term = debounced.trim();
     if (!term) {
       setResults([]);
@@ -58,7 +78,8 @@ export function OmdbLookupSheet({
     let active = true;
     setSearching(true);
     setError(false);
-    fetchMovies(term, { type: kind === 'series' ? 'series' : 'movie' })
+    source
+      .search(term, kind)
       .then((data) => {
         if (active) setResults(data);
       })
@@ -74,13 +95,23 @@ export function OmdbLookupSheet({
     return () => {
       active = false;
     };
-  }, [debounced, kind, visible]);
+  }, [debounced, kind, visible, source]);
 
-  const pick = async (movie: Movie) => {
+  const choose = async (id: LookupSourceId) => {
+    if (id === source?.id) return;
+    setSourceId(id);
+    setResults([]);
+    const saved =
+      (await storage.get<SavedSources>(StorageKeys.lookupSource)) ?? {};
+    await storage.set(StorageKeys.lookupSource, { ...saved, [kind]: id });
+  };
+
+  const pick = async (item: LookupResult) => {
+    if (!source) return;
     setPicking(true);
     setError(false);
     try {
-      onPick(await fetchMovieById(movie.id));
+      onPick(await source.details(item, kind));
       setQuery('');
       setResults([]);
     } catch {
@@ -98,11 +129,25 @@ export function OmdbLookupSheet({
       avoidKeyboard
     >
       <Text style={styles.title}>{t('lookupTitle')}</Text>
+      {available.length > 1 && (
+        <View style={styles.sources}>
+          {available.map((s) => (
+            <Chip
+              key={s.id}
+              label={s.label}
+              active={s.id === source?.id}
+              onPress={() => choose(s.id)}
+            />
+          ))}
+        </View>
+      )}
       <Text style={styles.hint}>{t('lookupHint')}</Text>
       <SearchBar
         value={query}
         onChangeText={setQuery}
-        placeholder={t('lookupPlaceholder')}
+        placeholder={t(
+          kind === 'book' ? 'lookupPlaceholderBook' : 'lookupPlaceholder',
+        )}
       />
 
       {picking ? (
@@ -113,7 +158,7 @@ export function OmdbLookupSheet({
       ) : (
         <FlatList
           data={results}
-          keyExtractor={(m) => m.id}
+          keyExtractor={(r) => r.id}
           keyboardShouldPersistTaps="handled"
           style={styles.list}
           ItemSeparatorComponent={() => <View style={styles.gap} />}
@@ -127,7 +172,7 @@ export function OmdbLookupSheet({
               ) : (
                 <View style={[styles.thumb, styles.thumbFallback]}>
                   <Ionicons
-                    name="film-outline"
+                    name={kind === 'book' ? 'book-outline' : 'film-outline'}
                     size={18}
                     color={colors.textMuted}
                   />
@@ -137,7 +182,11 @@ export function OmdbLookupSheet({
                 <Text style={styles.rowTitle} numberOfLines={2}>
                   {item.title}
                 </Text>
-                {!!item.year && <Text style={styles.rowMeta}>{item.year}</Text>}
+                {(!!item.year || !!item.creator) && (
+                  <Text style={styles.rowMeta} numberOfLines={1}>
+                    {[item.year, item.creator].filter(Boolean).join(' · ')}
+                  </Text>
+                )}
               </View>
               <Ionicons
                 name="chevron-forward"
@@ -151,13 +200,22 @@ export function OmdbLookupSheet({
               {searching ? (
                 <ActivityIndicator color={colors.primary} />
               ) : error ? (
-                <Text style={styles.error}>{t('lookupError')}</Text>
+                <Text style={styles.error}>
+                  {t(source?.needsKey ? 'lookupErrorKey' : 'lookupError')}
+                </Text>
               ) : debounced.trim() ? (
                 <Text style={styles.muted}>{t('lookupEmpty')}</Text>
               ) : null}
             </View>
           }
         />
+      )}
+
+      {source && (
+        <Text style={styles.credit}>
+          {t('lookupCredit', { name: source.label })}
+          {source.id === 'tmdb' ? ` ${t('lookupTmdbNotice')}` : ''}
+        </Text>
       )}
     </Sheet>
   );
@@ -167,6 +225,7 @@ const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     panel: { height: '75%', gap: spacing.md },
     title: { ...typography.h2, color: colors.text },
+    sources: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     hint: { ...typography.caption, color: colors.textSecondary },
     list: { flex: 1 },
     gap: { height: spacing.sm },
@@ -201,4 +260,5 @@ const makeStyles = (colors: ThemeColors) =>
       color: colors.error,
       textAlign: 'center',
     },
+    credit: { ...typography.caption, color: colors.textMuted },
   });

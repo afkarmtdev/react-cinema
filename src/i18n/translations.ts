@@ -122,15 +122,21 @@ export const translations: Record<Language, Record<string, string>> = {
     errTitleRequired: 'Give it a title first.',
     errSaveGeneric: 'Could not save. Try again.',
 
-    // OMDb lookup
-    lookupOmdb: 'Fill from OMDb',
-    lookupTitle: 'Look up on OMDb',
+    // Lookup (prefill from TMDB, OMDb, TVmaze, Open Library, Google Books)
+    lookupButton: 'Fill from the web',
+    lookupTitle: 'Look it up',
     lookupPlaceholder: 'Search by title',
+    lookupPlaceholderBook: 'Search by title or author',
     lookupHint:
       'Pick a result to fill in the form. You can edit anything after.',
     lookupEmpty: 'No results for that title.',
-    lookupError: 'Lookup failed. Check the key in .env or your connection.',
+    lookupError: 'Lookup failed. Check your connection, or try another source.',
+    lookupErrorKey:
+      'Lookup failed. Check the key in .env and your connection, or try another source.',
     lookupLoading: 'Fetching details',
+    lookupCredit: 'Data from {name}.',
+    lookupTmdbNotice:
+      'This product uses the TMDB API but is not endorsed or certified by TMDB.',
 
     // Detail
     about: 'About',
@@ -322,15 +328,21 @@ export const translations: Record<Language, Record<string, string>> = {
     errTitleRequired: 'Berikan tajuk dahulu.',
     errSaveGeneric: 'Tidak dapat menyimpan. Sila cuba lagi.',
 
-    // OMDb lookup
-    lookupOmdb: 'Isi dari OMDb',
-    lookupTitle: 'Cari di OMDb',
+    // Lookup (prefill from TMDB, OMDb, TVmaze, Open Library, Google Books)
+    lookupButton: 'Isi dari web',
+    lookupTitle: 'Cari maklumat',
     lookupPlaceholder: 'Cari mengikut tajuk',
+    lookupPlaceholderBook: 'Cari mengikut tajuk atau penulis',
     lookupHint:
       'Pilih hasil untuk mengisi borang. Anda boleh sunting apa sahaja selepas itu.',
     lookupEmpty: 'Tiada hasil untuk tajuk itu.',
-    lookupError: 'Carian gagal. Semak kunci dalam .env atau sambungan anda.',
+    lookupError: 'Carian gagal. Semak sambungan anda, atau cuba sumber lain.',
+    lookupErrorKey:
+      'Carian gagal. Semak kunci dalam .env dan sambungan anda, atau cuba sumber lain.',
     lookupLoading: 'Mengambil butiran',
+    lookupCredit: 'Data daripada {name}.',
+    lookupTmdbNotice:
+      'Produk ini menggunakan API TMDB tetapi tidak disokong atau diperakui oleh TMDB.',
 
     // Detail
     about: 'Mengenai',

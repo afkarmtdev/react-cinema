@@ -32,4 +32,6 @@ export const StorageKeys = {
   libraryZoom: '@gscreviews/library-zoom',
   /** The Storage setting: device or server, plus the server address. */
   storageSettings: '@gscreviews/storage-settings',
+  /** The lookup source last picked for each kind, such as books: Open Library. */
+  lookupSource: '@gscreviews/lookup-source',
 } as const;

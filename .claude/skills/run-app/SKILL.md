@@ -15,8 +15,11 @@ description: Launch, typecheck, or bundle this Expo SDK 57 + TypeScript library 
   values. `EXPO_PUBLIC_POCKETBASE_URL` points the app at a PocketBase server
   for cross-device sync (setup in pocketbase/README.md; the phone must reach
   that address, so use the machine's LAN IP, not localhost). Without it the
-  app keeps everything on the device. `EXPO_PUBLIC_OMDB_API_KEY` only enables
-  the "Fill from OMDb" button. Never print the key in output.
+  app keeps everything on the device. `EXPO_PUBLIC_TMDB_API_KEY` and
+  `EXPO_PUBLIC_OMDB_API_KEY` add those sources to the "Fill from the web"
+  lookup (films need one of them; TVmaze, Open Library, and Google Books need
+  no key). `EXPO_PUBLIC_GOOGLE_BOOKS_API_KEY` only raises the Google Books
+  quota. Never print a key in output.
 - If `node_modules` is missing, install from the lockfile with scripts off:
 
   ```powershell
@@ -91,7 +94,7 @@ If the stores have moved to SDK 58, the options in order of preference are:
 ## Notes
 
 - Dependencies are pinned to exact versions (`.npmrc` has `save-exact=true`).
-- In device-only mode nothing needs network except the optional OMDb lookup
+- In device-only mode nothing needs network except the optional lookup
   and remote cover images. In PocketBase mode the server must be running and
   reachable from the device. Typecheck and the bundle check above work
   offline either way.

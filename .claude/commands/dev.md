@@ -13,8 +13,9 @@ Requested target: "$ARGUMENTS" (if empty, default to starting the app).
   something older, stop and report it.
 - If `node_modules` is missing, run `npm ci --ignore-scripts` before anything
   else. Do not add or bump packages (see the dependency policy in AGENTS.md).
-- An OMDb key in `.env` is optional (it only enables the lookup button in
-  the add form); the `run-app` skill has the details.
+- Lookup keys in `.env` (TMDB, OMDb, Google Books) are optional; without
+  them the lookup still works for series and books. The `run-app` skill has
+  the details.
 
 ## Map the argument to a command
 

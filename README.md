@@ -15,8 +15,10 @@ entries roll into a diary grouped by month.
 
 There is no catalogue API behind it. You type entries in yourself (title,
 year, who made it, a cover image link, a description) so it works just as well
-for a novel as for a film. If you have a free OMDb key, the add form can look a
-film or series up and prefill those fields for you, but it is optional.
+for a novel as for a film. The add form can also look an entry up on a free
+source and prefill those fields for you: TVmaze for series, Open Library or
+Google Books for books, and TMDB or OMDb for films and series if you add a
+free key. It is optional either way.
 
 It started as two separate take-home briefs (a movie list fed by an API, and a
 login flow built on React's Context API), then grew into this. The look is
@@ -80,17 +82,17 @@ between English and Bahasa Melayu. Both choices are remembered on the device.
 | Web         | `react-native-web` through Expo Metro web, exported as a static PWA           |
 | Testing     | Jest + `jest-expo` + React Native Testing Library                             |
 | Icons       | `@expo/vector-icons` (Ionicons)                                               |
-| Lookup      | `fetch` against OMDb, only when a key is configured                           |
+| Lookup      | `fetch` against TMDB, OMDb, TVmaze, Open Library, or Google Books             |
 
 ## Project structure
 
 ```
 src/
-├─ api/            movies.ts (optional OMDb search and detail, for prefill)
+├─ api/            lookup/ (the prefill sources), http.ts (shared fetch helpers)
 ├─ components/
 │  ├─ ui/          Button, TextField, Chip, Sheet, Screen, StarRating, Skeleton, StateViews
 │  ├─ BrandHeader, SearchBar, ItemCard, KindPicker, StatusPicker, DateField, TagInput,
-│  │  FilterSheet, OmdbLookupSheet
+│  │  FilterSheet, LookupSheet
 ├─ context/        AuthContext, LibraryContext, LanguageContext, ThemeContext
 │  └─ __tests__/   tests for the auth and library contexts
 ├─ i18n/           translations.ts (English / Malay dictionaries)
@@ -103,7 +105,7 @@ src/
 │                  library/(Library, ItemDetail, ItemForm), DiaryScreen,
 │                  ProfileScreen
 ├─ theme/          three colour themes (cinema, paperback, viceCity), spacing, type
-└─ types/          library.ts (the entry model), movie.ts (OMDb shape)
+└─ types/          library.ts (the entry model), lookup.ts (lookup results)
 pocketbase/
 ├─ pb_migrations/  creates the entries collection with per-user access rules
 └─ README.md       how to run the server and point the app at it
@@ -119,14 +121,17 @@ so the store build opens it. If the stores have moved on by the time you read
 this, pick SDK 57 from the version selector at https://expo.dev/go (Android
 and iOS simulator builds) or use the web target below.
 
-Copy `.env.example` to `.env`. Both values in it are optional:
+Copy `.env.example` to `.env`. Every value in it is optional:
 
 ```bash
 cp .env.example .env
 # EXPO_PUBLIC_POCKETBASE_URL: a PocketBase server to start on (optional, see below)
 #   (see pocketbase/README.md). Leave empty to keep everything on the device.
-# EXPO_PUBLIC_OMDB_API_KEY: enables the OMDb lookup in the add form. Free at
+# EXPO_PUBLIC_TMDB_API_KEY: adds TMDB to the lookup in the add form. Free at
+#   https://www.themoviedb.org/settings/api (non-commercial use).
+# EXPO_PUBLIC_OMDB_API_KEY: adds OMDb to the lookup. Free at
 #   https://www.omdbapi.com/apikey.aspx (1,000 requests/day).
+# EXPO_PUBLIC_GOOGLE_BOOKS_API_KEY: only raises the Google Books quota.
 ```
 
 Then install and run:
@@ -180,8 +185,8 @@ and are copied into the export as they are:
 - `index.html`: the page template with the manifest link and the Apple
   meta tags, and a script that registers the service worker.
 - `sw.js`: a small service worker that caches the app shell (page, bundle,
-  fonts, icons) so the site opens offline. Requests to PocketBase, OMDb, and
-  cover images always go to the network. It only registers over https, so
+  fonts, icons) so the site opens offline. Requests to PocketBase, the lookup
+  sources, and cover images always go to the network. It only registers over https, so
   the Metro dev server is never cached. Bump `CACHE` in it when you change it.
 - `icon-192.png`, `icon-512.png`, `favicon.png`: resized from `assets/icon.png`.
 
@@ -250,20 +255,37 @@ signup, login, logout) to match; the device versions are in `sqliteStore.ts`
 server versions in `pocketbase.ts`. When the choice changes, both contexts
 start over against the new pair.
 
-## The optional OMDb lookup
+## The optional lookup
 
-When a key is present, the add form for a film or series shows a "Fill from
-OMDb" button. It opens a search sheet; picking a result fetches the full
-record and fills in the title, year, director, plot, poster, and genre tags.
-Everything stays editable afterwards. The requests are:
+The add form has a "Fill from the web" button that opens a search sheet.
+Picking a result fetches the full record and fills in the title, year,
+director or author, description, cover, and genre tags. Everything stays
+editable afterwards. The sheet has a chip for each source that covers the
+entry's kind, and it remembers the last one picked for each kind.
 
-| Use    | Request                                 |
-| ------ | --------------------------------------- |
-| Search | `GET ?apikey=KEY&type=<type>&s=<query>` |
-| Detail | `GET ?apikey=KEY&i=<imdbID>&plot=full`  |
+| Source       | Kinds           | Key                          |
+| ------------ | --------------- | ---------------------------- |
+| TMDB         | films, series   | `EXPO_PUBLIC_TMDB_API_KEY`   |
+| OMDb         | films, series   | `EXPO_PUBLIC_OMDB_API_KEY`   |
+| TVmaze       | series          | none                         |
+| Open Library | books           | none                         |
+| Google Books | books           | optional, raises the quota   |
 
-Search is debounced, and the request layer has a timeout, so a hung
-connection fails into an error message instead of loading forever.
+All of them are free. TMDB is the most current for new releases, and its
+terms (like TVmaze's licence) ask for a credit line, which the sheet shows
+under the results. A source that needs a key only appears once the key is
+set, so with no keys at all the button shows for series and books but not
+for films.
+
+Each source lives in `src/api/lookup/` behind the same small interface
+(`search` and `details`), so adding another means one file and one line in
+`lookup/index.ts`. Search is debounced, and the request layer has a
+timeout, so a hung connection fails into an error message instead of loading
+forever.
+
+The keys are `EXPO_PUBLIC_` values, which means they are built into the app
+and readable by anyone who opens the web build. That is fine for free
+personal keys; do not put a paid key there.
 
 ## A note on the authentication
 
@@ -275,14 +297,17 @@ that server beyond your Wi-Fi.
 
 ## Tests
 
-`npm test` runs 79 tests across eleven files:
+`npm test` runs 155 tests across 25 files, including:
 
 | File                     | What it checks                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------------ |
 | `lib/validation`         | the email and password rules                                                         |
 | `lib/tags`               | trimming, case-insensitive dedupe, and splitting comma-separated input               |
 | `lib/score`              | clamping to one decimal, formatting, splitting for the picker, stars to score        |
-| `api/movies`             | the URL it builds (search, filters, page), odd responses, and errors                 |
+| `api/http`               | the query string builder, year parsing, and HTML-to-text cleanup                     |
+| `api/lookup/*`           | each source's URLs and key handling, the mapping to form fields, empty and error cases |
+| `api/lookup/index`       | which sources each kind gets with and without keys, and the saved-source fallback    |
+| `components/LookupSheet` | source chips, searching again on a switch, remembering the source, picking a result  |
 | `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)    |
 | `lib/sqliteStore`        | row mapping both ways, per-owner list and order, and the one-off AsyncStorage import |
 | `lib/summary`            | month and year ranges, counts per kind in a range, average of the scored entries     |

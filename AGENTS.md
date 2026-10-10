@@ -11,8 +11,9 @@ the library live either on a PocketBase server (so the library follows the
 user across devices) or on the device (the library in a SQLite file through
 expo-sqlite, accounts and settings in AsyncStorage); the user picks in the
 Storage setting at runtime, and EXPO_PUBLIC_POCKETBASE_URL only sets the
-first-launch default. OMDb is only used, when a key is present, to prefill the add form
-for a film or series.
+first-launch default. The add form can prefill an entry from a free lookup
+source: TMDB or OMDb (films and series, each needs a key), TVmaze (series),
+or Open Library and Google Books (books), picked in the lookup sheet.
 
 The app also ships as a website. `react-native-web`, `react-dom`, and
 `@expo/metro-runtime` are installed for that, and `npm run export:web`
@@ -79,8 +80,11 @@ as the Shai-Hulud worm. The rules:
   `EXPO_PUBLIC_POCKETBASE_URL` makes a fresh install start on that
   PocketBase server (setup in pocketbase/README.md); without it the app starts
   on the device. The Storage setting in the app can switch either way later
-  and its saved choice wins. `EXPO_PUBLIC_OMDB_API_KEY` only enables the "Fill from
-  OMDb" button in the add form.
+  and its saved choice wins. `EXPO_PUBLIC_TMDB_API_KEY` and
+  `EXPO_PUBLIC_OMDB_API_KEY` add those sources to the "Fill from the web"
+  lookup in the add form (films need one of them; series and books work
+  without a key). `EXPO_PUBLIC_GOOGLE_BOOKS_API_KEY` is optional and only
+  raises the Google Books quota.
 - The PocketBase server is not part of npm. The binary and its pb_data folder
   live in pocketbase/ and are git-ignored; only the migration is committed.
 - Expo Go from the app stores tracks the latest SDK, which is 57 as of
@@ -94,7 +98,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (125 tests in 18 files)
+npm test            Jest, runs once (155 tests in 25 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 npm run export:web  Static web build (a PWA) in dist/, ready for any host
@@ -105,14 +109,16 @@ Run typecheck, lint, and test before calling a change done.
 ## Layout
 
 ```
-src/api          movies.ts: optional OMDb search and detail, used only to
-                 prefill the add form when a key is configured
+src/api          lookup/: the prefill sources (tmdb, omdb, tvmaze, openLibrary,
+                 googleBooks) behind one LookupSource interface, and
+                 sourcesFor(kind) in lookup/index.ts; http.ts: the shared
+                 fetch with timeout, query string, and HTML-to-text helpers
 src/hooks        useDebouncedValue
 src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
                  ThemeContext, and their tests
 src/components   ItemCard (four sizes, one per zoom level), TimelineGrid (the
                  pinch-zoomed, month-sectioned library grid), KindPicker,
-                 StatusPicker, DateField, TagInput, FilterSheet, OmdbLookupSheet,
+                 StatusPicker, DateField, TagInput, FilterSheet, LookupSheet,
                  EditProfileSheet (name and picture, expo-image-picker),
                  SearchBar, SwipePager, BrandHeader, StorageSettings,
                  MultiProvider, and ui/ primitives (Button, TextField, Chip, Sheet,
@@ -140,7 +146,8 @@ public/          web only: index.html template, manifest.json, sw.js, and
 src/theme        three colour themes (cinema, paperback, viceCity) as
                  ThemeColors, plus spacing, radius, typography, and motion
                  (Liquid Glass springs) tokens
-src/types        library.ts (LibraryItem, ItemKind, ItemStatus), movie.ts
+src/types        library.ts (LibraryItem, ItemKind, ItemStatus), lookup.ts
+                 (LookupResult, LookupSource)
 ```
 
 Contexts never touch storage directly. `StorageContext` owns the saved

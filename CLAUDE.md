@@ -14,7 +14,7 @@
 ## Project skills
 
 - `/run-app`: start Metro, typecheck, or do an offline bundle check. Holds the
-  Node, OMDb key, and Expo Go notes for this machine.
+  Node, lookup keys, and Expo Go notes for this machine.
 - `/test`: run or extend the Jest suite. Holds the jest-expo/Jest 29 pin and
   the layout of the existing tests.
 - `/dev <target>`: one entry point for app, test, typecheck, lint, fix,
@@ -53,7 +53,8 @@
 - Tests live next to the code in `__tests__` folders. A new context or hook
   should come with one.
 - `.env` is git-ignored and may be missing on a fresh machine. Do not commit it
-  and do not paste the OMDb key into docs or logs.
+  and do not paste the lookup keys (TMDB, OMDb, Google
+  Books) into docs or logs.
 
 ## Screens mockup artifact
 

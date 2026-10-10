@@ -3,10 +3,10 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState, type ReactNode } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { isOmdbConfigured } from '../../api/movies';
+import { sourcesFor } from '../../api/lookup';
 import { DateField } from '../../components/DateField';
 import { KindPicker } from '../../components/KindPicker';
-import { OmdbLookupSheet } from '../../components/OmdbLookupSheet';
+import { LookupSheet } from '../../components/LookupSheet';
 import { StatusPicker } from '../../components/StatusPicker';
 import { TagInput } from '../../components/TagInput';
 import { ScoreInput } from '../../components/ScoreInput';
@@ -18,13 +18,8 @@ import { KIND_ICON, creatorKey } from '../../lib/labels';
 import { startOfDay } from '../../lib/summary';
 import { uniqueTags } from '../../lib/tags';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
-import {
-  isReadKind,
-  type ItemKind,
-  type ItemStatus,
-  type LibraryItem,
-} from '../../types/library';
-import type { Movie } from '../../types/movie';
+import type { ItemKind, ItemStatus, LibraryItem } from '../../types/library';
+import type { LookupResult } from '../../types/lookup';
 import type { LibraryStackParamList } from '../../navigation/types';
 import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
@@ -95,19 +90,19 @@ export function ItemFormScreen({ navigation, route }: Props) {
           : undefined,
     }));
 
-  const canLookup = !isReadKind(draft.kind) && isOmdbConfigured();
+  const canLookup = sourcesFor(draft.kind).length > 0;
 
-  const applyMovie = (movie: Movie) => {
+  const applyLookup = (result: LookupResult) => {
     setDraft((d) => ({
       ...d,
-      title: movie.title,
-      year: movie.year ? String(movie.year) : d.year,
-      creator: movie.director ?? d.creator,
-      poster: movie.poster ?? d.poster,
-      description: movie.plot ?? d.description,
+      title: result.title,
+      year: result.year ? String(result.year) : d.year,
+      creator: result.creator ?? d.creator,
+      poster: result.poster ?? d.poster,
+      description: result.description ?? d.description,
       tags: uniqueTags([
         ...d.tags,
-        ...(movie.genre ?? []).map((g) => g.toLowerCase()),
+        ...(result.tags ?? []).map((g) => g.toLowerCase()),
       ]),
     }));
     setPosterFailed(false);
@@ -194,7 +189,7 @@ export function ItemFormScreen({ navigation, route }: Props) {
 
         {canLookup && (
           <Button
-            label={t('lookupOmdb')}
+            label={t('lookupButton')}
             variant="outline"
             onPress={() => setLookupOpen(true)}
             icon={
@@ -359,10 +354,10 @@ export function ItemFormScreen({ navigation, route }: Props) {
           ))}
       </ScrollView>
 
-      <OmdbLookupSheet
+      <LookupSheet
         visible={lookupOpen}
         kind={draft.kind}
-        onPick={applyMovie}
+        onPick={applyLookup}
         onClose={() => setLookupOpen(false)}
       />
     </View>

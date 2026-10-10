@@ -461,7 +461,7 @@
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v9 · mirrors the code as of 11 Sep 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v10 · mirrors the code as of 10 Oct 2026 · <a href="#changes">changes</a></p>
       <h1>The revamped CineReact, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -701,30 +701,32 @@
       <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Editing uses the same form plus a two-step Delete.</p></figcaption>
     </figure>
 
-    <!-- 5. OMDb lookup -->
+    <!-- 5. Lookup -->
     <figure>
       <div class="phone"><div class="screen">
         <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
         <div class="navbar" style="opacity:0.5"><span style="font-size:13px">Cancel</span><span class="title">Add to library</span><span style="width:40px"></span></div>
         <div class="scroll pad" style="opacity:0.5">
           <div class="stack">
-            <div><p class="label">Type</p><div class="kinds"><div class="kind on"><svg style="font-size:16px"><use href="#i-film"/></svg>Film</div><div class="kind"><svg style="font-size:16px"><use href="#i-tv"/></svg>Series</div><div class="kind"><svg style="font-size:16px"><use href="#i-book"/></svg>Book</div></div></div>
-            <div class="btn outline"><svg style="font-size:14px"><use href="#i-search"/></svg>Fill from OMDb</div>
+            <div><p class="label">Type</p><div class="kinds"><div class="kind"><svg style="font-size:16px"><use href="#i-film"/></svg>Film</div><div class="kind"><svg style="font-size:16px"><use href="#i-tv"/></svg>Series</div><div class="kind on"><svg style="font-size:16px"><use href="#i-book"/></svg>Book</div></div></div>
+            <div class="btn outline"><svg style="font-size:14px"><use href="#i-search"/></svg>Fill from the web</div>
             <div><p class="label">Title</p><div class="field"><span class="ph">e.g. Dune</span></div></div>
           </div>
         </div>
-        <div class="sheet-bg"><div class="sheet" style="height:74%;max-height:none">
+        <div class="sheet-bg"><div class="sheet" style="height:78%;max-height:none">
           <div class="handle"></div>
-          <p class="h2">Look up on OMDb</p>
+          <p class="h2">Look it up</p>
+          <div class="chips"><span class="chip on">Open Library</span><span class="chip">Google Books</span></div>
           <p class="tiny" style="color:var(--text-2)">Pick a result to fill in the form. You can edit anything after.</p>
-          <div class="search" style="flex:none;color:var(--text)"><svg style="font-size:14px;color:var(--muted)"><use href="#i-search"/></svg>perfect days</div>
-          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div style="flex:1"><div class="t">Perfect Days</div><div class="m">2023</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
-          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div style="flex:1"><div class="t">Perfect Days</div><div class="m">2012</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
-          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div style="flex:1"><div class="t">A Perfect Day</div><div class="m">2015</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
-          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div style="flex:1"><div class="t">Perfect Days</div><div class="m">2019</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
+          <div class="search" style="flex:none;color:var(--text)"><svg style="font-size:14px;color:var(--muted)"><use href="#i-search"/></svg>piranesi</div>
+          <div class="result"><div class="thumb" style="background:linear-gradient(190deg,#2b1f3a,#0d0a12 55%,#5e4b8a)"></div><div style="flex:1;min-width:0"><div class="t">Piranesi</div><div class="m">2020 · Susanna Clarke</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
+          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-book"/></svg></div><div style="flex:1;min-width:0"><div class="t">Piranesi</div><div class="m">2021 · Susanna Clarke</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
+          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-book"/></svg></div><div style="flex:1;min-width:0"><div class="t">The Prisons (Carceri)</div><div class="m">1761 · Giovanni Battista Piranesi</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
+          <div class="result"><div class="thumb"><svg style="font-size:14px"><use href="#i-book"/></svg></div><div style="flex:1;min-width:0"><div class="t">Piranesi: The Complete Etchings</div><div class="m">1994 · John Wilton-Ely</div></div><svg style="font-size:14px;color:var(--muted)"><use href="#i-chev"/></svg></div>
+          <p class="tiny" style="margin:2px 0 0">Data from Open Library.</p>
         </div></div>
       </div></div>
-      <figcaption><p class="name">Fill from OMDb</p><p class="note">Optional, only for films and series, and only when an OMDb key is in .env. Picking a result fills title, year, director, plot, poster link, and genre tags. Books are always typed in.</p></figcaption>
+      <figcaption><p class="name">Fill from the web</p><p class="note">Optional prefill for every kind now, drawn here for a book. The chips pick the source for that kind: Open Library or Google Books for books, TVmaze for series, and TMDB or OMDb for films and series once their free key is in .env. The last source you used for each kind is remembered. Results show the year and the director or author, and picking one fills title, year, creator, description, cover link, and genre tags. A credit line for the source sits under the results (TMDB's adds its required notice). With no keys at all, films have no source, so the button is hidden for them.</p></figcaption>
     </figure>
 
     <!-- 6. Detail -->
@@ -865,6 +867,13 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v10</b>10 Oct 2026</div>
+        <ul>
+          <li>The add form's lookup is no longer OMDb only. "Fill from the web" offers TMDB and OMDb (films and series, each with a free key), TVmaze (series), and Open Library and Google Books (books, no key needed), picked with chips in the sheet; the last pick per kind is remembered and the sheet credits the source. Books get a lookup for the first time. Redrawn: Fill from the web (book kind, source chips, author on each result, credit line).</li>
+          <li>Fixed the lookup sheet sliding away while typing: its slide animation restarted whenever the window height changed, which on the web happens as the keyboard and its suggestion bar move. On the web the sheet now also sits above the keyboard. Nothing new to draw.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v9</b>11 Sep 2026</div>
         <ul>

@@ -11,15 +11,16 @@ Node 24 is the default in both PowerShell and Bash on this machine, so either
 tool works:
 
 ```powershell
-npm test                 # run everything once (79 tests in 11 files)
+npm test                 # run everything once (155 tests in 25 files)
 npx jest --watch         # watch mode
 npx jest path/to/file    # a single file
 npx jest -t "duplicate"  # tests matching a name
 npx jest --coverage      # coverage table
 ```
 
-The OMDb client logs each request with `console.log`, so expect a few
-`[movies] GET ...` lines in the test output. That is normal, not a failure.
+The lookup sources log each request with `console.log`, so expect a few
+`[lookup] GET ...` lines (and one OMDb warning from the bad-key test) in the
+test output. That is normal, not a failure.
 
 ## Stack (and a version constraint that matters)
 
@@ -39,10 +40,16 @@ The OMDb client logs each request with `console.log`, so expect a few
 - `src/lib/__tests__/validation.test.ts`: pure helpers (email and password).
 - `src/lib/__tests__/tags.test.ts`: tag trimming, case-insensitive dedupe,
   and splitting comma-separated input.
-- `src/api/__tests__/movies.test.ts`: `fetch` is mocked. Checks the OMDb URL
-  (search term, default query, `y=`, `type=`, `page=`), the mapping of search
-  and detail records, "N/A" cleanup, the empty result for "Movie not found!",
-  and that other OMDb errors throw.
+- `src/api/lookup/__tests__/*.test.ts`: one file per source (tmdb, omdb,
+  tvmaze, openLibrary, googleBooks) with `fetch` mocked. Each checks the URL
+  and key handling, the mapping to `LookupResult`, and the empty and error
+  cases. Keys are set on `process.env` in the test and deleted after, since
+  the sources read them at call time. `index.test.ts` covers `sourcesFor`
+  and `pickSource`.
+- `src/api/__tests__/http.test.ts`: `query`, `yearOf`, and `stripHtml`.
+- `src/components/__tests__/LookupSheet.test.tsx`: renders the sheet for
+  books with a URL-based `fetch` mock; source chips, switching, the saved
+  source, and picking.
 - `src/lib/__tests__/score.test.ts`: the 1.0 to 10.0 score helpers, including
   the rule that migrated five-star ratings become 9.9, never 10.
 - `src/lib/__tests__/pocketbase.test.ts`: a fake client object (duck-typed
@@ -97,6 +104,7 @@ The OMDb client logs each request with `console.log`, so expect a few
 Put it next to the code under a `__tests__` folder, named `*.test.ts` or
 `*.test.tsx`. For anything that touches a context, wrap the hook in the
 matching provider(s) and use `act` and `waitFor` from
-`@testing-library/react-native`. For anything that calls OMDb, spy on the
-function in `src/api/movies` with `jest.spyOn` rather than mocking `fetch`. When you add a test file, update the count in the README's Tests
+`@testing-library/react-native`. For anything that uses a lookup source, either
+mock `fetch` by URL (as `LookupSheet.test.tsx` does) or spy on the source
+object's `search` and `details` with `jest.spyOn`. When you add a test file, update the count in the README's Tests
 section.
