@@ -98,7 +98,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (155 tests in 25 files)
+npm test            Jest, runs once (157 tests in 25 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 npm run export:web  Static web build (a PWA) in dist/, ready for any host
@@ -118,7 +118,7 @@ src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
                  ThemeContext, and their tests
 src/components   ItemCard (four sizes, one per zoom level), TimelineGrid (the
                  pinch-zoomed, month-sectioned library grid), KindPicker,
-                 StatusPicker, DateField, TagInput, FilterSheet, LookupSheet,
+                 StatusPicker, DateField, TagInput, FilterSheet, LookupInline,
                  EditProfileSheet (name and picture, expo-image-picker),
                  SearchBar, SwipePager, BrandHeader, StorageSettings,
                  MultiProvider, and ui/ primitives (Button, TextField, Chip, Sheet,

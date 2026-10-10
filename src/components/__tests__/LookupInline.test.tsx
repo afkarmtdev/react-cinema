@@ -10,7 +10,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { LanguageProvider } from '../../context/LanguageContext';
 import { ThemeProvider } from '../../context/ThemeContext';
 import { storage, StorageKeys } from '../../lib/storage';
-import { LookupSheet } from '../LookupSheet';
+import { LookupInline } from '../LookupInline';
 
 // The icon font loader pulls in expo-asset, which is not installed for Jest.
 jest.mock('@expo/vector-icons', () => {
@@ -30,23 +30,33 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   </SafeAreaProvider>
 );
 
-// Answers each source's search with one result named after its host.
-function mockFetch() {
+// Answers each source's search with results named after its host.
+function mockFetch(count = 1) {
   global.fetch = jest.fn(async (url: string) => {
     const body = url.includes('openlibrary.org')
-      ? { docs: [{ key: '/works/OL1W', title: 'Dune (Open Library)' }] }
+      ? {
+          docs: Array.from({ length: count }, (_, i) => ({
+            key: `/works/OL${i}W`,
+            title: `Dune ${i} (Open Library)`,
+          })),
+        }
       : { items: [{ id: 'g1', volumeInfo: { title: 'Dune (Google)' } }] };
     return { ok: true, status: 200, json: async () => body };
   }) as unknown as typeof fetch;
 }
 
-function renderSheet(onPick = jest.fn()) {
-  render(
-    <LookupSheet visible kind="book" onPick={onPick} onClose={jest.fn()} />,
-    { wrapper },
-  );
-  return onPick;
+function renderLookup({ onPick = jest.fn(), onClose = jest.fn() } = {}) {
+  render(<LookupInline kind="book" onPick={onPick} onClose={onClose} />, {
+    wrapper,
+  });
+  return { onPick, onClose };
 }
+
+const search = (text: string) =>
+  fireEvent.changeText(
+    screen.getByPlaceholderText('Search by title or author'),
+    text,
+  );
 
 beforeEach(async () => {
   await AsyncStorage.clear();
@@ -54,28 +64,20 @@ beforeEach(async () => {
 });
 afterEach(() => jest.restoreAllMocks());
 
-describe('LookupSheet', () => {
-  it('offers both book sources and searches the first one', async () => {
-    renderSheet();
-    expect(screen.getByText('Open Library')).toBeTruthy();
-    expect(screen.getByText('Google Books')).toBeTruthy();
-
-    fireEvent.changeText(
-      screen.getByPlaceholderText('Search by title or author'),
-      'dune',
-    );
-    expect(await screen.findByText('Dune (Open Library)')).toBeTruthy();
+describe('LookupInline', () => {
+  it('searches the first source for the kind', async () => {
+    renderLookup();
+    search('dune');
+    expect(await screen.findByText('Dune 0 (Open Library)')).toBeTruthy();
     expect(screen.getByText('Data from Open Library.')).toBeTruthy();
   });
 
-  it('searches again with another source and remembers the choice', async () => {
-    renderSheet();
-    fireEvent.changeText(
-      screen.getByPlaceholderText('Search by title or author'),
-      'dune',
-    );
-    await screen.findByText('Dune (Open Library)');
+  it('switches source from the menu and remembers the choice', async () => {
+    renderLookup();
+    search('dune');
+    await screen.findByText('Dune 0 (Open Library)');
 
+    fireEvent.press(screen.getByLabelText('Open Library. Change source'));
     fireEvent.press(screen.getByText('Google Books'));
     expect(await screen.findByText('Dune (Google)')).toBeTruthy();
     await waitFor(async () =>
@@ -87,10 +89,28 @@ describe('LookupSheet', () => {
 
   it('opens on the source saved for the kind', async () => {
     await storage.set(StorageKeys.lookupSource, { book: 'googleBooks' });
-    renderSheet();
+    renderLookup();
     await waitFor(() =>
       expect(screen.getByText('Data from Google Books.')).toBeTruthy(),
     );
+  });
+
+  it('shows three results until asked for the rest', async () => {
+    mockFetch(5);
+    renderLookup();
+    search('dune');
+    await screen.findByText('Dune 2 (Open Library)');
+    expect(screen.queryByText('Dune 3 (Open Library)')).toBeNull();
+
+    fireEvent.press(screen.getByText('Show 2 more'));
+    expect(screen.getByText('Dune 4 (Open Library)')).toBeTruthy();
+    expect(screen.queryByText('Show 2 more')).toBeNull();
+  });
+
+  it('closes from the x', () => {
+    const { onClose } = renderLookup();
+    fireEvent.press(screen.getByLabelText('Close search'));
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('hands the picked result to the form', async () => {
@@ -108,11 +128,8 @@ describe('LookupSheet', () => {
         : { description: 'Arrakis.' };
       return { ok: true, status: 200, json: async () => body };
     }) as unknown as typeof fetch;
-    const onPick = renderSheet();
-    fireEvent.changeText(
-      screen.getByPlaceholderText('Search by title or author'),
-      'dune',
-    );
+    const { onPick } = renderLookup();
+    search('dune');
     fireEvent.press(await screen.findByText('Dune'));
     await waitFor(() =>
       expect(onPick).toHaveBeenCalledWith(

@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { sourcesFor } from '../../api/lookup';
 import { DateField } from '../../components/DateField';
 import { KindPicker } from '../../components/KindPicker';
-import { LookupSheet } from '../../components/LookupSheet';
+import { LookupInline } from '../../components/LookupInline';
 import { StatusPicker } from '../../components/StatusPicker';
 import { TagInput } from '../../components/TagInput';
 import { ScoreInput } from '../../components/ScoreInput';
@@ -187,7 +187,14 @@ export function ItemFormScreen({ navigation, route }: Props) {
           />
         </Field>
 
-        {canLookup && (
+        {canLookup && lookupOpen && (
+          <LookupInline
+            kind={draft.kind}
+            onPick={applyLookup}
+            onClose={() => setLookupOpen(false)}
+          />
+        )}
+        {canLookup && !lookupOpen && (
           <Button
             label={t('lookupButton')}
             variant="outline"
@@ -353,13 +360,6 @@ export function ItemFormScreen({ navigation, route }: Props) {
             />
           ))}
       </ScrollView>
-
-      <LookupSheet
-        visible={lookupOpen}
-        kind={draft.kind}
-        onPick={applyLookup}
-        onClose={() => setLookupOpen(false)}
-      />
     </View>
   );
 }

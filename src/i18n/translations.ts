@@ -135,6 +135,10 @@ export const translations: Record<Language, Record<string, string>> = {
       'Lookup failed. Check the key in .env and your connection, or try another source.',
     lookupLoading: 'Fetching details',
     lookupCredit: 'Data from {name}.',
+    lookupUse: 'Use',
+    lookupShowMore: 'Show {count} more',
+    lookupChangeSource: 'Change source',
+    lookupClose: 'Close search',
     lookupTmdbNotice:
       'This product uses the TMDB API but is not endorsed or certified by TMDB.',
 
@@ -341,6 +345,10 @@ export const translations: Record<Language, Record<string, string>> = {
       'Carian gagal. Semak kunci dalam .env dan sambungan anda, atau cuba sumber lain.',
     lookupLoading: 'Mengambil butiran',
     lookupCredit: 'Data daripada {name}.',
+    lookupUse: 'Guna',
+    lookupShowMore: 'Tunjuk {count} lagi',
+    lookupChangeSource: 'Tukar sumber',
+    lookupClose: 'Tutup carian',
     lookupTmdbNotice:
       'Produk ini menggunakan API TMDB tetapi tidak disokong atau diperakui oleh TMDB.',
 
