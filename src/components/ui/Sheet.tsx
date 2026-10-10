@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   Animated,
   Easing,
@@ -59,10 +59,20 @@ export function Sheet({
   const [offset] = useState(() => new Animated.Value(height));
   const [dim] = useState(() => new Animated.Value(0));
 
+  // The slide reads the height through a ref so a height change while the
+  // sheet is open does not restart it. On the web the window height follows
+  // the visual viewport, which shrinks when the keyboard opens and changes
+  // again as its suggestion bar comes and goes while typing. Restarting the
+  // effect then threw the panel back below the screen on each change.
+  const heightRef = useRef(height);
+  useEffect(() => {
+    heightRef.current = height;
+  }, [height]);
+
   useEffect(() => {
     if (visible) {
       setMounted(true);
-      offset.setValue(height);
+      offset.setValue(heightRef.current);
       dim.setValue(0);
       // A spring rather than a curve, so the panel eases into place the
       // way an iOS sheet does instead of stopping dead.
@@ -89,7 +99,7 @@ export function Sheet({
         useNativeDriver: true,
       }),
       Animated.timing(offset, {
-        toValue: height,
+        toValue: heightRef.current,
         duration: SLIDE_OUT_MS,
         easing: Easing.in(Easing.cubic),
         useNativeDriver: true,
@@ -99,7 +109,7 @@ export function Sheet({
       if (finished) setMounted(false);
     });
     return () => leave.stop();
-  }, [visible, height, offset, dim]);
+  }, [visible, offset, dim]);
 
   const content = (
     <>
@@ -134,7 +144,10 @@ export function Sheet({
     >
       {avoidKeyboard ? (
         <KeyboardAvoidingView
-          style={styles.root}
+          // KeyboardAvoidingView does nothing on the web, where the keyboard
+          // covers the page instead of resizing it. Sizing the root to the
+          // visible height keeps the panel above the keyboard there.
+          style={[styles.root, Platform.OS === 'web' && { flex: 0, height }]}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           {content}
