@@ -61,6 +61,10 @@ export function DateField({ label, value, onChange }: DateFieldProps) {
       });
       return;
     }
+    // The inline calendar only reports a change, so tapping the day it
+    // already highlights does nothing. Opening an empty field fills in
+    // today so that day counts without a second tap.
+    if (!open && value === undefined) onChange(startOfDay(today));
     setOpen((o) => !o);
   };
 
@@ -155,7 +159,14 @@ function WebDateField({ label, value, onChange }: DateFieldProps) {
               if (parsed !== undefined) onChange(parsed);
             }
           }}
-          onFocus={() => setFocused(true)}
+          onFocus={() => {
+            setFocused(true);
+            if (value === undefined && !text.trim()) {
+              const today = startOfDay(new Date());
+              setText(toIsoDay(today));
+              onChange(today);
+            }
+          }}
           onBlur={() => setFocused(false)}
           placeholder="YYYY-MM-DD"
           placeholderTextColor={colors.textMuted}
