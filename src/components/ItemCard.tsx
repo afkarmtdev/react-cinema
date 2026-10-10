@@ -70,28 +70,30 @@ function ItemCardBase({
           )}
         </View>
       )}
-      {size === 'md' && (
-        <View style={styles.kindBadge}>
-          <Ionicons
-            name={KIND_ICON[item.kind]}
-            size={12}
-            color={colors.onOverlay}
-          />
-        </View>
-      )}
-      {favourite && size !== 'lg' && (
-        <View
-          style={[
-            styles.heartBadge,
-            size === 'md' && styles.heartBadgeBesideKind,
-            size === 'xs' && styles.heartBadgeXs,
-          ]}
-        >
-          <Ionicons
-            name="heart"
-            size={size === 'xs' ? 9 : 12}
-            color={colors.primary}
-          />
+      {(size === 'md' || (favourite && size !== 'lg')) && (
+        // The kind and the heart share one row, so they sit side by side
+        // with a fixed gap whatever size each one ends up.
+        <View style={[styles.topLeft, size === 'xs' && styles.topLeftXs]}>
+          {size === 'md' && (
+            <View style={styles.iconBadge}>
+              <Ionicons
+                name={KIND_ICON[item.kind]}
+                size={12}
+                color={colors.onOverlay}
+              />
+            </View>
+          )}
+          {favourite && (
+            <View
+              style={[styles.iconBadge, size === 'xs' && styles.iconBadgeXs]}
+            >
+              <Ionicons
+                name="heart"
+                size={size === 'xs' ? 9 : 12}
+                color={colors.primary}
+              />
+            </View>
+          )}
         </View>
       )}
       {(size === 'md' || size === 'sm') && typeof item.rating === 'number' && (
@@ -253,11 +255,24 @@ const makeStyles = (colors: ThemeColors) => {
       textAlign: 'center',
     },
     tinyText: { ...typography.tiny },
-    kindBadge: { ...badge, top: spacing.sm, left: spacing.sm, padding: 5 },
-    heartBadge: { ...badge, top: spacing.sm, left: spacing.sm, padding: 5 },
-    // Next to the kind badge, which is 22 wide, on the full card.
-    heartBadgeBesideKind: { left: spacing.sm + 22 + spacing.xs },
-    heartBadgeXs: { top: 3, left: 3, padding: 3 },
+    topLeft: {
+      position: 'absolute',
+      top: spacing.sm,
+      left: spacing.sm,
+      flexDirection: 'row',
+      gap: 6,
+    },
+    topLeftXs: { top: 3, left: 3 },
+    // Round, and about as tall as the score badge across the top.
+    iconBadge: {
+      width: 22,
+      height: 22,
+      borderRadius: radius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.overlay,
+    },
+    iconBadgeXs: { width: 15, height: 15 },
     ratingBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm },
     statusBadge: { ...badge, bottom: spacing.sm, left: spacing.sm },
     statusBadgeDone: { backgroundColor: colors.primary },
