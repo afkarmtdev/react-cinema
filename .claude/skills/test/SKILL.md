@@ -1,9 +1,9 @@
 ---
 name: test
-description: Run or extend the Jest unit tests for this Expo SDK 57 + TypeScript library tracker (CineReact). Use when asked to run tests, add a test, debug a failing test, or check coverage. Captures the jest-expo/Jest 29 pin and the layout of the existing tests.
+description: Run or extend the Jest unit tests for this Expo SDK 57 + TypeScript library tracker (pocketJing3). Use when asked to run tests, add a test, debug a failing test, or check coverage. Captures the jest-expo/Jest 29 pin and the layout of the existing tests.
 ---
 
-# Testing CineReact
+# Testing pocketJing3
 
 ## Run the tests
 

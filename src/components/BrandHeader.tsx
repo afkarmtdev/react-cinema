@@ -10,7 +10,11 @@ interface BrandHeaderProps {
   style?: ViewStyle;
 }
 
-/** The CineReact wordmark: a skewed yellow "CINE" tile with a "REACT" tag. */
+/**
+ * The pocketJing3 wordmark: a skewed yellow tile holding 應 (jing3, the
+ * "respond" half of 反應, react) next to the name, with the tone number in
+ * the accent colour.
+ */
 export function BrandHeader({
   right,
   align = 'center',
@@ -25,11 +29,13 @@ export function BrandHeader({
         style,
       ]}
     >
-      <View style={styles.brand}>
+      <View style={styles.brand} accessible accessibilityLabel="pocketJing3">
         <View style={styles.logo}>
-          <Text style={styles.logoText}>CINE</Text>
+          <Text style={styles.logoText}>應</Text>
         </View>
-        <Text style={styles.tag}>REACT</Text>
+        <Text style={styles.tag}>
+          pocketJing<Text style={styles.tone}>3</Text>
+        </Text>
       </View>
       {right}
     </View>
@@ -52,13 +58,13 @@ const makeStyles = (colors: ThemeColors) =>
     logoText: {
       fontSize: 24,
       fontWeight: '900',
-      fontStyle: 'italic',
       color: colors.onPrimary,
     },
     tag: {
       ...typography.caption,
       color: colors.textSecondary,
-      letterSpacing: 3,
+      letterSpacing: 1,
       fontWeight: '700',
     },
+    tone: { color: colors.primary },
   });

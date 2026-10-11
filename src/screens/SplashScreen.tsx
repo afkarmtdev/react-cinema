@@ -26,11 +26,13 @@ export function SplashScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.center}>
+      <View style={styles.center} accessible accessibilityLabel="pocketJing3">
         <View style={styles.logo}>
-          <Text style={styles.logoText}>CINE</Text>
+          <Text style={styles.logoText}>應</Text>
         </View>
-        <Text style={styles.subtitle}>REACT</Text>
+        <Text style={styles.subtitle}>
+          pocketJing<Text style={styles.tone}>3</Text>
+        </Text>
       </View>
 
       <View style={styles.bottom}>
@@ -70,16 +72,15 @@ const makeStyles = (colors: ThemeColors) =>
     logoText: {
       fontSize: 44,
       fontWeight: '900',
-      fontStyle: 'italic',
       color: colors.onPrimary,
-      letterSpacing: 1,
     },
     subtitle: {
       ...typography.h3,
       color: colors.text,
-      letterSpacing: 6,
+      letterSpacing: 2,
       marginTop: spacing.md,
     },
+    tone: { color: colors.primary },
     bottom: {
       paddingHorizontal: spacing.xxl,
       gap: spacing.md,

@@ -1,13 +1,13 @@
-# CineReact
+# pocketJing3
 
-> **Cine·React** &nbsp; /ˌsɪn.iˈrækt/ &nbsp; _noun_ &nbsp;·&nbsp; a blend of **ciné** (cinema) + **react**
+> **pocket·jing3** &nbsp; /ˈpɒk.ɪt jɪŋ˧/ &nbsp; _noun_ &nbsp;·&nbsp; **pocket** + **jing3** (應), the "respond" half of the Cantonese 反應 (faan2 jing3, "reaction")
 >
 > 1. A React Native app for keeping a diary of the films, series, and books you get through.
-> 2. _to react_: to respond to something with a score out of ten and a few honest words.
+> 2. _jing3_: to respond to something, here with a score out of ten and a few honest words.
 >
-> _Built with React · powered by your reactions._
+> _The 3 is the Cantonese tone, said level at mid pitch. Built with React · powered by your reactions._
 
-CineReact is a small Letterboxd-style tracker built with React Native (Expo +
+pocketJing3 is a small Letterboxd-style tracker built with React Native (Expo +
 TypeScript). It keeps a personal library of films, series, and books: what you
 want to get to, what you are in the middle of, and what you have finished, with
 a rating, your notes, tags, and the director or author on each entry. Finished
@@ -177,7 +177,7 @@ layout stays phone-shaped on a wide screen, which is intended: the point of
 the web build is the phone.
 
 The web build is a progressive web app. On a phone, "Add to Home Screen" (iOS
-Safari) or "Install app" (Android Chrome) puts a CineReact icon on the home
+Safari) or "Install app" (Android Chrome) puts a pocketJing3 icon on the home
 screen that opens without the browser bars. The pieces live in `public/`
 and are copied into the export as they are:
 
@@ -237,7 +237,8 @@ opens straight into your library, and if the server is unreachable you stay
 signed in and see an error with a retry.
 
 **On the device (no server).** In device mode nothing leaves the phone. The
-library is a SQLite file (`cinereact.db`, through `expo-sqlite`) in the app's
+library is a SQLite file (`cinereact.db`, kept from the old CineReact name,
+through `expo-sqlite`) in the app's
 private sandbox, one row per entry with an index on the owning account, so a
 change writes one row instead of rewriting the whole library. Accounts, the
 session, and the language choice stay in AsyncStorage. The first time this

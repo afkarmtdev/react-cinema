@@ -1,6 +1,12 @@
-# CineReact: agent brief
+# pocketJing3: agent brief
 
-CineReact is a small Letterboxd-style tracker built with Expo SDK 57 (managed
+The name is written pocketJing3 exactly: lower-case p, capital J, and the
+tone number 3, which is part of the brand. jing3 is 應, the "respond" half of
+the Cantonese 反應 (faan2 jing3, react), and the logo puts 應 in the yellow
+tile. The app used to be called CineReact; the on-device SQLite file keeps
+that name (`cinereact.db`) so existing libraries still open.
+
+pocketJing3 is a small Letterboxd-style tracker built with Expo SDK 57 (managed
 workflow), React Native 0.86, React 19.2, TypeScript, and React Navigation 7.
 A signed-in user keeps a personal library of films, series, and books, typed
 in by hand (title, year, director or author, cover link, description, tags,

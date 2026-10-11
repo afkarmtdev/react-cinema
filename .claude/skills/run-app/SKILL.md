@@ -1,9 +1,9 @@
 ---
 name: run-app
-description: Launch, typecheck, or bundle this Expo SDK 57 + TypeScript library tracker (CineReact). Use when asked to run/start the app, check it builds, or reproduce the dev setup. Captures the Node, OMDb key, and Expo Go facts specific to this machine and project.
+description: Launch, typecheck, or bundle this Expo SDK 57 + TypeScript library tracker (pocketJing3). Use when asked to run/start the app, check it builds, or reproduce the dev setup. Captures the Node, OMDb key, and Expo Go facts specific to this machine and project.
 ---
 
-# Running CineReact (Expo SDK 57 + TypeScript)
+# Running pocketJing3 (Expo SDK 57 + TypeScript)
 
 ## Environment (check first)
 

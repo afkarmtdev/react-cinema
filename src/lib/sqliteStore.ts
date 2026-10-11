@@ -20,6 +20,8 @@ import type { ItemKind, ItemStatus, LibraryItem } from '../types/library';
  * removes it from AsyncStorage.
  */
 
+// Named after the app's old name, CineReact. Renaming the file would leave
+// every existing on-device library behind, so it stays.
 export const DATABASE_NAME = 'cinereact.db';
 
 /** One row of the entries table; optional fields are NULL. */

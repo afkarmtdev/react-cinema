@@ -3,7 +3,7 @@ description: Run this project's dev scripts (app, tests, lint, format) and repor
 argument-hint: '[app | test | typecheck | lint | fix | format | all]'
 ---
 
-The user wants to run a CineReact (Expo SDK 57 + TypeScript) dev task.
+The user wants to run a pocketJing3 (Expo SDK 57 + TypeScript) dev task.
 Requested target: "$ARGUMENTS" (if empty, default to starting the app).
 
 ## Environment (check first)

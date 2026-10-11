@@ -1,6 +1,6 @@
-# PocketBase for CineReact
+# PocketBase for pocketJing3
 
-CineReact can keep accounts and the library on a PocketBase server instead of
+pocketJing3 can keep accounts and the library on a PocketBase server instead of
 on the device, so the same library shows up on every phone you sign in from.
 PocketBase is a single binary with SQLite inside; nothing else to install.
 

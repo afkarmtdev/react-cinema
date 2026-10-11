@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "CineReact",
+    "name": "pocketJing3",
     "slug": "react-cinema",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -28,8 +28,8 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
       "output": "single",
-      "name": "CineReact",
-      "shortName": "CineReact",
+      "name": "pocketJing3",
+      "shortName": "pocketJing3",
       "lang": "en",
       "themeColor": "#0B0B0B",
       "backgroundColor": "#0B0B0B"
@@ -39,7 +39,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "CineReact only reads the photo you pick as your profile picture."
+          "photosPermission": "pocketJing3 only reads the photo you pick as your profile picture."
         }
       ]
     ]

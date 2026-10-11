@@ -4,7 +4,7 @@
 // images) is never cached and always goes to the network.
 //
 // Bump CACHE when you change this file so old caches are dropped on activate.
-const CACHE = 'cinereact-shell-v1';
+const CACHE = 'pocketjing3-shell-v1';
 const SHELL = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {

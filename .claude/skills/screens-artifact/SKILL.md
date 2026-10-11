@@ -1,6 +1,6 @@
 ---
 name: screens-artifact
-description: Update the CineReact screens mockup artifact (the phone-frame HTML page published at a fixed claude.ai URL) whenever a screen changes, and append an entry to the change log inside it. Use when the user asks to see the screens, update the mockup or artifact, or after a UI change that alters what a screen looks like.
+description: Update the pocketJing3 screens mockup artifact (the phone-frame HTML page published at a fixed claude.ai URL) whenever a screen changes, and append an entry to the change log inside it. Use when the user asks to see the screens, update the mockup or artifact, or after a UI change that alters what a screen looks like.
 ---
 
 # The screens mockup artifact
