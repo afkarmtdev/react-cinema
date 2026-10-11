@@ -7,6 +7,7 @@ import { useStorage, type StorageMode } from '../context/StorageContext';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
 import { isValidServerUrl, normaliseServerUrl } from '../lib/backend';
 import { radius, spacing, typography, type ThemeColors } from '../theme';
+import { LibraryCopy } from './LibraryCopy';
 import { Button } from './ui/Button';
 import { TextField } from './ui/TextField';
 
@@ -199,6 +200,8 @@ export function StorageSettings() {
           disabled={!canSwitch}
         />
       )}
+
+      {user && <LibraryCopy />}
     </View>
   );
 }

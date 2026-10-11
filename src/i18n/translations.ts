@@ -206,6 +206,19 @@ export const translations: Record<Language, Record<string, string>> = {
     storageSwitchBody:
       'You will be signed out. Accounts and entries stay where they were made, nothing is deleted. Sign in again, or sign up, on the other side.',
     storageSwitchConfirm: 'Sign out and switch',
+    copyTitle: 'Copy entries',
+    copyToServer: 'To the server',
+    copyToDevice: 'To this device',
+    copySignInServer:
+      'Sign in to your account on the server. You stay signed in here.',
+    copySignInDevice:
+      'Sign in to your account on this device. You stay signed in here.',
+    copyNote:
+      'Entries the other side already has (same kind, title, and year) are skipped, so copying again is safe. Profile pictures are not copied.',
+    copyRun: 'Copy entries',
+    copyDone: 'Copied {copied}, skipped {skipped} already there.',
+    copyFailed:
+      'The copy stopped partway. Check the connection and try again; entries already copied will be skipped.',
 
     // Shared states
     somethingWrong: 'Something went wrong',
@@ -417,6 +430,19 @@ export const translations: Record<Language, Record<string, string>> = {
     storageSwitchBody:
       'Anda akan dilog keluar. Akaun dan entri kekal di tempat ia dibuat, tiada yang dipadam. Log masuk semula, atau daftar, di sebelah sana.',
     storageSwitchConfirm: 'Log keluar dan tukar',
+    copyTitle: 'Salin entri',
+    copyToServer: 'Ke pelayan',
+    copyToDevice: 'Ke peranti ini',
+    copySignInServer:
+      'Log masuk ke akaun anda di pelayan. Anda kekal log masuk di sini.',
+    copySignInDevice:
+      'Log masuk ke akaun anda pada peranti ini. Anda kekal log masuk di sini.',
+    copyNote:
+      'Entri yang sudah ada di sebelah sana (jenis, tajuk dan tahun yang sama) dilangkau, jadi menyalin semula adalah selamat. Gambar profil tidak disalin.',
+    copyRun: 'Salin entri',
+    copyDone: '{copied} disalin, {skipped} dilangkau kerana sudah ada.',
+    copyFailed:
+      'Salinan terhenti separuh jalan. Semak sambungan dan cuba lagi; entri yang sudah disalin akan dilangkau.',
 
     // Shared states
     somethingWrong: 'Sesuatu tidak kena',

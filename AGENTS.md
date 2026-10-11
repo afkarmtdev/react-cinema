@@ -104,7 +104,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (157 tests in 25 files)
+npm test            Jest, runs once (165 tests in 26 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 npm run export:web  Static web build (a PWA) in dist/, ready for any host
@@ -127,7 +127,8 @@ src/components   ItemCard (four sizes, one per zoom level), TimelineGrid (the
                  StatusPicker, DateField, TagInput, FilterSheet, LookupInline,
                  EditProfileSheet (name and picture, expo-image-picker),
                  SearchBar, SwipePager, BrandHeader, StorageSettings,
-                 MultiProvider, and ui/ primitives (Button, TextField, Chip, Sheet,
+                 LibraryCopy (copy entries between the device and a server,
+                 inside StorageSettings), MultiProvider, and ui/ primitives (Button, TextField, Chip, Sheet,
                  StarRating, ...)
 src/screens      SplashScreen, auth/, library/ (Library, ItemDetail, ItemForm),
                  DiaryScreen, ProfileScreen
@@ -140,7 +141,8 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  store, expo-sqlite), deviceStore (SQLite on a phone,
                  AsyncStorage on web through deviceStore.web.ts, so the web
                  bundle never loads expo-sqlite), pocketbase (both, against
-                 the SDK),
+                 the SDK), libraryCopy (copies one account's entries and top
+                 four into another store, skipping ones already there),
                  summary (month and year totals for the Diary), timeline (the
                  zoom ladder, pinch steps, and month or year grouping behind
                  the library grid), favourites (the top four shelf, max four),

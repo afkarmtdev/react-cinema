@@ -22,6 +22,10 @@ export interface LibraryStore {
   remove: (id: string) => Promise<void>;
 }
 
+/** A fresh id for an entry made on the device (a server assigns its own). */
+export const newItemId = () =>
+  `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
 /** Shape of a review from the OMDb-only version, kept for the migration. */
 export interface LegacyReview {
   id: string;

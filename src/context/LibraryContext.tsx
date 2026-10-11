@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import type { LibraryStore } from '../lib/libraryStore';
+import { newItemId, type LibraryStore } from '../lib/libraryStore';
 import { clampScore } from '../lib/score';
 import { uniqueTags } from '../lib/tags';
 import type { LibraryItem, LibraryItemInput } from '../types/library';
@@ -33,8 +33,6 @@ interface LibraryContextValue {
 const LibraryContext = createContext<LibraryContextValue | undefined>(
   undefined,
 );
-
-const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 /** Cleans up form input before it is stored. */
 function sanitise(input: Partial<LibraryItemInput>): Partial<LibraryItemInput> {
@@ -148,7 +146,7 @@ export function LibraryProvider({
         ...clean,
         title: clean.title,
         tags: clean.tags ?? [],
-        id: newId(),
+        id: newItemId(),
         ownerId: user.id,
         createdAt: now,
         updatedAt: now,

@@ -455,13 +455,15 @@
     <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke="#0b0b0b" stroke-width="2"/></symbol>
     <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21s-7.2-4.7-9.4-9.2A5.3 5.3 0 0 1 12 6.5a5.3 5.3 0 0 1 9.4 5.3C19.2 16.3 12 21 12 21z"/></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4 4 0 0 1 0 9"/><path d="M12 20v-8M9 15l3-3 3 3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14"/></symbol>
   </defs>
 </svg>
 
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v12 · mirrors the code as of 11 Oct 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v13 · mirrors the code as of 11 Oct 2026 · <a href="#changes">changes</a></p>
       <h1>pocketJing3, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -835,6 +837,16 @@
               <div class="row"><div class="btn ghost" style="flex:1;height:34px;font-size:12px">Cancel</div><div class="btn" style="flex:1;height:34px;font-size:12px">Sign out and switch</div></div>
             </div>
           </div>
+          <p class="h3" style="margin-top:18px;font-size:12.5px">Copy entries</p>
+          <div class="stack" style="gap:8px;margin-top:8px">
+            <div class="row"><div class="opt icon on"><svg><use href="#i-upload"/></svg>To the server</div><div class="opt icon"><svg><use href="#i-download"/></svg>To this device</div></div>
+            <p class="tiny" style="margin:0 0 0 3px;line-height:1.5">Sign in to your account on this device. You stay signed in here.</p>
+            <div><p class="label">Email</p><div class="field">afkar@example.com</div></div>
+            <div><p class="label">Password</p><div class="field"><span style="flex:1;letter-spacing:2px">&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;</span><svg style="font-size:16px;color:var(--text-2)"><use href="#i-eye"/></svg></div></div>
+            <p class="tiny" style="margin:0 0 0 3px;line-height:1.5">Entries the other side already has (same kind, title, and year) are skipped, so copying again is safe. Profile pictures are not copied.</p>
+            <div class="btn outline" style="height:38px">Copy entries</div>
+            <div class="ok"><svg class="fill"><use href="#i-ok"/></svg>Copied 12, skipped 3 already there.</div>
+          </div>
           <div style="height:24px"></div>
           <div class="btn outline"><svg style="font-size:15px"><use href="#i-logout"/></svg>Log out</div>
           <div style="height:80px"></div>
@@ -845,7 +857,7 @@
           <div class="tab on"><svg><use href="#i-person"/></svg>Me</div>
         </div>
       </div></div>
-      <figcaption><p class="name">Me</p><p class="note">Your picture and name, with Edit profile opening a sheet to change either (the picture comes from the photo library, cropped square). Counts of finished films, series, and books plus your average score out of 10, then the Top four shelf: up to four covers you put there with a long press on a library card or the heart on an entry's page, tap one to open it. Then Settings: Appearance (Cinema, Paperback, Vice City) and Language. An Advanced group holds the Storage picker: the status line says where things live now, the two options are a draft, and picking the other one brings up the confirmation drawn here, since switching signs you out. The server address field and Test connection appear when PocketBase server is selected (see Login). The whole screen scrolls.</p></figcaption>
+      <figcaption><p class="name">Me</p><p class="note">Your picture and name, with Edit profile opening a sheet to change either (the picture comes from the photo library, cropped square). Counts of finished films, series, and books plus your average score out of 10, then the Top four shelf: up to four covers you put there with a long press on a library card or the heart on an entry's page, tap one to open it. Then Settings: Appearance (Cinema, Paperback, Vice City) and Language. An Advanced group holds the Storage picker: the status line says where things live now, the two options are a draft, and picking the other one brings up the confirmation drawn here, since switching signs you out. The server address field and Test connection appear when PocketBase server is selected (see Login). Below it, Copy entries moves your library between the device and a server in either direction without switching: pick To the server or To this device and sign in to your account on the other side (in device mode a server address field comes first). Entries already there are skipped and the top four follows the copies. The whole screen scrolls.</p></figcaption>
     </figure>
 
   </div>
@@ -867,6 +879,12 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v13</b>11 Oct 2026</div>
+        <ul>
+          <li>Copy entries, under Storage on Me: copies your library between the device and a PocketBase server, either way and from either mode, after signing in to your account on the other side (that sign-in is not remembered, and you stay signed in where you are). Entries the other side already has, by kind, title, and year, are skipped, so a second run is safe, and the top four follows the copied entries. Redrawn: Me (the Copy entries panel with a finished copy).</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v12</b>11 Oct 2026</div>
         <ul>

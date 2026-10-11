@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { avatarUri, localAuthBackend } from '../auth';
+import { avatarUri, localAuthBackend, localAuthCheck } from '../auth';
 
 beforeEach(async () => {
   await AsyncStorage.clear();
@@ -67,5 +67,28 @@ describe('local auth backend profile', () => {
       avatar: 'data:image/jpeg;base64,AAAA',
       favourites: ['i1'],
     });
+  });
+});
+
+describe('local account check (the other side of a copy)', () => {
+  it('signs in and saves the profile without touching the session', async () => {
+    const user = await localAuthBackend.signup('Ali', 'a@b.com', 'secret');
+    await localAuthBackend.logout();
+
+    const checked = await localAuthCheck.login('a@b.com', 'secret');
+    expect(checked.id).toBe(user.id);
+    await localAuthCheck.updateProfile(checked, { favourites: ['i1'] });
+
+    expect(await localAuthBackend.restore()).toBeNull();
+    expect(await localAuthBackend.login('a@b.com', 'secret')).toMatchObject({
+      favourites: ['i1'],
+    });
+  });
+
+  it('rejects a wrong password', async () => {
+    await localAuthBackend.signup('Ali', 'a@b.com', 'secret');
+    await expect(localAuthCheck.login('a@b.com', 'nope')).rejects.toThrow(
+      'errIncorrect',
+    );
   });
 });

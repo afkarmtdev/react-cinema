@@ -59,59 +59,77 @@ export const avatarUri = (avatar: NewAvatar): string =>
     ? `data:${avatar.mimeType ?? 'image/jpeg'};base64,${avatar.base64}`
     : avatar.uri;
 
-/** Accounts kept on this device only, in AsyncStorage. */
-export const localAuthBackend: AuthBackend = {
-  restore: () => storage.get<User>(StorageKeys.session),
+/**
+ * Accounts kept on this device only, in AsyncStorage. With rememberSession
+ * off, a sign-in checks the account without changing who is signed in to the
+ * app, which is what the other side of a library copy needs.
+ */
+function makeLocalAuthBackend(rememberSession: boolean): AuthBackend {
+  const saveSession = async (user: User) => {
+    if (rememberSession) await storage.set(StorageKeys.session, user);
+  };
 
-  async signup(name, email, password) {
-    const accounts =
-      (await storage.get<StoredAccount[]>(StorageKeys.users)) ?? [];
-    if (accounts.some((a) => a.email === email)) {
-      throw new AuthError('errEmailExists');
-    }
-    const account: StoredAccount = {
-      id: `${Date.now()}`,
-      name,
-      email,
-      password,
-    };
-    await storage.set(StorageKeys.users, [...accounts, account]);
+  return {
+    restore: async () =>
+      rememberSession ? storage.get<User>(StorageKeys.session) : null,
 
-    const { password: _pw, ...user } = account;
-    await storage.set(StorageKeys.session, user);
-    return user;
-  },
+    async signup(name, email, password) {
+      const accounts =
+        (await storage.get<StoredAccount[]>(StorageKeys.users)) ?? [];
+      if (accounts.some((a) => a.email === email)) {
+        throw new AuthError('errEmailExists');
+      }
+      const account: StoredAccount = {
+        id: `${Date.now()}`,
+        name,
+        email,
+        password,
+      };
+      await storage.set(StorageKeys.users, [...accounts, account]);
 
-  async login(email, password) {
-    const accounts =
-      (await storage.get<StoredAccount[]>(StorageKeys.users)) ?? [];
-    const account = accounts.find((a) => a.email === email);
-    if (!account || account.password !== password) {
-      throw new AuthError('errIncorrect');
-    }
-    const { password: _pw, ...user } = account;
-    await storage.set(StorageKeys.session, user);
-    return user;
-  },
+      const { password: _pw, ...user } = account;
+      await saveSession(user);
+      return user;
+    },
 
-  logout: () => storage.remove(StorageKeys.session),
+    async login(email, password) {
+      const accounts =
+        (await storage.get<StoredAccount[]>(StorageKeys.users)) ?? [];
+      const account = accounts.find((a) => a.email === email);
+      if (!account || account.password !== password) {
+        throw new AuthError('errIncorrect');
+      }
+      const { password: _pw, ...user } = account;
+      await saveSession(user);
+      return user;
+    },
 
-  async updateProfile(user, patch) {
-    const next: User = { ...user };
-    if (patch.name !== undefined) next.name = patch.name;
-    if (patch.favourites !== undefined) next.favourites = patch.favourites;
-    if (patch.avatar === null) delete next.avatar;
-    else if (patch.avatar) next.avatar = avatarUri(patch.avatar);
+    async logout() {
+      if (rememberSession) await storage.remove(StorageKeys.session);
+    },
 
-    const accounts =
-      (await storage.get<StoredAccount[]>(StorageKeys.users)) ?? [];
-    await storage.set(
-      StorageKeys.users,
-      accounts.map((a) =>
-        a.id === user.id ? { ...next, password: a.password } : a,
-      ),
-    );
-    await storage.set(StorageKeys.session, next);
-    return next;
-  },
-};
+    async updateProfile(user, patch) {
+      const next: User = { ...user };
+      if (patch.name !== undefined) next.name = patch.name;
+      if (patch.favourites !== undefined) next.favourites = patch.favourites;
+      if (patch.avatar === null) delete next.avatar;
+      else if (patch.avatar) next.avatar = avatarUri(patch.avatar);
+
+      const accounts =
+        (await storage.get<StoredAccount[]>(StorageKeys.users)) ?? [];
+      await storage.set(
+        StorageKeys.users,
+        accounts.map((a) =>
+          a.id === user.id ? { ...next, password: a.password } : a,
+        ),
+      );
+      await saveSession(next);
+      return next;
+    },
+  };
+}
+
+export const localAuthBackend = makeLocalAuthBackend(true);
+
+/** The same device accounts, signed in to without being remembered. */
+export const localAuthCheck = makeLocalAuthBackend(false);

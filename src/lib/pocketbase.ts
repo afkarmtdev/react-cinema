@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PocketBase, {
   AsyncAuthStore,
+  BaseAuthStore,
   ClientResponseError,
   type RecordModel,
 } from 'pocketbase';
@@ -21,14 +22,20 @@ const USERS = 'users';
 /** The subset of the SDK that this module uses, so tests can fake it. */
 export type Client = Pick<PocketBase, 'collection' | 'authStore' | 'files'>;
 
-export function createClient(url: string): PocketBase {
-  const initial = AsyncStorage.getItem(StorageKeys.pocketbaseAuth);
-  const store = new AsyncAuthStore({
-    save: (serialized) =>
-      AsyncStorage.setItem(StorageKeys.pocketbaseAuth, serialized),
-    clear: () => AsyncStorage.removeItem(StorageKeys.pocketbaseAuth),
-    initial,
-  });
+/**
+ * A client for the server at url. With remember off, the session is kept in
+ * memory only, so signing in on it (the other side of a library copy) does
+ * not touch the saved session the app restores on launch.
+ */
+export function createClient(url: string, remember = true): PocketBase {
+  const store = remember
+    ? new AsyncAuthStore({
+        save: (serialized) =>
+          AsyncStorage.setItem(StorageKeys.pocketbaseAuth, serialized),
+        clear: () => AsyncStorage.removeItem(StorageKeys.pocketbaseAuth),
+        initial: AsyncStorage.getItem(StorageKeys.pocketbaseAuth),
+      })
+    : new BaseAuthStore();
   const pb = new PocketBase(url, store);
   // Metro bundles a single client, so cancelling "duplicate" requests would
   // drop the second of two quick saves. Every request should go through.

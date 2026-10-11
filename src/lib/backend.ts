@@ -1,4 +1,4 @@
-import { localAuthBackend, type AuthBackend } from './auth';
+import { localAuthBackend, localAuthCheck, type AuthBackend } from './auth';
 import { deviceLibraryStore } from './deviceStore';
 import type { LibraryStore } from './libraryStore';
 import {
@@ -60,6 +60,28 @@ export function createBackend(settings: StorageSettings): Backend {
     return localBackend;
   }
   const pb = createClient(url);
+  return {
+    mode: 'server',
+    serverUrl: url,
+    auth: createAuthBackend(pb),
+    library: createLibraryStore(pb),
+  };
+}
+
+/**
+ * The other side of a library copy (see libraryCopy.ts): the same stores as
+ * createBackend, but signing in on it is not remembered, so the app stays
+ * signed in to the side it is on.
+ */
+export function createCopyBackend(
+  mode: StorageMode,
+  serverUrl: string,
+): Backend {
+  if (mode === 'device') {
+    return { ...localBackend, auth: localAuthCheck };
+  }
+  const url = normaliseServerUrl(serverUrl);
+  const pb = createClient(url, false);
   return {
     mode: 'server',
     serverUrl: url,

@@ -70,8 +70,20 @@ in `src/lib/pocketbase.ts`.
 ## Moving your existing device-only library
 
 Entries saved in device mode are still in the app's local storage on that
-device, and switching back to "This device" shows them again. There is no
-automatic upload to the server yet; re-add them, or ask for an import step.
+device, and switching back to "This device" shows them again. To move them,
+use "Copy entries" under the Storage setting (Me tab, Settings, Advanced).
+It works in both directions and from either mode: pick "To the server" or
+"To this device", then sign in to your account on the other side. The app
+stays signed in where it is, and that second sign-in is not remembered.
+
+A typical move to a new server: switch storage to the server, sign up there,
+then copy "To the server" with your device account's email and password.
+
+Entries the target already has (same kind, title, and year) are skipped, so
+running it twice, or again after a dropped connection, does not make
+duplicates. The top four shelf follows the copied entries. Profile pictures
+and names are not copied, and on the server the created and updated times
+are the time of the copy (PocketBase sets those itself).
 
 ## Running it somewhere permanent
 
