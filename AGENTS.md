@@ -107,7 +107,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (181 tests in 27 files)
+npm test            Jest, runs once (192 tests in 29 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 npm run export:web  Static web build (a PWA) in dist/, ready for any host
@@ -137,7 +137,8 @@ src/components   ItemCard (four sizes, one per zoom level), TimelineGrid (the
                  StarRating, ...)
 src/screens      SplashScreen, auth/, library/ (Library, ItemDetail, ItemForm),
                  DiaryScreen, ProfileScreen
-src/navigation   RootNavigator, AuthStack, MainTabs, LibraryStack, types
+src/navigation   RootNavigator, AuthStack, MainTabs, TabStacks (one stack
+                 per tab, each with the entry and form screens), types
 src/i18n         translations.ts (English and Malay), used through t()
 src/lib          backend (builds the PocketBase or local pair), auth
                  (AuthBackend + local accounts), libraryStore (the LibraryStore

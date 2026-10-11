@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo } from 'react';
 import {
   Image,
@@ -33,10 +33,10 @@ import {
 } from '../lib/summary';
 import { radius, spacing, typography, type ThemeColors } from '../theme';
 import { ITEM_KINDS, type LibraryItem } from '../types/library';
-import type { TabParamList } from '../navigation/types';
+import type { DiaryStackParamList } from '../navigation/types';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
-type Props = BottomTabScreenProps<TabParamList, 'DiaryTab'>;
+type Props = NativeStackScreenProps<DiaryStackParamList, 'Diary'>;
 
 /** One line of the diary: an entry and one of the times it was finished. */
 interface DiaryEntry {
@@ -94,11 +94,7 @@ export function DiaryScreen({ navigation }: Props) {
   }, [items]);
 
   const open = (item: LibraryItem) =>
-    navigation.navigate('LibraryTab', {
-      screen: 'ItemDetail',
-      params: { itemId: item.id, title: item.title },
-      initial: false,
-    });
+    navigation.navigate('ItemDetail', { itemId: item.id, title: item.title });
 
   return (
     <Screen padded>

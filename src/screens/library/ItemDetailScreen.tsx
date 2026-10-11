@@ -35,10 +35,10 @@ import { newItemId } from '../../lib/libraryStore';
 import { finishDates } from '../../lib/summary';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
 import { isReadKind, type LibraryItem, type Quote } from '../../types/library';
-import type { LibraryStackParamList } from '../../navigation/types';
+import type { EntryStackParamList } from '../../navigation/types';
 import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
-type Props = NativeStackScreenProps<LibraryStackParamList, 'ItemDetail'>;
+type Props = NativeStackScreenProps<EntryStackParamList, 'ItemDetail'>;
 
 export function ItemDetailScreen({ navigation, route }: Props) {
   const styles = useThemedStyles(makeStyles);
@@ -122,7 +122,7 @@ export function ItemDetailScreen({ navigation, route }: Props) {
       <View style={styles.missing}>
         <EmptyView icon="help-circle-outline" title={t('itemNotFound')} />
         <Button
-          label={t('backToLibrary')}
+          label={t('goBack')}
           variant="outline"
           onPress={() => navigation.popToTop()}
         />

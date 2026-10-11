@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { EditProfileSheet } from '../components/EditProfileSheet';
@@ -24,10 +24,10 @@ import {
   type ThemeName,
 } from '../theme';
 import type { ItemKind, LibraryItem } from '../types/library';
-import type { TabParamList } from '../navigation/types';
+import type { ProfileStackParamList } from '../navigation/types';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
-type Props = BottomTabScreenProps<TabParamList, 'ProfileTab'>;
+type Props = NativeStackScreenProps<ProfileStackParamList, 'Profile'>;
 
 export function ProfileScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
@@ -71,11 +71,7 @@ export function ProfileScreen({ navigation }: Props) {
   if (!user) return null;
 
   const openItem = (item: LibraryItem) =>
-    navigation.navigate('LibraryTab', {
-      screen: 'ItemDetail',
-      params: { itemId: item.id, title: item.title },
-      initial: false,
-    });
+    navigation.navigate('ItemDetail', { itemId: item.id, title: item.title });
 
   return (
     <Screen padded>

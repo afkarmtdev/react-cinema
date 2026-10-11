@@ -27,10 +27,10 @@ import {
   type LibraryItem,
 } from '../../types/library';
 import type { LookupResult } from '../../types/lookup';
-import type { LibraryStackParamList } from '../../navigation/types';
+import type { EntryStackParamList } from '../../navigation/types';
 import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
-type Props = NativeStackScreenProps<LibraryStackParamList, 'ItemForm'>;
+type Props = NativeStackScreenProps<EntryStackParamList, 'ItemForm'>;
 
 interface Draft {
   kind: ItemKind;

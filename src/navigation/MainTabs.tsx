@@ -1,13 +1,34 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {
+  createBottomTabNavigator,
+  type BottomTabNavigationOptions,
+} from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
-import { LibraryStack } from './LibraryStack';
-import { DiaryScreen } from '../screens/DiaryScreen';
-import { ProfileScreen } from '../screens/ProfileScreen';
+import { DiaryStack, LibraryStack, ProfileStack } from './TabStacks';
 import { useLanguage } from '../context/LanguageContext';
 import { FloatingTabBar } from '../components/FloatingTabBar';
 import type { TabParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
+
+type TabRoute = Parameters<typeof getFocusedRouteNameFromRoute>[0];
+
+/**
+ * Options for a tab holding a stack: the pill shows on the stack's first
+ * screen and hides on the entry and form screens pushed on top, so it never
+ * covers a form's bottom row.
+ */
+const stackTab =
+  (title: string, root: string) =>
+  ({ route }: { route: TabRoute }): BottomTabNavigationOptions => {
+    const nested = getFocusedRouteNameFromRoute(route) ?? root;
+    return {
+      title,
+      tabBarStyle: {
+        position: 'absolute',
+        display: nested === root ? 'flex' : 'none',
+      },
+    };
+  };
 
 export function MainTabs() {
   const { t } = useLanguage();
@@ -24,28 +45,17 @@ export function MainTabs() {
       <Tab.Screen
         name="LibraryTab"
         component={LibraryStack}
-        options={({ route }) => {
-          // Hide the pill on the detail and form screens inside the stack, so
-          // it never covers a form's bottom row.
-          const nested = getFocusedRouteNameFromRoute(route) ?? 'Library';
-          return {
-            title: t('libraryTab'),
-            tabBarStyle: {
-              position: 'absolute',
-              display: nested === 'Library' ? 'flex' : 'none',
-            },
-          };
-        }}
+        options={stackTab(t('libraryTab'), 'Library')}
       />
       <Tab.Screen
         name="DiaryTab"
-        component={DiaryScreen}
-        options={{ title: t('diaryTab') }}
+        component={DiaryStack}
+        options={stackTab(t('diaryTab'), 'Diary')}
       />
       <Tab.Screen
         name="ProfileTab"
-        component={ProfileScreen}
-        options={{ title: t('meTab') }}
+        component={ProfileStack}
+        options={stackTab(t('meTab'), 'Profile')}
       />
     </Tab.Navigator>
   );
