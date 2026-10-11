@@ -11,6 +11,23 @@
 - Prettier and ESLint are the formatters of record (`npm run format`,
   `npm run lint:fix`). Do not hand-format against them.
 
+## UI design: no stock "vibe-coded" patterns
+
+- Never use the generic look that AI-generated apps share. In particular:
+  cards or callouts with a coloured accent stripe down one side, italic pull
+  quotes or oversized decorative quote marks, gradient text or purple-to-blue
+  gradients, frosted-glass blur panels, glowing or neon borders, emoji as
+  icons, and grids of identical icon, title, and subtitle cards.
+- Build from pocketJing3's own design language instead: the dark ground and
+  single yellow accent from `src/theme`, the skewed yellow tile of the 應
+  logo, pill chips, poster-first cards, plain surface rows like the Diary's,
+  and uppercase letter-spaced captions for section and month labels.
+- A new element should look like it was always part of this app. If none of
+  the existing pieces fit, design something specific to pocketJing3 rather
+  than a template, keep it on the theme tokens, and ask before inventing a
+  new visual pattern if unsure.
+- The same goes for the screens mockup in `preview/screens.html`.
+
 ## Project skills
 
 - `/run-app`: start Metro, typecheck, or do an offline bundle check. Holds the
