@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLanguage } from '../../context/LanguageContext';
 import { useThemedStyles } from '../../context/ThemeContext';
 import { motion, radius, spacing, type ThemeColors } from '../../theme';
+import { KeyboardScrollBoundary } from './KeyboardScrollView';
 
 interface SheetProps {
   visible: boolean;
@@ -130,7 +131,7 @@ export function Sheet({
         ]}
       >
         <View style={styles.handle} />
-        {children}
+        <KeyboardScrollBoundary>{children}</KeyboardScrollBoundary>
       </Animated.View>
     </>
   );

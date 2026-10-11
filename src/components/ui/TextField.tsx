@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
 import { useThemedStyles, useTheme } from '../../context/ThemeContext';
+import { KeyboardDoneBar } from './KeyboardDoneBar';
+import { useKeyboardFocus } from './KeyboardScrollView';
 
 interface TextFieldProps extends TextInputProps {
   label: string;
@@ -29,6 +31,8 @@ export function TextField({
   const { colors } = useTheme();
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(secure);
+  const doneBarId = useId();
+  const onKeyboardFocus = useKeyboardFocus();
 
   return (
     <View style={styles.wrapper}>
@@ -45,8 +49,10 @@ export function TextField({
           placeholderTextColor={colors.textMuted}
           {...props}
           secureTextEntry={hidden}
+          inputAccessoryViewID={doneBarId}
           onFocus={(e) => {
             setFocused(true);
+            onKeyboardFocus();
             props.onFocus?.(e);
           }}
           onBlur={(e) => {
@@ -75,6 +81,7 @@ export function TextField({
         )}
       </View>
       {!!error && <Text style={styles.error}>{error}</Text>}
+      <KeyboardDoneBar nativeID={doneBarId} />
     </View>
   );
 }

@@ -1,15 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardScrollView } from '../../components/ui/KeyboardScrollView';
 import { Screen } from '../../components/ui/Screen';
 import { Button } from '../../components/ui/Button';
 import { TextField } from '../../components/ui/TextField';
@@ -50,86 +43,73 @@ export function LoginScreen({ navigation }: Props) {
 
   return (
     <Screen padded>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.flex}
-      >
-        <ScrollView
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-        >
-          <BrandHeader />
-          <Text style={styles.title}>{t('welcomeBack')}</Text>
-          <Text style={styles.subtitle}>{t('loginSubtitle')}</Text>
+      <KeyboardScrollView contentContainerStyle={styles.content}>
+        <BrandHeader />
+        <Text style={styles.title}>{t('welcomeBack')}</Text>
+        <Text style={styles.subtitle}>{t('loginSubtitle')}</Text>
 
-          <View style={styles.form}>
-            <TextField
-              label={t('email')}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
+        <View style={styles.form}>
+          <TextField
+            label={t('email')}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+          />
+          <TextField
+            label={t('password')}
+            value={password}
+            onChangeText={setPassword}
+            placeholder={t('yourPassword')}
+            secure
+            autoComplete="password"
+          />
+
+          {!!error && <Text style={styles.error}>{error}</Text>}
+
+          <Button label={t('login')} onPress={onSubmit} loading={submitting} />
+        </View>
+
+        <View style={styles.advanced}>
+          <Pressable
+            onPress={() => setAdvancedOpen((open) => !open)}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: advancedOpen }}
+            style={styles.advancedToggle}
+            hitSlop={8}
+          >
+            <Ionicons
+              name={advancedOpen ? 'chevron-up' : 'chevron-down'}
+              size={16}
+              color={colors.textSecondary}
             />
-            <TextField
-              label={t('password')}
-              value={password}
-              onChangeText={setPassword}
-              placeholder={t('yourPassword')}
-              secure
-              autoComplete="password"
-            />
+            <Text style={styles.advancedText}>{t('advanced')}</Text>
+          </Pressable>
+          {advancedOpen && (
+            <View style={styles.advancedBody}>
+              <Text style={styles.fieldLabel}>{t('storage')}</Text>
+              <StorageSettings />
+            </View>
+          )}
+        </View>
 
-            {!!error && <Text style={styles.error}>{error}</Text>}
-
-            <Button
-              label={t('login')}
-              onPress={onSubmit}
-              loading={submitting}
-            />
-          </View>
-
-          <View style={styles.advanced}>
-            <Pressable
-              onPress={() => setAdvancedOpen((open) => !open)}
-              accessibilityRole="button"
-              accessibilityState={{ expanded: advancedOpen }}
-              style={styles.advancedToggle}
-              hitSlop={8}
-            >
-              <Ionicons
-                name={advancedOpen ? 'chevron-up' : 'chevron-down'}
-                size={16}
-                color={colors.textSecondary}
-              />
-              <Text style={styles.advancedText}>{t('advanced')}</Text>
-            </Pressable>
-            {advancedOpen && (
-              <View style={styles.advancedBody}>
-                <Text style={styles.fieldLabel}>{t('storage')}</Text>
-                <StorageSettings />
-              </View>
-            )}
-          </View>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>{t('noAccount')}</Text>
-            <Button
-              label={t('goToSignup')}
-              variant="ghost"
-              onPress={() => navigation.navigate('Signup')}
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>{t('noAccount')}</Text>
+          <Button
+            label={t('goToSignup')}
+            variant="ghost"
+            onPress={() => navigation.navigate('Signup')}
+          />
+        </View>
+      </KeyboardScrollView>
     </Screen>
   );
 }
 
 const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    flex: { flex: 1 },
     content: { flexGrow: 1, paddingVertical: spacing.xl, gap: spacing.sm },
     title: { ...typography.h1, color: colors.text, marginTop: spacing.xl },
     subtitle: { ...typography.body, color: colors.textSecondary },

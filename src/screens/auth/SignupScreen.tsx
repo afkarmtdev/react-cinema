@@ -1,13 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardScrollView } from '../../components/ui/KeyboardScrollView';
 import { Screen } from '../../components/ui/Screen';
 import { Button } from '../../components/ui/Button';
 import { TextField } from '../../components/ui/TextField';
@@ -44,71 +38,58 @@ export function SignupScreen({ navigation }: Props) {
 
   return (
     <Screen padded>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.flex}
-      >
-        <ScrollView
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-        >
-          <BrandHeader />
-          <Text style={styles.title}>{t('createAccount')}</Text>
-          <Text style={styles.subtitle}>{t('signupSubtitle')}</Text>
+      <KeyboardScrollView contentContainerStyle={styles.content}>
+        <BrandHeader />
+        <Text style={styles.title}>{t('createAccount')}</Text>
+        <Text style={styles.subtitle}>{t('signupSubtitle')}</Text>
 
-          <View style={styles.form}>
-            <TextField
-              label={t('name')}
-              value={name}
-              onChangeText={setName}
-              placeholder={t('yourName')}
-              autoCapitalize="words"
-              autoComplete="name"
-            />
-            <TextField
-              label={t('email')}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-            <TextField
-              label={t('password')}
-              value={password}
-              onChangeText={setPassword}
-              placeholder={t('minChars')}
-              secure
-              autoComplete="password-new"
-            />
+        <View style={styles.form}>
+          <TextField
+            label={t('name')}
+            value={name}
+            onChangeText={setName}
+            placeholder={t('yourName')}
+            autoCapitalize="words"
+            autoComplete="name"
+          />
+          <TextField
+            label={t('email')}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+          />
+          <TextField
+            label={t('password')}
+            value={password}
+            onChangeText={setPassword}
+            placeholder={t('minChars')}
+            secure
+            autoComplete="password-new"
+          />
 
-            {!!error && <Text style={styles.error}>{error}</Text>}
+          {!!error && <Text style={styles.error}>{error}</Text>}
 
-            <Button
-              label={t('signup')}
-              onPress={onSubmit}
-              loading={submitting}
-            />
-          </View>
+          <Button label={t('signup')} onPress={onSubmit} loading={submitting} />
+        </View>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>{t('haveAccount')}</Text>
-            <Button
-              label={t('goToLogin')}
-              variant="ghost"
-              onPress={() => navigation.navigate('Login')}
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>{t('haveAccount')}</Text>
+          <Button
+            label={t('goToLogin')}
+            variant="ghost"
+            onPress={() => navigation.navigate('Login')}
+          />
+        </View>
+      </KeyboardScrollView>
     </Screen>
   );
 }
 
 const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    flex: { flex: 1 },
     content: { flexGrow: 1, paddingVertical: spacing.xl, gap: spacing.sm },
     title: { ...typography.h1, color: colors.text, marginTop: spacing.lg },
     subtitle: { ...typography.body, color: colors.textSecondary },

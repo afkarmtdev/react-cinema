@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -18,6 +18,8 @@ import { radius, spacing, typography, type ThemeColors } from '../theme';
 import type { ItemKind } from '../types/library';
 import type { LookupResult, LookupSourceId } from '../types/lookup';
 import { Chip } from './ui/Chip';
+import { KeyboardDoneBar } from './ui/KeyboardDoneBar';
+import { useKeyboardFocus } from './ui/KeyboardScrollView';
 
 type SavedSources = Partial<Record<ItemKind, LookupSourceId>>;
 
@@ -54,6 +56,8 @@ export function LookupInline({ kind, onPick, onClose }: LookupInlineProps) {
   const [searching, setSearching] = useState(false);
   const [pickingId, setPickingId] = useState<string | null>(null);
   const [error, setError] = useState(false);
+  const doneBarId = useId();
+  const onKeyboardFocus = useKeyboardFocus();
 
   useEffect(() => {
     let active = true;
@@ -134,11 +138,14 @@ export function LookupInline({ kind, onPick, onClose }: LookupInlineProps) {
           )}
           placeholderTextColor={colors.textMuted}
           autoFocus
+          onFocus={onKeyboardFocus}
           autoCorrect={false}
           autoCapitalize="none"
           returnKeyType="search"
+          inputAccessoryViewID={doneBarId}
           style={styles.input}
         />
+        <KeyboardDoneBar nativeID={doneBarId} />
         {source &&
           (available.length > 1 ? (
             <Pressable

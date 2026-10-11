@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useId } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { radius, spacing, typography, type ThemeColors } from '../theme';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
+import { KeyboardDoneBar } from './ui/KeyboardDoneBar';
 
 interface SearchBarProps {
   value: string;
@@ -16,6 +18,7 @@ export function SearchBar({
 }: SearchBarProps) {
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
+  const doneBarId = useId();
   return (
     <View style={styles.container}>
       <Ionicons name="search" size={20} color={colors.textMuted} />
@@ -27,8 +30,10 @@ export function SearchBar({
         autoCorrect={false}
         autoCapitalize="none"
         returnKeyType="search"
+        inputAccessoryViewID={doneBarId}
         style={styles.input}
       />
+      <KeyboardDoneBar nativeID={doneBarId} />
       {value.length > 0 && (
         <Pressable
           hitSlop={10}

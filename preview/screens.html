@@ -478,7 +478,7 @@
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v15 · mirrors the code as of 11 Oct 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v16 · mirrors the code as of 11 Oct 2026 · <a href="#changes">changes</a></p>
       <h1>pocketJing3, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -718,7 +718,7 @@
           </div>
         </div>
       </div></div>
-      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Year sits beside Pages for a book, or Runtime in minutes for a film or series (every episode together for a series); Fill from the web fills either one when the source has it. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Once it is done, Log a reread (Log a rewatch for films and series) adds a dated field under Finished for each time since, today by default, with an x to take it off. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Editing uses the same form plus a two-step Delete.</p></figcaption>
+      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Year sits beside Pages for a book, or Runtime in minutes for a film or series (every episode together for a series); Fill from the web fills either one when the source has it. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Once it is done, Log a reread (Log a rewatch for films and series) adds a dated field under Finished for each time since, today by default, with an x to take it off. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Editing uses the same form plus a two-step Delete. While typing, the form scrolls the whole field you are in above the keyboard with room to spare, and a Done strip on top of the iPhone keyboard puts it away; dragging the form down or tapping empty space does too.</p></figcaption>
     </figure>
 
     <!-- 5. Lookup -->
@@ -932,6 +932,13 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v16</b>11 Oct 2026</div>
+        <ul>
+          <li>The keyboard no longer covers the field being typed in. Every screen with text fields (Add entry, Me, Login, Signup) now scrolls the whole field above the keyboard with a gap under it, where before only the cursor line peeked out. On iPhone a strip with Done sits on top of the keyboard for every field, so the notes box, whose return key adds a line, can be put away too. Nothing new to draw; the Add entry caption mentions it.</li>
+          <li>The tab bar's highlight no longer stays on Diary after opening an entry from the Diary and going back. Nothing new to draw.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v15</b>11 Oct 2026</div>
         <ul>

@@ -1,15 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useMemo, useState } from 'react';
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { EditProfileSheet } from '../components/EditProfileSheet';
+import { KeyboardScrollView } from '../components/ui/KeyboardScrollView';
 import { useFloatingTabBarInset } from '../components/FloatingTabBar';
 import { Screen } from '../components/ui/Screen';
 import { Button } from '../components/ui/Button';
@@ -85,7 +79,7 @@ export function ProfileScreen({ navigation }: Props) {
 
   return (
     <Screen padded>
-      <ScrollView
+      <KeyboardScrollView
         contentContainerStyle={[
           styles.content,
           { paddingBottom: tabBar.clearance },
@@ -206,7 +200,7 @@ export function ProfileScreen({ navigation }: Props) {
             <Ionicons name="log-out-outline" size={20} color={colors.primary} />
           }
         />
-      </ScrollView>
+      </KeyboardScrollView>
 
       <EditProfileSheet visible={editing} onClose={() => setEditing(false)} />
     </Screen>

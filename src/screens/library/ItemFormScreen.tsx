@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState, type ReactNode } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { sourcesFor } from '../../api/lookup';
 import { DateField } from '../../components/DateField';
@@ -11,6 +11,7 @@ import { StatusPicker } from '../../components/StatusPicker';
 import { TagInput } from '../../components/TagInput';
 import { ScoreInput } from '../../components/ScoreInput';
 import { Button } from '../../components/ui/Button';
+import { KeyboardScrollView } from '../../components/ui/KeyboardScrollView';
 import { TextField } from '../../components/ui/TextField';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
@@ -211,21 +212,12 @@ export function ItemFormScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.flex}>
-      {/*
-        automaticallyAdjustKeyboardInsets (iOS) grows the bottom inset by the
-        keyboard height and scrolls the focused input into view, so the notes
-        field at the end of the form is not hidden behind it. Android resizes
-        the window for the keyboard on its own.
-      */}
-      <ScrollView
+      <KeyboardScrollView
         style={styles.flex}
         contentContainerStyle={[
           styles.content,
           { paddingBottom: insets.bottom + spacing.xxl },
         ]}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-        automaticallyAdjustKeyboardInsets
       >
         <Field label={t('kind')}>
           <KindPicker
@@ -440,7 +432,7 @@ export function ItemFormScreen({ navigation, route }: Props) {
               }
             />
           ))}
-      </ScrollView>
+      </KeyboardScrollView>
     </View>
   );
 }

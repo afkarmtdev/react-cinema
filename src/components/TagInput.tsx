@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { hasTag, splitTags, uniqueTags } from '../lib/tags';
 import { radius, spacing, typography, type ThemeColors } from '../theme';
 import { Chip } from './ui/Chip';
+import { KeyboardDoneBar } from './ui/KeyboardDoneBar';
+import { useKeyboardFocus } from './ui/KeyboardScrollView';
 import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 interface TagInputProps {
@@ -23,6 +25,8 @@ export function TagInput({ value, onChange, suggestions = [] }: TagInputProps) {
   const { t } = useLanguage();
   const [draft, setDraft] = useState('');
   const [focused, setFocused] = useState(false);
+  const doneBarId = useId();
+  const onKeyboardFocus = useKeyboardFocus();
 
   const commit = (text: string) => {
     const parsed = splitTags(text);
@@ -54,7 +58,11 @@ export function TagInput({ value, onChange, suggestions = [] }: TagInputProps) {
             setFocused(false);
             if (draft.trim()) commit(draft);
           }}
-          onFocus={() => setFocused(true)}
+          onFocus={() => {
+            setFocused(true);
+            onKeyboardFocus();
+          }}
+          inputAccessoryViewID={doneBarId}
           placeholder={value.length ? '' : t('tagsHint')}
           placeholderTextColor={colors.textMuted}
           autoCapitalize="none"
@@ -63,6 +71,7 @@ export function TagInput({ value, onChange, suggestions = [] }: TagInputProps) {
           returnKeyType="done"
           style={styles.input}
         />
+        <KeyboardDoneBar nativeID={doneBarId} />
       </View>
       {unused.length > 0 && (
         <View style={styles.suggestions}>
