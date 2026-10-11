@@ -36,6 +36,8 @@ interface SwipePagerProps<K extends string> {
    * runs edge to edge, and each page pads its own content back in.
    */
   pageInset?: number;
+  /** Drawn between the tabs and the pages, and not swiped with them. */
+  belowTabs?: ReactNode;
 }
 
 /** Layout width the underline is drawn at before scaleX stretches it. */
@@ -56,6 +58,7 @@ export function SwipePager<K extends string>({
   onIndexChange,
   renderPage,
   pageInset = 0,
+  belowTabs,
 }: SwipePagerProps<K>) {
   const styles = useThemedStyles(makeStyles);
   const scrollRef = useRef<ScrollView>(null);
@@ -184,6 +187,8 @@ export function SwipePager<K extends string>({
           />
         )}
       </View>
+
+      {belowTabs}
 
       <Animated.ScrollView
         ref={scrollRef}

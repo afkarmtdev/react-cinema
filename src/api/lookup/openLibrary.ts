@@ -4,7 +4,8 @@ import { getJson, query } from '../http';
 // Open Library, books. Free and needs no key.
 const BASE_URL = 'https://openlibrary.org';
 const COVER_URL = 'https://covers.openlibrary.org/b/id';
-const SEARCH_FIELDS = 'key,title,author_name,first_publish_year,cover_i';
+const SEARCH_FIELDS =
+  'key,title,author_name,first_publish_year,cover_i,number_of_pages_median';
 /** Subjects run long and messy, so only a few short ones become tags. */
 const MAX_TAGS = 3;
 
@@ -15,6 +16,8 @@ interface OpenLibraryDoc {
   author_name?: string[];
   first_publish_year?: number;
   cover_i?: number;
+  /** The middle page count across the work's editions. */
+  number_of_pages_median?: number;
 }
 interface OpenLibraryWork {
   title?: string;
@@ -59,11 +62,13 @@ async function search(term: string): Promise<LookupResult[]> {
     year: doc.first_publish_year,
     creator: doc.author_name?.join(', '),
     poster: cover(doc.cover_i, 'M'),
+    pages: doc.number_of_pages_median || undefined,
   }));
 }
 
 // The work record has the description and subjects but names its authors
-// only by id, so the author and year from the search result are kept.
+// only by id, so the author, year, and page count from the search result
+// are kept.
 async function details(item: LookupResult): Promise<LookupResult> {
   const work = await getJson<OpenLibraryWork>(`${BASE_URL}${item.id}.json`);
   return {

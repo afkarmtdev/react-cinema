@@ -29,6 +29,8 @@ interface OmdbDetail {
   Plot: string;
   Genre: string;
   Poster: string;
+  /** "148 min"; for a series it is one episode. */
+  Runtime?: string;
   Response: string;
   Error?: string;
 }
@@ -39,6 +41,12 @@ const toList = (v?: string) =>
   clean(v)
     ?.split(',')
     .map((s) => s.trim());
+
+/** "148 min" to 148. */
+function minutesOf(runtime?: string): number | undefined {
+  const minutes = parseInt(clean(runtime) ?? '', 10);
+  return minutes > 0 ? minutes : undefined;
+}
 
 const typeFor = (kind: ItemKind) => (kind === 'series' ? 'series' : 'movie');
 
@@ -83,6 +91,9 @@ async function details(
     description: clean(d.Plot),
     poster: clean(d.Poster) ?? item.poster,
     tags: toList(d.Genre),
+    // OMDb gives a series one episode's length and no episode count, so
+    // only a film's runtime is usable.
+    runtime: kind === 'film' ? minutesOf(d.Runtime) : undefined,
   };
 }
 

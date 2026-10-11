@@ -81,6 +81,7 @@ describe('tmdb.details', () => {
       poster_path: '/abc.jpg',
       overview: 'Dreams within dreams.',
       genres: [{ name: 'Action' }, { name: 'Science Fiction' }],
+      runtime: 148,
       credits: {
         crew: [
           { job: 'Producer', name: 'Emma Thomas' },
@@ -99,6 +100,7 @@ describe('tmdb.details', () => {
       creator: 'Christopher Nolan',
       description: 'Dreams within dreams.',
       tags: ['Action', 'Science Fiction'],
+      runtime: 148,
     });
   });
 
@@ -114,6 +116,30 @@ describe('tmdb.details', () => {
     expect(call()[0]).toContain('/tv/1396?');
     expect(result.creator).toBe('Vince Gilligan');
     expect(result.description).toBeUndefined();
+    expect(result.runtime).toBeUndefined();
+  });
+
+  it('adds up a series as episodes times the usual episode length', async () => {
+    mockFetch({
+      id: 1396,
+      name: 'Breaking Bad',
+      number_of_episodes: 62,
+      episode_run_time: [45, 50],
+    });
+    const result = await tmdb.details({ id: '1396', title: 'x' }, 'series');
+    expect(result.runtime).toBe(2945);
+
+    // Newer shows often list no usual length; the latest episode stands in.
+    mockFetch({
+      id: 1,
+      name: 'X',
+      number_of_episodes: 10,
+      episode_run_time: [],
+      last_episode_to_air: { runtime: 52 },
+    });
+    expect(
+      (await tmdb.details({ id: '1', title: 'x' }, 'series')).runtime,
+    ).toBe(520);
   });
 });
 

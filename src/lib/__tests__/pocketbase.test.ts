@@ -103,7 +103,42 @@ describe('pocketbase mapping', () => {
       review: 'Great',
       startedAt: '',
       finishedAt: '2026-09-02T09:00:00.000Z',
+      repeats: [],
+      runtime: 0,
+      pages: 0,
+      quotes: [],
     });
+  });
+
+  it('carries the rewatches, length, and quotes both ways', () => {
+    const again = Date.parse('2026-10-01T09:00:00.000Z');
+    const quote = {
+      id: 'q1',
+      text: 'Fear is the mind-killer.',
+      page: 8,
+      createdAt: 1,
+    };
+    const full = { ...dune, repeats: [again], pages: 412, quotes: [quote] };
+    expect(toRecord(full)).toMatchObject({
+      repeats: ['2026-10-01T09:00:00.000Z'],
+      pages: 412,
+      runtime: 0,
+      quotes: [quote],
+    });
+    expect(
+      toItem(
+        record({
+          repeats: ['2026-10-01 09:00:00.000Z', 'not a date'],
+          pages: 412,
+          quotes: [quote, { text: 'no id' }],
+        }),
+      ),
+    ).toEqual(full);
+    // A record from before the migration has none of the four fields.
+    const old = toItem(record({ repeats: null, quotes: null }));
+    expect(old.repeats).toBeUndefined();
+    expect(old.quotes).toBeUndefined();
+    expect(old.pages).toBeUndefined();
   });
 
   it('carries the start date both ways', () => {

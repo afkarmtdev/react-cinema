@@ -10,9 +10,12 @@ pocketJing3 is a small Letterboxd-style tracker built with Expo SDK 57 (managed
 workflow), React Native 0.86, React 19.2, TypeScript, and React Navigation 7.
 A signed-in user keeps a personal library of films, series, and books, typed
 in by hand (title, year, director or author, cover link, description, tags,
-status, a score from 1.0 to 10.0, notes, and a started and a finished date
-picked on the system calendar so old reads can be backlogged). Finished
-entries appear in a diary that opens with this-month and this-year totals. Scoring a 10 triggers a warning by design (see src/lib/score.ts). Accounts and
+status, a score from 1.0 to 10.0, notes, a runtime or page count, and a
+started and a finished date picked on the system calendar so old reads can be
+backlogged). Rewatches and rereads are extra finish dates on the same entry
+(`repeats`), and books can keep quotes. Finished entries appear in a diary,
+one row per finish, that opens with this-month and this-year totals
+(including hours watched and pages read). Scoring a 10 triggers a warning by design (see src/lib/score.ts). Accounts and
 the library live either on a PocketBase server (so the library follows the
 user across devices) or on the device (the library in a SQLite file through
 expo-sqlite, accounts and settings in AsyncStorage); the user picks in the
@@ -104,7 +107,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (165 tests in 26 files)
+npm test            Jest, runs once (181 tests in 27 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 npm run export:web  Static web build (a PWA) in dist/, ready for any host
@@ -124,7 +127,9 @@ src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
                  ThemeContext, and their tests
 src/components   ItemCard (four sizes, one per zoom level), TimelineGrid (the
                  pinch-zoomed, month-sectioned library grid), KindPicker,
-                 StatusPicker, DateField, TagInput, FilterSheet, LookupInline,
+                 StatusPicker, DateField, TagInput, FilterSheet (tags; the
+                 status is a chip row under the library tabs), QuoteSheet,
+                 LookupInline,
                  EditProfileSheet (name and picture, expo-image-picker),
                  SearchBar, SwipePager, BrandHeader, StorageSettings,
                  LibraryCopy (copy entries between the device and a server,
@@ -143,7 +148,8 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  bundle never loads expo-sqlite), pocketbase (both, against
                  the SDK), libraryCopy (copies one account's entries and top
                  four into another store, skipping ones already there),
-                 summary (month and year totals for the Diary), timeline (the
+                 summary (month and year totals for the Diary, and
+                 finishDates: every finish of an entry), timeline (the
                  zoom ladder, pinch steps, and month or year grouping behind
                  the library grid), favourites (the top four shelf, max four),
                  haptics (expo-haptics behind a no-throw wrapper), storage,

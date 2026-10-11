@@ -56,6 +56,10 @@ const row = (overrides: Partial<EntryRow> = {}): EntryRow => ({
   updated_at: 2000,
   started_at: null,
   finished_at: 1500,
+  repeats: '[]',
+  runtime: null,
+  pages: null,
+  quotes: '[]',
   ...overrides,
 });
 
@@ -82,8 +86,52 @@ describe('sqlite mapping', () => {
       $updatedAt: 20,
       $startedAt: null,
       $finishedAt: null,
+      $repeats: '[]',
+      $runtime: null,
+      $pages: null,
+      $quotes: '[]',
     });
     expect(toParams({ ...minimal, startedAt: 5 }).$startedAt).toBe(5);
+  });
+
+  it('writes the rewatches and quotes as JSON and reads them back', () => {
+    const quote = {
+      id: 'q1',
+      text: 'Fear is the mind-killer.',
+      page: 8,
+      createdAt: 1,
+    };
+    const full = {
+      ...dune,
+      repeats: [1600, 1700],
+      pages: 412,
+      quotes: [quote],
+    };
+    const params = toParams(full);
+    expect(params.$repeats).toBe('[1600,1700]');
+    expect(params.$pages).toBe(412);
+    expect(JSON.parse(params.$quotes)).toEqual([quote]);
+    expect(
+      toItem(
+        row({ repeats: params.$repeats, pages: 412, quotes: params.$quotes }),
+      ),
+    ).toEqual(full);
+    expect(toItem(row({ runtime: 155, kind: 'film' })).runtime).toBe(155);
+  });
+
+  it('leaves out empty or unreadable lists and rows from before the columns', () => {
+    const empty = toItem(row());
+    expect(empty).not.toHaveProperty('repeats');
+    expect(empty).not.toHaveProperty('quotes');
+    const garbled = toItem(
+      row({ repeats: 'nope', quotes: '[{"text":"no id"},3]' }),
+    );
+    expect(garbled).not.toHaveProperty('repeats');
+    expect(garbled).not.toHaveProperty('quotes');
+    const old = row();
+    delete (old as Partial<EntryRow>).repeats;
+    delete (old as Partial<EntryRow>).runtime;
+    expect(toItem(old)).toEqual(dune);
   });
 
   it('reads a row back into an entry without the NULL fields', () => {
@@ -124,6 +172,27 @@ describe('sqlite store', () => {
     await store.remove(dune.id);
     expect(await store.list('user1')).toEqual([]);
     expect(await store.list('user2')).toHaveLength(1);
+  });
+
+  it('keeps the rewatches, length, and quotes through an update', async () => {
+    await store.create(dune);
+    const quote = {
+      id: 'q1',
+      text: 'A beginning is a delicate time.',
+      createdAt: 1,
+    };
+    await store.update({
+      ...dune,
+      repeats: [1800],
+      pages: 412,
+      quotes: [quote],
+    });
+    const [item] = await store.list('user1');
+    expect(item).toMatchObject({
+      repeats: [1800],
+      pages: 412,
+      quotes: [quote],
+    });
   });
 
   it('lists the most recently updated entry first', async () => {

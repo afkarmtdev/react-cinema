@@ -19,6 +19,7 @@ const volume = {
     publishedDate: '2005-08-02',
     description: '<p>Set on the desert planet Arrakis.</p>',
     categories: ['Fiction / Science Fiction / General'],
+    pageCount: 896,
     imageLinks: {
       thumbnail:
         'http://books.google.com/books/content?id=B1&printsec=frontcover&img=1&zoom=1&edge=curl',
@@ -58,6 +59,7 @@ describe('googleBooks', () => {
         poster:
           'https://books.google.com/books/content?id=B1&printsec=frontcover&img=1&zoom=1',
         tags: ['General'],
+        pages: 896,
       },
     ]);
   });

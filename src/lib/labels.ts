@@ -34,6 +34,31 @@ export function statusKey(status: ItemStatus, kind?: ItemKind): string {
   return `${isReadKind(kind) ? 'read' : 'watch'}${suffix}`;
 }
 
+/**
+ * Translation key for a rewatch or reread phrase. `base` is the part shared
+ * by the pair, such as "On" for "rewatchOn" and "rereadOn".
+ */
+export const repeatKey = (kind: ItemKind, base: string): string =>
+  `${isReadKind(kind) ? 'reread' : 'rewatch'}${base}`;
+
+type Translate = (
+  key: string,
+  params?: Record<string, string | number>,
+) => string;
+
+/** Minutes as "2h 28m", "45m", or "3h", in the current language. */
+export function formatRuntime(minutes: number, t: Translate): string {
+  const total = Math.round(minutes);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (!h) return t('durationM', { m });
+  return m ? t('durationHM', { h, m }) : t('durationH', { h });
+}
+
+/** "412 pages", or "1 page". */
+export const formatPages = (pages: number, t: Translate): string =>
+  pages === 1 ? t('pageCountOne') : t('pageCount', { count: pages });
+
 export function formatDate(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString(undefined, {
     day: 'numeric',

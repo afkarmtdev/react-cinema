@@ -157,6 +157,85 @@ describe('LibraryContext', () => {
     );
   });
 
+  it('keeps rewatches in order, with the earliest as the first finish', async () => {
+    const { result } = await mountWithUser();
+    const first = new Date(2025, 0, 10).getTime();
+    const second = new Date(2026, 2, 1).getTime();
+    const third = new Date(2026, 8, 1).getTime();
+    let id = '';
+    await act(async () => {
+      const item = await result.current.lib.addItem({
+        ...dune,
+        status: 'done',
+        finishedAt: second,
+        repeats: [first],
+      });
+      id = item.id;
+    });
+    expect(result.current.lib.getItem(id)).toMatchObject({
+      finishedAt: first,
+      repeats: [second],
+    });
+
+    // Logging another one, as the detail screen does, keeps the first.
+    await act(async () => {
+      await result.current.lib.updateItem(id, { repeats: [second, third] });
+    });
+    expect(result.current.lib.getItem(id)).toMatchObject({
+      finishedAt: first,
+      repeats: [second, third],
+    });
+
+    // Leaving "done" drops them along with the finish date.
+    await act(async () => {
+      await result.current.lib.updateItem(id, { status: 'inProgress' });
+    });
+    const reading = result.current.lib.getItem(id)!;
+    expect(reading.finishedAt).toBeUndefined();
+    expect(reading.repeats).toBeUndefined();
+  });
+
+  it('keeps no rewatches on an entry that is not finished', async () => {
+    const { result } = await mountWithUser();
+    await act(async () => {
+      await result.current.lib.addItem({ ...dune, repeats: [123456] });
+    });
+    expect(result.current.lib.items[0].repeats).toBeUndefined();
+  });
+
+  it('cleans up the length and the quotes', async () => {
+    const { result } = await mountWithUser();
+    let id = '';
+    await act(async () => {
+      const item = await result.current.lib.addItem({
+        ...dune,
+        pages: 412.4,
+        runtime: 0,
+        quotes: [
+          {
+            id: 'q1',
+            text: '  Fear is the mind-killer. ',
+            page: 0,
+            createdAt: 1,
+          },
+          { id: 'q2', text: '   ', createdAt: 2 },
+        ],
+      });
+      id = item.id;
+    });
+    const item = result.current.lib.getItem(id)!;
+    expect(item.pages).toBe(412);
+    expect(item.runtime).toBeUndefined();
+    expect(item.quotes).toEqual([
+      { id: 'q1', text: 'Fear is the mind-killer.', createdAt: 1 },
+    ]);
+
+    await act(async () => {
+      await result.current.lib.updateItem(id, { quotes: [] });
+    });
+    expect(result.current.lib.getItem(id)!.quotes).toBeUndefined();
+  });
+
   it('removes an entry', async () => {
     const { result } = await mountWithUser();
     let id = '';

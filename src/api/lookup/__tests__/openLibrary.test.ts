@@ -27,6 +27,7 @@ describe('openLibrary', () => {
           author_name: ['Frank Herbert'],
           first_publish_year: 1965,
           cover_i: 12345,
+          number_of_pages_median: 412,
         },
         { key: '/works/OL1W', title: 'No Cover' },
       ],
@@ -38,6 +39,7 @@ describe('openLibrary', () => {
         year: 1965,
         creator: 'Frank Herbert',
         poster: 'https://covers.openlibrary.org/b/id/12345-M.jpg',
+        pages: 412,
       },
       {
         id: '/works/OL1W',
@@ -76,6 +78,7 @@ describe('openLibrary', () => {
         title: 'Dune',
         year: 1965,
         creator: 'Frank Herbert',
+        pages: 412,
       },
       'book',
     );
@@ -85,6 +88,7 @@ describe('openLibrary', () => {
       title: 'Dune',
       year: 1965,
       creator: 'Frank Herbert',
+      pages: 412,
       description: 'A desert planet story.',
       poster: 'https://covers.openlibrary.org/b/id/999-L.jpg',
       tags: ['Science fiction', 'Ecology', 'Deserts'],

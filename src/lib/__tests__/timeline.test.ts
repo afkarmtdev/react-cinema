@@ -81,6 +81,16 @@ describe('timelineDate', () => {
       at(2024, 12, 1),
     );
     expect(timelineDate(entry())).toBe(at(2026, 9, 1));
+    // A rewatch brings a finished entry forward to the latest finish.
+    expect(
+      timelineDate(
+        entry({
+          status: 'done',
+          finishedAt: at(2024, 5, 1),
+          repeats: [at(2026, 10, 2)],
+        }),
+      ),
+    ).toBe(at(2026, 10, 2));
   });
 });
 

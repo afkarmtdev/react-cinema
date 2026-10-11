@@ -88,6 +88,7 @@ describe('omdb.details', () => {
     Plot: 'A thief who steals corporate secrets.',
     Genre: 'Action, Sci-Fi',
     Poster: 'https://img/inception.jpg',
+    Runtime: '148 min',
   };
 
   it('maps the detail record to the form fields', async () => {
@@ -105,6 +106,7 @@ describe('omdb.details', () => {
       description: 'A thief who steals corporate secrets.',
       poster: 'https://img/inception.jpg',
       tags: ['Action', 'Sci-Fi'],
+      runtime: 148,
     });
   });
 
@@ -112,6 +114,8 @@ describe('omdb.details', () => {
     mockFetch({ ...detail, Director: 'N/A', Writer: 'Vince Gilligan' });
     const result = await omdb.details({ id: 'tt1', title: 'X' }, 'series');
     expect(result.creator).toBe('Vince Gilligan');
+    // One episode's length is no use as the whole series.
+    expect(result.runtime).toBeUndefined();
   });
 
   it('throws when OMDb cannot find the id', async () => {

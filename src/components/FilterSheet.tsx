@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
-import { STATUS_ICON, statusKey } from '../lib/labels';
 import { hasTag } from '../lib/tags';
 import { spacing, typography, type ThemeColors } from '../theme';
-import { ITEM_STATUSES, type ItemStatus } from '../types/library';
 import { Button } from './ui/Button';
 import { Chip } from './ui/Chip';
 import { Sheet } from './ui/Sheet';
 import { useThemedStyles } from '../context/ThemeContext';
 
+/**
+ * The filters behind the button next to the search. The status is not in
+ * here: it has its own row of chips under the library tabs.
+ */
 export interface LibraryFilters {
-  status?: ItemStatus;
   /** An entry must carry every selected tag. */
   tags: string[];
 }
 
 export const EMPTY_FILTERS: LibraryFilters = { tags: [] };
 
-export const hasActiveFilters = (f: LibraryFilters) =>
-  !!f.status || f.tags.length > 0;
+export const hasActiveFilters = (f: LibraryFilters) => f.tags.length > 0;
 
 interface FilterSheetProps {
   visible: boolean;
@@ -30,7 +30,7 @@ interface FilterSheetProps {
   onClose: () => void;
 }
 
-/** Bottom sheet to narrow the library by status and tags. */
+/** Bottom sheet to narrow the library by tags. */
 export function FilterSheet({
   visible,
   filters,
@@ -64,24 +64,6 @@ export function FilterSheet({
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.label}>{t('filterStatus')}</Text>
-        <View style={styles.chips}>
-          <Chip
-            label={t('filterAll')}
-            active={!draft.status}
-            onPress={() => setDraft((d) => ({ ...d, status: undefined }))}
-          />
-          {ITEM_STATUSES.map((status) => (
-            <Chip
-              key={status}
-              label={t(statusKey(status))}
-              icon={STATUS_ICON[status]}
-              active={draft.status === status}
-              onPress={() => setDraft((d) => ({ ...d, status }))}
-            />
-          ))}
-        </View>
-
         <Text style={styles.label}>{t('filterTags')}</Text>
         {availableTags.length === 0 ? (
           <Text style={styles.muted}>{t('noTagsYet')}</Text>

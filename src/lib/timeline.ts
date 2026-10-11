@@ -1,4 +1,5 @@
 import { formatMonth } from './labels';
+import { lastFinish } from './summary';
 import type { LibraryItem } from '../types/library';
 
 /**
@@ -44,12 +45,15 @@ export function isZoomLevel(value: unknown): value is ZoomLevel {
 }
 
 /**
- * Where an entry sits on the timeline: the day it was finished, else the
- * day it was started, else the day it was added. Backlogged reads land on
- * the day they happened instead of the day they were typed in.
+ * Where an entry sits on the timeline: the day it was last finished (a
+ * rewatch brings it forward), else the day it was started, else the day it
+ * was added. Backlogged reads land on the day they happened instead of the
+ * day they were typed in.
  */
 export function timelineDate(item: LibraryItem): number {
-  return item.finishedAt ?? item.startedAt ?? item.createdAt;
+  return (
+    lastFinish(item) ?? item.finishedAt ?? item.startedAt ?? item.createdAt
+  );
 }
 
 export type Period = 'month' | 'year';

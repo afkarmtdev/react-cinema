@@ -8,7 +8,7 @@ import PocketBase, {
 import { AuthError, type AuthBackend, type User } from './auth';
 import type { LibraryStore } from './libraryStore';
 import { StorageKeys } from './storage';
-import type { LibraryItem } from '../types/library';
+import type { LibraryItem, Quote } from '../types/library';
 
 /**
  * PocketBase backend: accounts live in the built-in `users` collection and
@@ -159,6 +159,25 @@ const toMillis = (value: unknown): number | undefined => {
 
 const toIso = (ms?: number): string => (ms ? new Date(ms).toISOString() : '');
 
+/** The repeats JSON list (ISO dates) back to times; unset when empty. */
+function toTimes(value: unknown): number[] | undefined {
+  const times = (Array.isArray(value) ? value : [])
+    .map(toMillis)
+    .filter((ms): ms is number => ms !== undefined);
+  return times.length ? times : undefined;
+}
+
+function toQuotes(value: unknown): Quote[] | undefined {
+  const quotes = (Array.isArray(value) ? value : []).filter(
+    (q): q is Quote =>
+      typeof q === 'object' &&
+      q !== null &&
+      typeof q.id === 'string' &&
+      typeof q.text === 'string',
+  );
+  return quotes.length ? quotes : undefined;
+}
+
 /** PocketBase record to the app's entry shape. Empty strings and 0 mean unset. */
 export function toItem(r: RecordModel): LibraryItem {
   return {
@@ -178,6 +197,10 @@ export function toItem(r: RecordModel): LibraryItem {
     updatedAt: toMillis(r.updated) ?? Date.now(),
     startedAt: toMillis(r.startedAt),
     finishedAt: toMillis(r.finishedAt),
+    repeats: toTimes(r.repeats),
+    runtime: r.runtime || undefined,
+    pages: r.pages || undefined,
+    quotes: toQuotes(r.quotes),
   };
 }
 
@@ -197,6 +220,10 @@ export function toRecord(item: LibraryItem): Record<string, unknown> {
     review: item.review ?? '',
     startedAt: toIso(item.startedAt),
     finishedAt: toIso(item.finishedAt),
+    repeats: (item.repeats ?? []).map(toIso),
+    runtime: item.runtime ?? 0,
+    pages: item.pages ?? 0,
+    quotes: item.quotes ?? [],
   };
 }
 

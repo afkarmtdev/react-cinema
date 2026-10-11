@@ -14,11 +14,17 @@ import { Button } from '../../components/ui/Button';
 import { TextField } from '../../components/ui/TextField';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
-import { KIND_ICON, creatorKey } from '../../lib/labels';
+import { KIND_ICON, creatorKey, repeatKey } from '../../lib/labels';
+import { newItemId } from '../../lib/libraryStore';
 import { startOfDay } from '../../lib/summary';
 import { uniqueTags } from '../../lib/tags';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
-import type { ItemKind, ItemStatus, LibraryItem } from '../../types/library';
+import {
+  isReadKind,
+  type ItemKind,
+  type ItemStatus,
+  type LibraryItem,
+} from '../../types/library';
 import type { LookupResult } from '../../types/lookup';
 import type { LibraryStackParamList } from '../../navigation/types';
 import { useThemedStyles, useTheme } from '../../context/ThemeContext';
@@ -38,7 +44,21 @@ interface Draft {
   review: string;
   startedAt?: number;
   finishedAt?: number;
+  /** Rewatch or reread dates, each with a key that stays put on removal. */
+  repeats: { key: string; at: number }[];
+  /** Minutes for a film or series. */
+  runtime: string;
+  /** Page count for a book. */
+  pages: string;
 }
+
+const digits = (v: string, max: number) =>
+  v.replace(/[^0-9]/g, '').slice(0, max);
+
+const toCount = (v: string): number | undefined => {
+  const n = parseInt(v, 10);
+  return Number.isNaN(n) ? undefined : n;
+};
 
 function draftFrom(item: LibraryItem | undefined, kind?: ItemKind): Draft {
   return {
@@ -54,6 +74,9 @@ function draftFrom(item: LibraryItem | undefined, kind?: ItemKind): Draft {
     review: item?.review ?? '',
     startedAt: item?.startedAt,
     finishedAt: item?.finishedAt,
+    repeats: (item?.repeats ?? []).map((at) => ({ key: newItemId(), at })),
+    runtime: item?.runtime ? String(item.runtime) : '',
+    pages: item?.pages ? String(item.pages) : '',
   };
 }
 
@@ -90,6 +113,23 @@ export function ItemFormScreen({ navigation, route }: Props) {
           : undefined,
     }));
 
+  // A cleared date takes its rewatch or reread off the list.
+  const setRepeat = (key: string, at: number | undefined) =>
+    setDraft((d) => ({
+      ...d,
+      repeats:
+        at === undefined
+          ? d.repeats.filter((r) => r.key !== key)
+          : d.repeats.map((r) => (r.key === key ? { ...r, at } : r)),
+    }));
+
+  const addRepeat = () =>
+    setDraft((d) => ({
+      ...d,
+      repeats: [...d.repeats, { key: newItemId(), at: startOfDay(new Date()) }],
+    }));
+
+  const isBook = isReadKind(draft.kind);
   const canLookup = sourcesFor(draft.kind).length > 0;
 
   const applyLookup = (result: LookupResult) => {
@@ -104,6 +144,8 @@ export function ItemFormScreen({ navigation, route }: Props) {
         ...d.tags,
         ...(result.tags ?? []).map((g) => g.toLowerCase()),
       ]),
+      runtime: result.runtime ? String(result.runtime) : d.runtime,
+      pages: result.pages ? String(result.pages) : d.pages,
     }));
     setPosterFailed(false);
     setLookupOpen(false);
@@ -136,6 +178,11 @@ export function ItemFormScreen({ navigation, route }: Props) {
       review: draft.review,
       startedAt,
       finishedAt,
+      repeats:
+        draft.status === 'done' ? draft.repeats.map((r) => r.at) : undefined,
+      // Only the length that fits the kind is kept.
+      runtime: isBook ? undefined : toCount(draft.runtime),
+      pages: isBook ? toCount(draft.pages) : undefined,
     };
     try {
       if (existing) {
@@ -217,26 +264,44 @@ export function ItemFormScreen({ navigation, route }: Props) {
           autoCapitalize="words"
         />
 
+        <TextField
+          label={t(creatorKey(draft.kind))}
+          value={draft.creator}
+          onChangeText={(v) => set('creator', v)}
+          placeholder={t('creatorHint')}
+          autoCapitalize="words"
+        />
+
         <View style={styles.row}>
-          <View style={styles.rowWide}>
-            <TextField
-              label={t(creatorKey(draft.kind))}
-              value={draft.creator}
-              onChangeText={(v) => set('creator', v)}
-              placeholder={t('creatorHint')}
-              autoCapitalize="words"
-            />
-          </View>
-          <View style={styles.rowNarrow}>
+          <View style={styles.flex}>
             <TextField
               label={t('year')}
               value={draft.year}
-              onChangeText={(v) =>
-                set('year', v.replace(/[^0-9]/g, '').slice(0, 4))
-              }
+              onChangeText={(v) => set('year', digits(v, 4))}
               placeholder={t('yearHint')}
               keyboardType="number-pad"
             />
+          </View>
+          <View style={styles.flex}>
+            {isBook ? (
+              <TextField
+                label={t('pagesLabel')}
+                value={draft.pages}
+                onChangeText={(v) => set('pages', digits(v, 5))}
+                placeholder={t('pagesHint')}
+                keyboardType="number-pad"
+              />
+            ) : (
+              <TextField
+                label={t('runtimeLabel')}
+                value={draft.runtime}
+                onChangeText={(v) => set('runtime', digits(v, 6))}
+                placeholder={t(
+                  draft.kind === 'series' ? 'runtimeHintSeries' : 'runtimeHint',
+                )}
+                keyboardType="number-pad"
+              />
+            )}
           </View>
         </View>
 
@@ -306,11 +371,27 @@ export function ItemFormScreen({ navigation, route }: Props) {
         )}
 
         {draft.status === 'done' && (
-          <DateField
-            label={t('finishedDate')}
-            value={draft.finishedAt}
-            onChange={(v) => set('finishedAt', v)}
-          />
+          <>
+            <DateField
+              label={t('finishedDate')}
+              value={draft.finishedAt}
+              onChange={(v) => set('finishedAt', v)}
+            />
+            {draft.repeats.map((r, i) => (
+              <DateField
+                key={r.key}
+                label={t(repeatKey(draft.kind, 'N'), { n: i + 1 })}
+                value={r.at}
+                onChange={(v) => setRepeat(r.key, v)}
+              />
+            ))}
+            <Button
+              label={t(repeatKey(draft.kind, 'Log'))}
+              variant="outline"
+              onPress={addRepeat}
+              icon={<Ionicons name="repeat" size={18} color={colors.primary} />}
+            />
+          </>
         )}
 
         <Field label={t('yourRating')}>
@@ -385,8 +466,6 @@ const makeStyles = (colors: ThemeColors) =>
       marginLeft: spacing.xs,
     },
     row: { flexDirection: 'row', gap: spacing.md },
-    rowWide: { flex: 2 },
-    rowNarrow: { flex: 1 },
     posterRow: {
       flexDirection: 'row',
       gap: spacing.md,

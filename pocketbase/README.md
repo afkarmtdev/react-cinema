@@ -22,8 +22,9 @@ PocketBase is a single binary with SQLite inside; nothing else to install.
 3. On first start it prints a link to create the superuser account. Open it
    and set one up. The dashboard is at http://127.0.0.1:8090/_/ afterwards.
 4. The migrations in `pb_migrations/` run automatically: they create the
-   `entries` collection and add a `favourites` list (the top four shelf) to
-   `users`. The profile picture uses the `avatar` file field that every
+   `entries` collection, later add the rewatch dates, runtime, page count,
+   and quotes fields to it, and add a `favourites` list (the top four shelf)
+   to `users`. The profile picture uses the `avatar` file field that every
    PocketBase auth collection already has. Check the dashboard: you should
    see `users` and `entries` under Collections. If `entries` is missing, run
    `./pocketbase migrate up` once and restart.
@@ -60,6 +61,10 @@ PocketBase is a single binary with SQLite inside; nothing else to install.
 | `review`      | `review` (text)                                       |
 | `startedAt`   | `startedAt` (date, added by the second migration)     |
 | `finishedAt`  | `finishedAt` (date)                                   |
+| `repeats`     | `repeats` (json array of ISO dates, rewatches)        |
+| `runtime`     | `runtime` (number of minutes, 0 = unset)              |
+| `pages`       | `pages` (number, 0 = unset)                           |
+| `quotes`      | `quotes` (json array of `{ id, text, page }`)         |
 | `createdAt`   | `created` (autodate)                                  |
 | `updatedAt`   | `updated` (autodate)                                  |
 

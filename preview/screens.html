@@ -240,6 +240,9 @@
     color: var(--text-2); font-size: 11px; font-weight: 600;
   }
   .chip.on { border-color: var(--primary); color: var(--primary); }
+  /* The status chips under the library tabs scroll sideways, edge to edge. */
+  .qchips { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px 10px; padding: 0 16px; scrollbar-width: none; }
+  .qchips .chip { flex: none; }
   .kinds { display: flex; gap: 8px; }
   .kind {
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -332,6 +335,13 @@
   .tiny { color: var(--muted); font-size: 10px; }
   .section { display: flex; flex-direction: column; gap: 8px; }
   .section .head { display: flex; justify-content: space-between; align-items: center; }
+  .section .head svg { color: var(--primary); font-size: 20px; }
+  /* A quote is a plain surface row like the Diary's; the page sits in the logo's skewed tile. */
+  .quote { background: var(--surface); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .quote .q { font-size: 12px; font-weight: 600; line-height: 1.5; color: var(--text); margin: 0; }
+  .ptile { background: var(--primary); color: var(--on-primary); font-weight: 900; font-size: 9.5px; padding: 1px 6px; border-radius: 4px; transform: skewX(-8deg); }
+  .drow .when.again { color: var(--text-2); }
+  .drow .when.again svg { color: var(--primary); }
 
   /* Diary */
   .month { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
@@ -457,13 +467,18 @@
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
     <symbol id="i-upload" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4 4 0 0 1 0 9"/><path d="M12 20v-8M9 15l3-3 3 3"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 20h14"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></symbol>
+    <symbol id="i-time" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+    <symbol id="i-addc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
   </defs>
 </svg>
 
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v13 · mirrors the code as of 11 Oct 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v15 · mirrors the code as of 11 Oct 2026 · <a href="#changes">changes</a></p>
       <h1>pocketJing3, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -520,6 +535,7 @@
             <div class="iconbtn active"><svg style="font-size:16px"><use href="#i-options"/></svg><span class="dot"></span></div>
           </div>
           <div class="segments"><span class="seg on">All</span><span class="seg">Films</span><span class="seg">Series</span><span class="seg">Books</span></div>
+          <div class="qchips"><span class="chip on">All</span><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>Want to</span><span class="chip"><svg style="font-size:12px"><use href="#i-play"/></svg>In progress</span><span class="chip"><svg style="font-size:12px"><use href="#i-check"/></svg>Finished</span></div>
           <div class="cards">
             <p class="month" style="margin-top:0">September 2026</p>
             <div class="card">
@@ -580,7 +596,7 @@
           <div class="tab"><svg><use href="#i-person"/></svg>Me</div>
         </div>
       </div></div>
-      <figcaption><p class="name">Library</p><p class="note">The home tab, laid out like a camera roll: the grid runs down a timeline with a month header over each stretch, using the day an entry was finished (else started, else added). Cards carry the kind (top left), your rating (top right), and the status pill, yellow once finished. Entries without a cover link fall back to the icon and title. Pinch the grid to zoom: two fingers apart gives one wide row per entry with its notes, together gives three columns and then the wall on the next phone. The filter dot shows a filter is on.</p></figcaption>
+      <figcaption><p class="name">Library</p><p class="note">The home tab, laid out like a camera roll: the grid runs down a timeline with a month header over each stretch, using the day an entry was finished (else started, else added). Cards carry the kind (top left), your rating (top right), and the status pill, yellow once finished. Entries without a cover link fall back to the icon and title. Pinch the grid to zoom: two fingers apart gives one wide row per entry with its notes, together gives three columns and then the wall on the next phone. Under the tabs, a row of status chips narrows the grid in one tap: All, Want to, In progress, Finished on the All tab, worded for the kind on the others (Watchlist, Watching, Watched on Films; To read, Reading, Read on Books). Tapping the lit chip again shows everything. The filter dot shows a tag filter is on.</p></figcaption>
     </figure>
 
     <!-- 2b. Library, zoomed out -->
@@ -595,6 +611,7 @@
             <div class="iconbtn"><svg style="font-size:16px"><use href="#i-options"/></svg></div>
           </div>
           <div class="segments"><span class="seg on">All</span><span class="seg">Films</span><span class="seg">Series</span><span class="seg">Books</span></div>
+          <div class="qchips"><span class="chip on">All</span><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>Want to</span><span class="chip"><svg style="font-size:12px"><use href="#i-play"/></svg>In progress</span><span class="chip"><svg style="font-size:12px"><use href="#i-check"/></svg>Finished</span></div>
           <div class="cards wall">
             <p class="month" style="margin-top:0">2026</p>
             <div class="card"><div class="poster art-1"><span class="tick"><svg><use href="#i-check"/></svg></span></div></div>
@@ -636,19 +653,18 @@
           <p class="h1">Library</p>
           <div class="row" style="margin-top:12px"><div class="search"><svg style="font-size:14px"><use href="#i-search"/></svg>Search titles, people, or tags</div><div class="iconbtn"><svg style="font-size:16px"><use href="#i-options"/></svg></div></div>
           <div class="segments"><span class="seg on">All</span><span class="seg">Films</span><span class="seg">Series</span><span class="seg">Books</span></div>
+          <div class="qchips"><span class="chip on">All</span><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>Want to</span><span class="chip"><svg style="font-size:12px"><use href="#i-play"/></svg>In progress</span><span class="chip"><svg style="font-size:12px"><use href="#i-check"/></svg>Finished</span></div>
           <div class="cards"><div class="card"><div class="poster art-1"></div></div><div class="card"><div class="poster art-2"></div></div></div>
         </div>
         <div class="sheet-bg"><div class="sheet">
           <div class="handle"></div>
           <p class="h2">Filters</p>
-          <p class="label" style="margin-top:6px">Status</p>
-          <div class="chips"><span class="chip">All</span><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>Want to</span><span class="chip"><svg style="font-size:12px"><use href="#i-play"/></svg>In progress</span><span class="chip on"><svg style="font-size:12px"><use href="#i-check"/></svg>Finished</span></div>
-          <p class="label" style="margin-top:8px">Tags</p>
+          <p class="label" style="margin-top:6px">Tags</p>
           <div class="chips"><span class="chip on">sci-fi</span><span class="chip">slow burn</span><span class="chip">comfort</span><span class="chip">rewatch</span><span class="chip">book club</span><span class="chip">malaysian</span><span class="chip">workplace</span></div>
           <div class="row" style="margin-top:14px"><div class="btn outline" style="flex:1;height:38px">Clear</div><div class="btn" style="flex:1;height:38px">Apply</div></div>
         </div></div>
       </div></div>
-      <figcaption><p class="name">Filters</p><p class="note">Bottom sheet from the filter button. Status is one of four; tags are your own, most-used first, and an entry must carry every selected tag.</p></figcaption>
+      <figcaption><p class="name">Filters</p><p class="note">Bottom sheet from the filter button, now for tags only: the status moved out to the chips under the tabs, one tap away. Tags are your own, most-used first, and an entry must carry every selected tag.</p></figcaption>
     </figure>
 
     <!-- 4. Add entry -->
@@ -666,9 +682,10 @@
               </div>
             </div>
             <div><p class="label">Title</p><div class="field">Piranesi</div></div>
+            <div><p class="label">Author</p><div class="field">Susanna Clarke</div></div>
             <div class="row" style="align-items:flex-start">
-              <div style="flex:2"><p class="label">Author</p><div class="field">Susanna Clarke</div></div>
               <div style="flex:1"><p class="label">Year</p><div class="field">2020</div></div>
+              <div style="flex:1"><p class="label">Pages</p><div class="field">272</div></div>
             </div>
             <div class="row" style="align-items:flex-end">
               <div class="preview art-5">PIRANESI</div>
@@ -683,6 +700,7 @@
             <div><p class="label">Status</p><div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>To read</span><span class="chip"><svg style="font-size:12px"><use href="#i-play"/></svg>Reading</span><span class="chip on"><svg style="font-size:12px"><use href="#i-check"/></svg>Read</span></div></div>
             <div><p class="label">Started</p><div class="field datef"><svg><use href="#i-cal"/></svg>18 Aug 2026<svg class="x"><use href="#i-xc"/></svg></div></div>
             <div><p class="label">Finished</p><div class="field datef"><svg><use href="#i-cal"/></svg>2 Sept 2026<svg class="x"><use href="#i-xc"/></svg></div></div>
+            <div class="btn outline"><svg style="font-size:14px"><use href="#i-repeat"/></svg>Log a reread</div>
             <div><p class="label">Your score</p>
               <div class="stack" style="gap:6px">
                 <div class="score-head"><span class="score-big">8.7 <small>/ 10</small></span><span class="tiny">Clear score</span></div>
@@ -700,7 +718,7 @@
           </div>
         </div>
       </div></div>
-      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Editing uses the same form plus a two-step Delete.</p></figcaption>
+      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Year sits beside Pages for a book, or Runtime in minutes for a film or series (every episode together for a series); Fill from the web fills either one when the source has it. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Once it is done, Log a reread (Log a rewatch for films and series) adds a dated field under Finished for each time since, today by default, with an x to take it off. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Editing uses the same form plus a two-step Delete.</p></figcaption>
     </figure>
 
     <!-- 5. Lookup -->
@@ -747,6 +765,8 @@
               <span class="fact"><svg><use href="#i-book"/></svg>Book</span>
               <span class="fact"><svg><use href="#i-cal"/></svg>1965</span>
               <span class="fact"><svg><use href="#i-person"/></svg>Author: Frank Herbert</span>
+              <span class="fact"><svg><use href="#i-doc"/></svg>412 pages</span>
+              <span class="fact"><svg><use href="#i-repeat"/></svg>Read 2 times</span>
             </div>
             <div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-bookmark"/></svg>To read</span><span class="chip"><svg style="font-size:12px"><use href="#i-play"/></svg>Reading</span><span class="chip on"><svg style="font-size:12px"><use href="#i-check"/></svg>Read</span></div>
             <div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-tag"/></svg>sci-fi</span><span class="chip"><svg style="font-size:12px"><use href="#i-tag"/></svg>slow burn</span><span class="chip"><svg style="font-size:12px"><use href="#i-tag"/></svg>book club</span></div>
@@ -757,13 +777,46 @@
               <div class="cells"><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell on">9</span><span class="cell ten">10</span></div>
               <div class="cells tenths"><span class="cell">.0</span><span class="cell">.1</span><span class="cell on">.2</span><span class="cell">.3</span><span class="cell">.4</span><span class="cell">.5</span><span class="cell">.6</span><span class="cell">.7</span><span class="cell">.8</span><span class="cell">.9</span></div>
               <p class="p">Slow for the first hundred pages and then impossible to put down. The ecology chapters were the surprise favourite.</p>
-              <p class="tiny" style="margin:0">Started 18 Aug 2026</p>
-              <p class="tiny" style="margin:0">Finished 2 Sept 2026</p>
+              <div>
+                <p class="tiny" style="margin:0">Started 3 Mar 2019</p>
+                <p class="tiny" style="margin:0">Finished 20 Mar 2019</p>
+                <p class="tiny" style="margin:0">Reread 2 Sept 2026</p>
+              </div>
+              <div class="btn outline"><svg style="font-size:14px"><use href="#i-repeat"/></svg>Log a reread</div>
+            </div>
+            <div class="section">
+              <div class="head"><p class="h2">Quotes</p><svg><use href="#i-addc"/></svg></div>
+              <div class="quote"><span class="ptile">p. 8</span><p class="q">I must not fear. Fear is the mind-killer.</p></div>
+              <div class="quote"><span class="ptile">p. 3</span><p class="q">A beginning is the time for taking the most delicate care that the balances are correct.</p></div>
             </div>
           </div>
         </div>
       </div></div>
-      <figcaption><p class="name">Entry detail</p><p class="note">Status and score change in place; the heart puts the entry on your top four (filled when it is there), the pencil opens the edit form. The hero uses a blurred cover when there is one. The start and finish dates sit under the score; marking something finished stamps today, and the form can move it or add when you started.</p></figcaption>
+      <figcaption><p class="name">Entry detail</p><p class="note">Status and score change in place; the heart puts the entry on your top four (filled when it is there), the pencil opens the edit form. The hero uses a blurred cover when there is one. The start and finish dates sit under the score; marking something finished stamps today, and the form can move it or add when you started. The facts row adds the page count (or the runtime for a film or series) and, once it has been read again, how many times. Each reread or rewatch is listed under the first finish, and Log a reread stamps today with one tap. Books get a Quotes section: the plus adds one, tapping a quote edits it (next phone).</p></figcaption>
+    </figure>
+
+    <!-- 6b. Quote sheet -->
+    <figure>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="navbar" style="opacity:0.5"><svg><use href="#i-back"/></svg><span class="title">Dune</span><span class="row" style="gap:14px"><svg class="fill"><use href="#i-heart"/></svg><svg><use href="#i-edit"/></svg></span></div>
+        <div class="scroll pad" style="opacity:0.5">
+          <div class="section" style="margin-top:12px">
+            <div class="head"><p class="h2">Quotes</p><svg><use href="#i-addc"/></svg></div>
+            <div class="quote"><span class="ptile">p. 8</span><p class="q">I must not fear. Fear is the mind-killer.</p></div>
+            <div class="quote"><span class="ptile">p. 3</span><p class="q">A beginning is the time for taking the most delicate care that the balances are correct.</p></div>
+          </div>
+        </div>
+        <div class="sheet-bg"><div class="sheet">
+          <div class="handle"></div>
+          <p class="h2">Edit quote</p>
+          <div><p class="label">Quote</p><div class="field area focus"><span>I must not fear. Fear is the mind-killer. Fear is the little-death that brings total obliteration.</span></div></div>
+          <div><p class="label">Page</p><div class="field">8</div></div>
+          <div class="row" style="margin-top:6px"><div class="btn ghost" style="flex:1;height:38px">Cancel</div><div class="btn" style="flex:1;height:38px">Save</div></div>
+          <div class="btn ghost" style="height:36px"><svg style="font-size:14px;color:var(--error)"><use href="#i-trash"/></svg>Delete quote</div>
+        </div></div>
+      </div></div>
+      <figcaption><p class="name">Quote</p><p class="note">The sheet behind a book's Quotes section. The plus opens it empty as "Add a quote"; tapping a saved quote opens it as drawn, with Delete quote under the buttons. The page is optional; when given it sits in a small skewed yellow tile above the passage, the same shape as the 應 logo tile. The sheet rides above the keyboard, and nothing is saved until Save.</p></figcaption>
     </figure>
 
     <!-- 7. Diary -->
@@ -773,12 +826,12 @@
         <div class="scroll pad">
           <p class="h1" style="margin:14px 0 2px">Diary</p>
           <div class="sums">
-            <div class="sum"><span class="k">This month</span><div class="n"><b>2</b><span>Finished</span></div><div class="f"><span><svg><use href="#i-film"/></svg>1</span><span><svg><use href="#i-tv"/></svg>0</span><span><svg><use href="#i-book"/></svg>1</span><span><svg class="fill st"><use href="#i-star"/></svg>8.6</span></div></div>
-            <div class="sum"><span class="k">This year</span><div class="n"><b>16</b><span>Finished</span></div><div class="f"><span><svg><use href="#i-film"/></svg>8</span><span><svg><use href="#i-tv"/></svg>3</span><span><svg><use href="#i-book"/></svg>5</span><span><svg class="fill st"><use href="#i-star"/></svg>8.6</span></div></div>
+            <div class="sum"><span class="k">This month</span><div class="n"><b>2</b><span>Finished</span></div><div class="f"><span><svg><use href="#i-film"/></svg>1</span><span><svg><use href="#i-tv"/></svg>0</span><span><svg><use href="#i-book"/></svg>1</span><span><svg class="fill st"><use href="#i-star"/></svg>8.6</span></div><div class="f"><span><svg><use href="#i-time"/></svg>1h 45m</span><span><svg><use href="#i-doc"/></svg>412 pages</span></div></div>
+            <div class="sum"><span class="k">This year</span><div class="n"><b>16</b><span>Finished</span></div><div class="f"><span><svg><use href="#i-film"/></svg>8</span><span><svg><use href="#i-tv"/></svg>3</span><span><svg><use href="#i-book"/></svg>5</span><span><svg class="fill st"><use href="#i-star"/></svg>8.6</span></div><div class="f"><span><svg><use href="#i-time"/></svg>58h 40m</span><span><svg><use href="#i-doc"/></svg>1730 pages</span></div></div>
           </div>
           <p class="month">September 2026</p>
           <div class="drow"><div class="thumb"><svg style="font-size:14px"><use href="#i-film"/></svg></div><div class="info"><div class="t"><svg><use href="#i-film"/></svg>Past Lives</div><div class="m">Celine Song</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>8.1</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 7 Sep</span></div><div class="s">Quiet and devastating. The bar scene.</div></div></div>
-          <div class="drow"><div class="thumb art-1" style="background:linear-gradient(160deg,#3a2f0b,#0f0e0a 60%,#6b5a1a)"></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Dune</div><div class="m">Frank Herbert</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.2</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 2 Sep</span></div><div class="s">Slow for the first hundred pages and then impossible to put down.</div></div></div>
+          <div class="drow"><div class="thumb art-1" style="background:linear-gradient(160deg,#3a2f0b,#0f0e0a 60%,#6b5a1a)"></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Dune</div><div class="m">Frank Herbert</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.2</span><span class="when again"><svg><use href="#i-repeat"/></svg>Reread 2 Sep</span></div><div class="s">Slow for the first hundred pages and then impossible to put down.</div></div></div>
           <p class="month">August 2026</p>
           <div class="drow"><div class="thumb" style="background:linear-gradient(150deg,#33131a,#120608 55%,#6a2b36)"></div><div class="info"><div class="t"><svg><use href="#i-tv"/></svg>The Bear</div><div class="m">Christopher Storer</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>9.6</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 30 Aug</span></div><div class="s">Season 3. Yes chef.</div></div></div>
           <div class="drow"><div class="thumb"><svg style="font-size:14px"><use href="#i-book"/></svg></div><div class="info"><div class="t"><svg><use href="#i-book"/></svg>Tomorrow, and Tomorrow, and Tomorrow</div><div class="m">Gabrielle Zevin</div><div class="facts"><span class="score"><svg class="fill"><use href="#i-star"/></svg>6.8</span><span class="when"><svg><use href="#i-cal"/></svg>Finished 18 Aug</span></div></div></div>
@@ -793,7 +846,7 @@
           <div class="tab"><svg><use href="#i-person"/></svg>Me</div>
         </div>
       </div></div>
-      <figcaption><p class="name">Diary</p><p class="note">Two cards on top total what you finished this month and this year, split into films, series, and books, with the average score. Below them, everything finished, newest first, grouped by month. Each row shows your score and a small "Finished 7 Sep" line; the bare day number that used to sit beside the cover is gone. Tapping a row opens the entry.</p></figcaption>
+      <figcaption><p class="name">Diary</p><p class="note">Two cards on top total what you finished this month and this year, split into films, series, and books, with the average score, then the hours watched and pages read (from the runtime and page count on each entry). Below them, everything finished, newest first, grouped by month. A rewatch or reread is a row of its own in the month it happened, marked with the repeat sign (Dune here), and it counts in that month's totals. Each row shows your score and a small "Finished 7 Sep" line; the bare day number that used to sit beside the cover is gone. Tapping a row opens the entry.</p></figcaption>
     </figure>
 
     <!-- 8. Me -->
@@ -879,6 +932,21 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v15</b>11 Oct 2026</div>
+        <ul>
+          <li>Quotes lose the accent stripe down the left side and the italics, a stock look that did not belong to this app. Each quote is now a plain surface row like the Diary's, the passage in upright semibold, and the page number in a small skewed yellow tile borrowed from the 應 logo. Redrawn: Entry detail (Quotes), Quote.</li>
+        </ul>
+      </li>
+      <li>
+        <div class="ver"><b>v14</b>11 Oct 2026</div>
+        <ul>
+          <li>Rewatches and rereads: a finished entry can log another finish, from its page (stamps today) or in the form (a dated field per repeat under Finished). Each one is its own Diary row in the month it happened and counts in that month's totals. Redrawn: Entry detail (the reread date, "Read 2 times", Log a reread), Add entry (Log a reread), Diary (Dune as a reread).</li>
+          <li>Time totals: films and series carry a runtime in minutes (a series counts every episode) and books a page count, filled by Fill from the web where the source has it. The Diary cards add the hours watched and pages read. Redrawn: Add entry (Year beside Pages), Entry detail (412 pages), Diary (both cards).</li>
+          <li>Book quotes: a Quotes section on a book's page, with a sheet to add, edit, or delete a passage and its page. Redrawn: Entry detail (Quotes); added: Quote.</li>
+          <li>A quick status filter: chips under the library tabs (All, Want to, In progress, Finished, worded per kind on the Films, Series, and Books tabs), and the filter sheet keeps only the tags. Redrawn: Library, Library zoomed out, Filters.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v13</b>11 Oct 2026</div>
         <ul>

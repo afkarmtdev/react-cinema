@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useLayoutEffect, type ReactNode } from 'react';
+import { useCallback, useLayoutEffect, useState, type ReactNode } from 'react';
 import {
   Alert,
   Image,
@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { QuoteSheet } from '../../components/QuoteSheet';
 import { ScoreInput } from '../../components/ScoreInput';
 import { StatusPicker } from '../../components/StatusPicker';
 import { Button } from '../../components/ui/Button';
@@ -21,9 +22,19 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useLibrary } from '../../context/LibraryContext';
 import { isFavourite, toggleFavourite } from '../../lib/favourites';
 import { haptics } from '../../lib/haptics';
-import { KIND_ICON, creatorKey, formatDate, kindKey } from '../../lib/labels';
+import {
+  KIND_ICON,
+  creatorKey,
+  formatDate,
+  formatPages,
+  formatRuntime,
+  kindKey,
+  repeatKey,
+} from '../../lib/labels';
+import { newItemId } from '../../lib/libraryStore';
+import { finishDates } from '../../lib/summary';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
-import type { LibraryItem } from '../../types/library';
+import { isReadKind, type LibraryItem, type Quote } from '../../types/library';
 import type { LibraryStackParamList } from '../../navigation/types';
 import { useThemedStyles, useTheme } from '../../context/ThemeContext';
 
@@ -39,6 +50,9 @@ export function ItemDetailScreen({ navigation, route }: Props) {
   const { t } = useLanguage();
   const item = getItem(itemId);
   const favourite = isFavourite(user?.favourites, itemId);
+  // The quote sheet: open or not, and which quote it edits (none adds one).
+  const [quoteOpen, setQuoteOpen] = useState(false);
+  const [editing, setEditing] = useState<Quote | undefined>();
 
   const toggleShelf = useCallback(() => {
     const next = toggleFavourite(user?.favourites, itemId);
@@ -116,6 +130,35 @@ export function ItemDetailScreen({ navigation, route }: Props) {
     );
   }
 
+  const done = item.status === 'done';
+  const [firstFinish, ...repeats] = finishDates(item);
+  const quotes = item.quotes ?? [];
+
+  // Logged as now; the edit form can move the date back.
+  const logRepeat = () => {
+    haptics.tap();
+    updateItem(item.id, {
+      repeats: [...(item.repeats ?? []), Date.now()],
+    }).catch(() => {});
+  };
+
+  const openQuote = (quote?: Quote) => {
+    setEditing(quote);
+    setQuoteOpen(true);
+  };
+
+  const saveQuote = (text: string, page: number | undefined) =>
+    updateItem(item.id, {
+      quotes: editing
+        ? quotes.map((q) => (q.id === editing.id ? { ...q, text, page } : q))
+        : [...quotes, { id: newItemId(), text, page, createdAt: Date.now() }],
+    });
+
+  const deleteQuote = () =>
+    updateItem(item.id, {
+      quotes: quotes.filter((q) => q.id !== editing?.id),
+    });
+
   return (
     <ScrollView
       style={styles.screen}
@@ -164,13 +207,81 @@ export function ItemDetailScreen({ navigation, route }: Props) {
               </Text>
             )}
             <Text style={styles.dates}>
-              {item.finishedAt
-                ? t('finishedOn', { date: formatDate(item.finishedAt) })
+              {firstFinish
+                ? t('finishedOn', { date: formatDate(firstFinish) })
                 : t('addedOn', { date: formatDate(item.createdAt) })}
             </Text>
+            {repeats.map((at, i) => (
+              <Text key={`${at}-${i}`} style={styles.dates}>
+                {t(repeatKey(item.kind, 'On'), { date: formatDate(at) })}
+              </Text>
+            ))}
           </View>
+          {done && (
+            <Button
+              label={t(repeatKey(item.kind, 'Log'))}
+              variant="outline"
+              onPress={logRepeat}
+              icon={<Ionicons name="repeat" size={18} color={colors.primary} />}
+            />
+          )}
         </Section>
+
+        {isReadKind(item.kind) && (
+          <Section
+            title={t('quotes')}
+            accessory={
+              <Pressable
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={t('quoteAdd')}
+                onPress={() => openQuote()}
+              >
+                <Ionicons
+                  name="add-circle-outline"
+                  size={26}
+                  color={colors.primary}
+                />
+              </Pressable>
+            }
+          >
+            {quotes.length === 0 ? (
+              <Text style={styles.muted}>{t('quotesEmpty')}</Text>
+            ) : (
+              quotes.map((quote) => (
+                <Pressable
+                  key={quote.id}
+                  onPress={() => openQuote(quote)}
+                  accessibilityRole="button"
+                  accessibilityHint={t('quoteEdit')}
+                  style={({ pressed }) => [
+                    styles.quote,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  {/* The page sits in the logo's skewed yellow tile. */}
+                  {!!quote.page && (
+                    <View style={styles.pageTile}>
+                      <Text style={styles.pageTileText}>
+                        {t('quotePageShort', { page: quote.page })}
+                      </Text>
+                    </View>
+                  )}
+                  <Text style={styles.quoteText}>{quote.text}</Text>
+                </Pressable>
+              ))
+            )}
+          </Section>
+        )}
       </View>
+
+      <QuoteSheet
+        visible={quoteOpen}
+        quote={editing}
+        onSave={saveQuote}
+        onDelete={deleteQuote}
+        onClose={() => setQuoteOpen(false)}
+      />
     </ScrollView>
   );
 }
@@ -223,6 +334,22 @@ function FactsRow({ item }: { item: LibraryItem }) {
     facts.push({
       icon: 'person-outline',
       label: `${t(creatorKey(item.kind))}: ${item.creator}`,
+    });
+  }
+  if (isReadKind(item.kind) && item.pages) {
+    facts.push({
+      icon: 'document-text-outline',
+      label: formatPages(item.pages, t),
+    });
+  }
+  if (!isReadKind(item.kind) && item.runtime) {
+    facts.push({ icon: 'time-outline', label: formatRuntime(item.runtime, t) });
+  }
+  const times = finishDates(item).length;
+  if (times > 1) {
+    facts.push({
+      icon: 'repeat',
+      label: t(repeatKey(item.kind, 'Times'), { count: times }),
     });
   }
 
@@ -339,4 +466,26 @@ const makeStyles = (colors: ThemeColors) =>
     muted: { ...typography.body, color: colors.textMuted },
     datesBlock: { gap: 2 },
     dates: { ...typography.tiny, color: colors.textMuted },
+    // A plain surface row, like the Diary's.
+    quote: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      gap: spacing.sm,
+      alignItems: 'flex-start',
+    },
+    pressed: { opacity: 0.8 },
+    pageTile: {
+      backgroundColor: colors.primary,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      transform: [{ skewX: '-8deg' }],
+    },
+    pageTileText: {
+      ...typography.tiny,
+      fontWeight: '900',
+      color: colors.onPrimary,
+    },
+    quoteText: { ...typography.bodyStrong, color: colors.text, lineHeight: 22 },
   });

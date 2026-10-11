@@ -1,7 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { BrandHeader } from '../../components/BrandHeader';
 import { useFloatingTabBarInset } from '../../components/FloatingTabBar';
 import {
@@ -15,6 +22,7 @@ import { SearchBar } from '../../components/SearchBar';
 import { SwipePager } from '../../components/SwipePager';
 import { TimelineGrid } from '../../components/TimelineGrid';
 import { Button } from '../../components/ui/Button';
+import { Chip } from '../../components/ui/Chip';
 import { Screen } from '../../components/ui/Screen';
 import { EmptyView, ErrorView, Loading } from '../../components/ui/StateViews';
 import { useAuth } from '../../context/AuthContext';
@@ -23,13 +31,16 @@ import { useLibrary } from '../../context/LibraryContext';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { isFavourite, toggleFavourite } from '../../lib/favourites';
 import { haptics } from '../../lib/haptics';
+import { STATUS_ICON, statusKey } from '../../lib/labels';
 import { StorageKeys, storage } from '../../lib/storage';
 import { hasTag } from '../../lib/tags';
 import { DEFAULT_ZOOM, isZoomLevel, type ZoomLevel } from '../../lib/timeline';
 import { radius, spacing, typography, type ThemeColors } from '../../theme';
 import {
   ITEM_KINDS,
+  ITEM_STATUSES,
   type ItemKind,
+  type ItemStatus,
   type LibraryItem,
 } from '../../types/library';
 import type { LibraryStackParamList } from '../../navigation/types';
@@ -66,6 +77,7 @@ export function LibraryScreen({ navigation }: Props) {
   const tabBar = useFloatingTabBarInset();
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<KindFilter>('all');
+  const [status, setStatus] = useState<ItemStatus | undefined>();
   const [filters, setFilters] = useState<LibraryFilters>(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
   const [zoom, setZoom] = useState<ZoomLevel>(DEFAULT_ZOOM);
@@ -103,7 +115,7 @@ export function LibraryScreen({ navigation }: Props) {
   const filtered = useMemo(() => {
     const term = debouncedQuery.trim().toLowerCase();
     return items.filter((item) => {
-      if (filters.status && item.status !== filters.status) return false;
+      if (status && item.status !== status) return false;
       if (filters.tags.some((tag) => !hasTag(item.tags, tag))) return false;
       if (!term) return true;
       const haystack = [
@@ -116,7 +128,7 @@ export function LibraryScreen({ navigation }: Props) {
         .toLowerCase();
       return haystack.includes(term);
     });
-  }, [items, filters, debouncedQuery]);
+  }, [items, status, filters, debouncedQuery]);
 
   const byKind = useMemo(
     () =>
@@ -142,8 +154,36 @@ export function LibraryScreen({ navigation }: Props) {
       kind: kind === 'all' ? undefined : kind,
     });
 
-  const isSearching = !!debouncedQuery.trim() || hasActiveFilters(filters);
+  const isSearching =
+    !!debouncedQuery.trim() || !!status || hasActiveFilters(filters);
   const filtersOn = hasActiveFilters(filters);
+
+  // One tap narrows to a status; tapping it again shows everything. The
+  // wording follows the page: "Watching" on Films, "Reading" on Books.
+  const statusChips = (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      style={styles.statusScroll}
+      contentContainerStyle={styles.statusRow}
+    >
+      <Chip
+        label={t('filterAll')}
+        active={!status}
+        onPress={() => setStatus(undefined)}
+      />
+      {ITEM_STATUSES.map((s) => (
+        <Chip
+          key={s}
+          label={t(statusKey(s, kind === 'all' ? undefined : kind))}
+          icon={STATUS_ICON[s]}
+          active={status === s}
+          onPress={() => setStatus(status === s ? undefined : s)}
+        />
+      ))}
+    </ScrollView>
+  );
 
   const header = (
     <View style={styles.header}>
@@ -238,6 +278,7 @@ export function LibraryScreen({ navigation }: Props) {
         onIndexChange={(i) => setKind(KIND_FILTERS[i])}
         renderPage={renderPage}
         pageInset={spacing.lg}
+        belowTabs={statusChips}
       />
 
       <Pressable
@@ -303,6 +344,14 @@ const makeStyles = (colors: ThemeColors) =>
       borderRadius: 4,
       backgroundColor: colors.primary,
     },
+    // The chips scroll edge to edge, past the screen padding.
+    statusScroll: {
+      flexGrow: 0,
+      flexShrink: 0,
+      marginHorizontal: -spacing.lg,
+      marginBottom: spacing.md,
+    },
+    statusRow: { gap: spacing.sm, paddingHorizontal: spacing.lg },
     empty: { flex: 1, alignItems: 'center', paddingBottom: spacing.xxl },
     emptyBtn: { paddingHorizontal: spacing.xxl },
     fab: {

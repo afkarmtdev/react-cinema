@@ -12,7 +12,23 @@ interface TvmazeShow {
   genres?: string[];
   summary?: string | null;
   image?: { medium?: string; original?: string } | null;
-  _embedded?: { crew?: { type: string; person: { name: string } }[] };
+  /** Minutes per episode, on average. */
+  averageRuntime?: number | null;
+  _embedded?: {
+    crew?: { type: string; person: { name: string } }[];
+    episodes?: { runtime?: number | null }[];
+  };
+}
+
+/**
+ * Minutes for every episode together. An episode without a length of its
+ * own (common for ones not aired yet) counts as the show's average.
+ */
+function runtimeOf(show: TvmazeShow): number | undefined {
+  const episodes = show._embedded?.episodes ?? [];
+  const fallback = show.averageRuntime ?? 0;
+  const total = episodes.reduce((sum, e) => sum + (e.runtime || fallback), 0);
+  return total > 0 ? total : undefined;
 }
 
 function toResult(show: TvmazeShow, image?: string): LookupResult {
@@ -33,7 +49,7 @@ async function search(term: string): Promise<LookupResult[]> {
 
 async function details(item: LookupResult): Promise<LookupResult> {
   const show = await getJson<TvmazeShow>(
-    `${BASE_URL}/shows/${item.id}?embed=crew`,
+    `${BASE_URL}/shows/${item.id}?embed[]=crew&embed[]=episodes`,
   );
   const creators = (show._embedded?.crew ?? [])
     .filter((c) => c.type === 'Creator')
@@ -43,6 +59,7 @@ async function details(item: LookupResult): Promise<LookupResult> {
     creator: creators.length ? creators.join(', ') : undefined,
     description: stripHtml(show.summary),
     tags: show.genres,
+    runtime: runtimeOf(show),
   };
 }
 

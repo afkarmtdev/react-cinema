@@ -18,6 +18,7 @@ interface GoogleVolume {
     /** Paths such as "Fiction / Fantasy / Epic". */
     categories?: string[];
     imageLinks?: { thumbnail?: string; smallThumbnail?: string };
+    pageCount?: number;
   };
 }
 
@@ -43,6 +44,7 @@ function toResult({ id, volumeInfo: v }: GoogleVolume): LookupResult {
     description: stripHtml(v.description),
     poster: cover(v.imageLinks),
     tags: tags(v.categories),
+    pages: v.pageCount || undefined,
   };
 }
 
@@ -68,6 +70,7 @@ async function details(item: LookupResult): Promise<LookupResult> {
     description: full.description ?? item.description,
     poster: full.poster ?? item.poster,
     tags: full.tags ?? item.tags,
+    pages: full.pages ?? item.pages,
   };
 }
 

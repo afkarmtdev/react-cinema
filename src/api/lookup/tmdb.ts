@@ -25,6 +25,27 @@ interface TmdbDetail extends TmdbSearchItem {
   genres?: { name: string }[];
   created_by?: { name: string }[];
   credits?: { crew?: { job: string; name: string }[] };
+  /** Films: minutes. */
+  runtime?: number | null;
+  /** Series: the episode count and the usual episode lengths. */
+  number_of_episodes?: number;
+  episode_run_time?: number[];
+  last_episode_to_air?: { runtime?: number | null } | null;
+}
+
+/**
+ * Minutes for the whole thing. A series has no total in TMDB, so it is the
+ * episode count times the usual episode length (often missing on newer
+ * shows, where the latest episode's length stands in).
+ */
+function runtimeOf(d: TmdbDetail, kind: ItemKind): number | undefined {
+  if (kind !== 'series') return d.runtime || undefined;
+  const lengths = d.episode_run_time ?? [];
+  const perEpisode = lengths.length
+    ? lengths.reduce((sum, n) => sum + n, 0) / lengths.length
+    : d.last_episode_to_air?.runtime;
+  if (!perEpisode || !d.number_of_episodes) return undefined;
+  return Math.round(perEpisode * d.number_of_episodes);
 }
 
 function request<T>(path: string, params: Record<string, string> = {}) {
@@ -77,6 +98,7 @@ async function details(
     creator: people.length ? people.join(', ') : undefined,
     description: d.overview || undefined,
     tags: d.genres?.map((g) => g.name),
+    runtime: runtimeOf(d, kind),
   };
 }
 

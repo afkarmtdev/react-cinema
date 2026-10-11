@@ -35,9 +35,11 @@ stay logged in after closing the app, and each account has its own library.
 
 **Library.** The home tab is a poster grid of everything you have added. Tabs
 along the top split it into films, series, and books; the search box matches
-titles, directors, authors, years, and tags as you type; and the filter button
-narrows by status (want to, in progress, finished) or by any combination of
-your tags. A yellow button in the corner adds a new entry.
+titles, directors, authors, years, and tags as you type; a row of chips under
+the tabs narrows by status (want to, in progress, finished, worded for the tab
+you are on, so Watching on Films and Reading on Books); and the filter button
+narrows by any combination of your tags. A yellow button in the corner adds a
+new entry.
 
 **Entries.** Every entry has a type, a title, a year, a director or author, a
 cover image link (with a live preview), a description, tags, a status, a
@@ -50,6 +52,14 @@ system calendar. Marking something finished proposes today, and the form lets
 you move it back, so a book you read last winter lands in the right month of
 the diary instead of this one.
 
+**Rewatches, runtimes, and quotes.** A finished entry can log a rewatch or
+reread from its page, or in the form, where each one is a date you can move
+or clear. Every one of them is its own line in the diary and counts in that
+month's totals. Films and series carry a runtime in minutes (a series counts
+all its episodes) and books a page count; the web lookup fills these in when
+the source has them. Books also keep quotes: a passage and, if you like, the
+page, added and edited from the book's page.
+
 **Scores, not stars.** Ratings run from 1.0 to 10.0 in tenths, pizza-review
 style, picked from a whole-number row and a tenths row. Tapping 10 brings up a
 warning: a 10 means you have found the one, which is impossible, so the app
@@ -59,8 +69,10 @@ scale, with five stars landing on 9.9.
 
 **Diary.** The second tab opens with two cards, This month and This year,
 that total what you have finished, split into films, series, and books, with
-the average score. Below them is everything you have finished, newest first,
-grouped by month, with the day, your score, and a snippet of your notes.
+the average score and the hours watched and pages read. Below them is
+everything you have finished, newest first, grouped by month, with the day,
+your score, and a snippet of your notes. A rewatch or reread gets a line of its
+own in the month it happened.
 
 **Settings.** The Me tab shows how many films, series, and books you have
 finished and your average score, then a Settings group. Appearance picks one
@@ -92,7 +104,7 @@ src/
 ├─ components/
 │  ├─ ui/          Button, TextField, Chip, Sheet, Screen, StarRating, Skeleton, StateViews
 │  ├─ BrandHeader, SearchBar, ItemCard, KindPicker, StatusPicker, DateField, TagInput,
-│  │  FilterSheet, LookupSheet
+│  │  FilterSheet, LookupSheet, QuoteSheet
 ├─ context/        AuthContext, LibraryContext, LanguageContext, ThemeContext
 │  └─ __tests__/   tests for the auth and library contexts
 ├─ i18n/           translations.ts (English / Malay dictionaries)
@@ -264,13 +276,13 @@ director or author, description, cover, and genre tags. Everything stays
 editable afterwards. The sheet has a chip for each source that covers the
 entry's kind, and it remembers the last one picked for each kind.
 
-| Source       | Kinds           | Key                          |
-| ------------ | --------------- | ---------------------------- |
-| TMDB         | films, series   | `EXPO_PUBLIC_TMDB_API_KEY`   |
-| OMDb         | films, series   | `EXPO_PUBLIC_OMDB_API_KEY`   |
-| TVmaze       | series          | none                         |
-| Open Library | books           | none                         |
-| Google Books | books           | optional, raises the quota   |
+| Source       | Kinds         | Key                        |
+| ------------ | ------------- | -------------------------- |
+| TMDB         | films, series | `EXPO_PUBLIC_TMDB_API_KEY` |
+| OMDb         | films, series | `EXPO_PUBLIC_OMDB_API_KEY` |
+| TVmaze       | series        | none                       |
+| Open Library | books         | none                       |
+| Google Books | books         | optional, raises the quota |
 
 All of them are free. TMDB is the most current for new releases, and its
 terms (like TVmaze's licence) ask for a credit line, which the sheet shows
@@ -298,24 +310,25 @@ that server beyond your Wi-Fi.
 
 ## Tests
 
-`npm test` runs 155 tests across 25 files, including:
+`npm test` runs 181 tests across 27 files, including:
 
-| File                     | What it checks                                                                       |
-| ------------------------ | ------------------------------------------------------------------------------------ |
-| `lib/validation`         | the email and password rules                                                         |
-| `lib/tags`               | trimming, case-insensitive dedupe, and splitting comma-separated input               |
-| `lib/score`              | clamping to one decimal, formatting, splitting for the picker, stars to score        |
-| `api/http`               | the query string builder, year parsing, and HTML-to-text cleanup                     |
+| File                     | What it checks                                                                         |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| `lib/validation`         | the email and password rules                                                           |
+| `lib/tags`               | trimming, case-insensitive dedupe, and splitting comma-separated input                 |
+| `lib/score`              | clamping to one decimal, formatting, splitting for the picker, stars to score          |
+| `api/http`               | the query string builder, year parsing, and HTML-to-text cleanup                       |
 | `api/lookup/*`           | each source's URLs and key handling, the mapping to form fields, empty and error cases |
-| `api/lookup/index`       | which sources each kind gets with and without keys, and the saved-source fallback    |
-| `components/LookupSheet` | source chips, searching again on a switch, remembering the source, picking a result  |
-| `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)    |
-| `lib/sqliteStore`        | row mapping both ways, per-owner list and order, and the one-off AsyncStorage import |
-| `lib/summary`            | month and year ranges, counts per kind in a range, average of the scored entries     |
-| `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password               |
-| `context/LibraryContext` | add, validate, update, finish dates, remove, tag ordering, per-user split, migration |
-| `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles    |
-| `context/StorageContext` | device default, switching to a server and persisting, bad saved values, health check |
+| `api/lookup/index`       | which sources each kind gets with and without keys, and the saved-source fallback      |
+| `components/LookupSheet` | source chips, searching again on a switch, remembering the source, picking a result    |
+| `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)      |
+| `lib/sqliteStore`        | row mapping both ways, per-owner list and order, and the one-off AsyncStorage import   |
+| `lib/summary`            | month and year ranges, counts per kind (rewatches too), average score, time and pages  |
+| `lib/labels`             | runtime and page formatting in both languages, rewatch and reread wording              |
+| `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password                 |
+| `context/LibraryContext` | add, validate, update, finish dates, rewatches, length, quotes, remove, migration      |
+| `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles      |
+| `context/StorageContext` | device default, switching to a server and persisting, bad saved values, health check   |
 
 One thing to know if you touch the test setup: `jest-expo@57` still targets the
 Jest 29 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the

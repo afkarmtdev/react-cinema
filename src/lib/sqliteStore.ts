@@ -5,7 +5,12 @@ import {
   type LibraryStore,
 } from './libraryStore';
 import { storage, StorageKeys } from './storage';
-import type { ItemKind, ItemStatus, LibraryItem } from '../types/library';
+import type {
+  ItemKind,
+  ItemStatus,
+  LibraryItem,
+  Quote,
+} from '../types/library';
 
 /**
  * The device LibraryStore, backed by a SQLite file in the app's private
@@ -43,6 +48,12 @@ export interface EntryRow {
   updated_at: number;
   started_at: number | null;
   finished_at: number | null;
+  /** JSON-encoded array of times (the rewatches or rereads). */
+  repeats: string;
+  runtime: number | null;
+  pages: number | null;
+  /** JSON-encoded array of quotes. */
+  quotes: string;
 }
 
 const SCHEMA = `
@@ -63,7 +74,11 @@ const SCHEMA = `
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL,
     started_at INTEGER,
-    finished_at INTEGER
+    finished_at INTEGER,
+    repeats TEXT NOT NULL DEFAULT '[]',
+    runtime INTEGER,
+    pages INTEGER,
+    quotes TEXT NOT NULL DEFAULT '[]'
   );
   CREATE INDEX IF NOT EXISTS entries_owner_updated
     ON entries (owner_id, updated_at DESC);
@@ -74,15 +89,22 @@ const SCHEMA = `
  * before them. SQLite has no "add column if missing", so each statement is
  * run and a "duplicate column" error means it was already there.
  */
-const COLUMN_UPGRADES = ['ALTER TABLE entries ADD COLUMN started_at INTEGER'];
+const COLUMN_UPGRADES = [
+  'ALTER TABLE entries ADD COLUMN started_at INTEGER',
+  "ALTER TABLE entries ADD COLUMN repeats TEXT NOT NULL DEFAULT '[]'",
+  'ALTER TABLE entries ADD COLUMN runtime INTEGER',
+  'ALTER TABLE entries ADD COLUMN pages INTEGER',
+  "ALTER TABLE entries ADD COLUMN quotes TEXT NOT NULL DEFAULT '[]'",
+];
 
 const COLUMNS =
   'id, owner_id, kind, title, year, creator, description, poster, tags, ' +
-  'status, rating, review, created_at, updated_at, started_at, finished_at';
+  'status, rating, review, created_at, updated_at, started_at, finished_at, ' +
+  'repeats, runtime, pages, quotes';
 const VALUES =
   '$id, $ownerId, $kind, $title, $year, $creator, $description, $poster, ' +
   '$tags, $status, $rating, $review, $createdAt, $updatedAt, $startedAt, ' +
-  '$finishedAt';
+  '$finishedAt, $repeats, $runtime, $pages, $quotes';
 
 const INSERT = `INSERT INTO entries (${COLUMNS}) VALUES (${VALUES})`;
 const INSERT_IF_MISSING = `INSERT OR IGNORE INTO entries (${COLUMNS}) VALUES (${VALUES})`;
@@ -91,7 +113,8 @@ const UPDATE = `UPDATE entries SET
   creator = $creator, description = $description, poster = $poster,
   tags = $tags, status = $status, rating = $rating, review = $review,
   created_at = $createdAt, updated_at = $updatedAt, started_at = $startedAt,
-  finished_at = $finishedAt
+  finished_at = $finishedAt, repeats = $repeats, runtime = $runtime,
+  pages = $pages, quotes = $quotes
   WHERE id = $id`;
 const DELETE = 'DELETE FROM entries WHERE id = $id';
 const SELECT_BY_OWNER = `SELECT ${COLUMNS} FROM entries WHERE owner_id = $ownerId ORDER BY updated_at DESC`;
@@ -114,6 +137,10 @@ export type EntryParams = {
   $updatedAt: number;
   $startedAt: number | null;
   $finishedAt: number | null;
+  $repeats: string;
+  $runtime: number | null;
+  $pages: number | null;
+  $quotes: string;
 };
 
 export const toParams = (item: LibraryItem): EntryParams => ({
@@ -133,18 +160,35 @@ export const toParams = (item: LibraryItem): EntryParams => ({
   $updatedAt: item.updatedAt,
   $startedAt: item.startedAt ?? null,
   $finishedAt: item.finishedAt ?? null,
+  $repeats: JSON.stringify(item.repeats ?? []),
+  $runtime: item.runtime ?? null,
+  $pages: item.pages ?? null,
+  $quotes: JSON.stringify(item.quotes ?? []),
 });
 
-function parseTags(json: string): string[] {
+/** A JSON array column back into a list; anything unreadable is empty. */
+function parseList(json: string | null | undefined): unknown[] {
   try {
-    const parsed = JSON.parse(json);
-    return Array.isArray(parsed)
-      ? parsed.filter((t) => typeof t === 'string')
-      : [];
+    const parsed = JSON.parse(json ?? '[]');
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
+
+const parseTags = (json: string): string[] =>
+  parseList(json).filter((t): t is string => typeof t === 'string');
+
+const parseTimes = (json: string): number[] =>
+  parseList(json).filter((at): at is number => typeof at === 'number');
+
+const isQuote = (q: unknown): q is Quote =>
+  typeof q === 'object' &&
+  q !== null &&
+  typeof (q as Quote).id === 'string' &&
+  typeof (q as Quote).text === 'string';
+
+const parseQuotes = (json: string): Quote[] => parseList(json).filter(isQuote);
 
 /** A row back into an entry, with NULL columns left out. */
 export function toItem(row: EntryRow): LibraryItem {
@@ -166,6 +210,13 @@ export function toItem(row: EntryRow): LibraryItem {
   if (row.review !== null) item.review = row.review;
   if (row.started_at !== null) item.startedAt = row.started_at;
   if (row.finished_at !== null) item.finishedAt = row.finished_at;
+  // Rows written before these columns existed may not carry them at all.
+  if (row.runtime != null) item.runtime = row.runtime;
+  if (row.pages != null) item.pages = row.pages;
+  const repeats = parseTimes(row.repeats);
+  if (repeats.length) item.repeats = repeats;
+  const quotes = parseQuotes(row.quotes);
+  if (quotes.length) item.quotes = quotes;
   return item;
 }
 

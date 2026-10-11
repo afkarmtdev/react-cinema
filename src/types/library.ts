@@ -42,6 +42,27 @@ export interface LibraryItem {
    * the month and year summaries.
    */
   finishedAt?: number;
+  /**
+   * The finishes after the first one: rewatches of a film or series, rereads
+   * of a book. Oldest first, never earlier than finishedAt, and only kept
+   * while the status is "done".
+   */
+  repeats?: number[];
+  /** Minutes: a film's running time, or every episode of a series together. */
+  runtime?: number;
+  /** A book's page count. */
+  pages?: number;
+  /** Passages saved from a book, oldest first. */
+  quotes?: Quote[];
+}
+
+/** A passage the user saved from a book. */
+export interface Quote {
+  id: string;
+  text: string;
+  /** The page it is on, when the user gave one. */
+  page?: number;
+  createdAt: number;
 }
 
 /**

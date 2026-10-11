@@ -15,9 +15,17 @@ import { EmptyView } from '../components/ui/StateViews';
 import { ScoreBadge } from '../components/ui/ScoreBadge';
 import { useLanguage } from '../context/LanguageContext';
 import { useLibrary } from '../context/LibraryContext';
-import { KIND_ICON, formatDay, formatMonth } from '../lib/labels';
+import {
+  KIND_ICON,
+  formatDay,
+  formatMonth,
+  formatPages,
+  formatRuntime,
+  repeatKey,
+} from '../lib/labels';
 import { formatScore } from '../lib/score';
 import {
+  finishDates,
   monthRange,
   summarise,
   yearRange,
@@ -30,12 +38,24 @@ import { useThemedStyles, useTheme } from '../context/ThemeContext';
 
 type Props = BottomTabScreenProps<TabParamList, 'DiaryTab'>;
 
-interface MonthSection {
-  title: string;
-  data: LibraryItem[];
+/** One line of the diary: an entry and one of the times it was finished. */
+interface DiaryEntry {
+  key: string;
+  item: LibraryItem;
+  at: number;
+  /** A rewatch or reread rather than the first time. */
+  repeat: boolean;
 }
 
-/** Everything finished, newest first, grouped by the month it was finished. */
+interface MonthSection {
+  title: string;
+  data: DiaryEntry[];
+}
+
+/**
+ * Everything finished, newest first, grouped by the month it was finished.
+ * A rewatch or reread is a line of its own, in the month it happened.
+ */
 export function DiaryScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const tabBar = useFloatingTabBarInset();
@@ -43,15 +63,23 @@ export function DiaryScreen({ navigation }: Props) {
   const { t } = useLanguage();
 
   const sections = useMemo<MonthSection[]>(() => {
-    const done = items
-      .filter((item) => item.status === 'done')
-      .sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0));
+    const entries: DiaryEntry[] = [];
+    for (const item of items) {
+      if (item.status !== 'done') continue;
+      // Done without a date (an old record) still shows, on its last edit.
+      const dates =
+        item.finishedAt === undefined ? [item.updatedAt] : finishDates(item);
+      dates.forEach((at, i) =>
+        entries.push({ key: `${item.id}:${i}`, item, at, repeat: i > 0 }),
+      );
+    }
+    entries.sort((a, b) => b.at - a.at);
     const out: MonthSection[] = [];
-    for (const item of done) {
-      const title = formatMonth(item.finishedAt ?? item.updatedAt);
+    for (const entry of entries) {
+      const title = formatMonth(entry.at);
       const last = out[out.length - 1];
-      if (last && last.title === title) last.data.push(item);
-      else out.push({ title, data: [item] });
+      if (last && last.title === title) last.data.push(entry);
+      else out.push({ title, data: [entry] });
     }
     return out;
   }, [items]);
@@ -77,7 +105,7 @@ export function DiaryScreen({ navigation }: Props) {
       <Text style={styles.heading}>{t('diaryHeading')}</Text>
       <SectionList
         sections={sections}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(entry) => entry.key}
         contentContainerStyle={[
           styles.content,
           { paddingBottom: tabBar.clearance },
@@ -96,7 +124,7 @@ export function DiaryScreen({ navigation }: Props) {
           <Text style={styles.month}>{section.title}</Text>
         )}
         ItemSeparatorComponent={() => <View style={styles.gap} />}
-        renderItem={({ item }) => <DiaryRow item={item} onPress={open} />}
+        renderItem={({ item }) => <DiaryRow entry={item} onPress={open} />}
         ListEmptyComponent={
           <EmptyView
             icon="calendar-outline"
@@ -109,7 +137,10 @@ export function DiaryScreen({ navigation }: Props) {
   );
 }
 
-/** One card: total finished, then the count per kind and the average score. */
+/**
+ * One card: total finished, then the count per kind and the average score,
+ * then the hours watched and pages read when the entries have them.
+ */
 function SummaryCard({
   title,
   summary,
@@ -121,11 +152,16 @@ function SummaryCard({
   const { colors } = useTheme();
   const { t } = useLanguage();
   const avg = summary.avgScore ? formatScore(summary.avgScore) : '-';
+  const time = formatRuntime(summary.minutes, t);
+  const label = [
+    `${title}: ${summary.total} ${t('finishedStat')}`,
+    summary.minutes > 0 ? t('timeWatched', { time }) : '',
+    summary.pages > 0 ? t('pagesRead', { count: summary.pages }) : '',
+  ]
+    .filter(Boolean)
+    .join(', ');
   return (
-    <View
-      style={styles.card}
-      accessibilityLabel={`${title}: ${summary.total} ${t('finishedStat')}`}
-    >
+    <View style={styles.card} accessibilityLabel={label}>
       <Text style={styles.cardTitle}>{title}</Text>
       <View style={styles.cardTotalRow}>
         <Text style={styles.cardTotal}>{summary.total}</Text>
@@ -147,21 +183,48 @@ function SummaryCard({
           <Text style={styles.cardFactText}>{avg}</Text>
         </View>
       </View>
+      {(summary.minutes > 0 || summary.pages > 0) && (
+        <View style={styles.cardFacts}>
+          {summary.minutes > 0 && (
+            <View style={styles.cardFact}>
+              <Ionicons
+                name="time-outline"
+                size={13}
+                color={colors.textSecondary}
+              />
+              <Text style={styles.cardFactText}>{time}</Text>
+            </View>
+          )}
+          {summary.pages > 0 && (
+            <View style={styles.cardFact}>
+              <Ionicons
+                name="document-text-outline"
+                size={13}
+                color={colors.textSecondary}
+              />
+              <Text style={styles.cardFactText}>
+                {formatPages(summary.pages, t)}
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 }
 
 function DiaryRow({
-  item,
+  entry,
   onPress,
 }: {
-  item: LibraryItem;
+  entry: DiaryEntry;
   onPress: (item: LibraryItem) => void;
 }) {
   const styles = useThemedStyles(makeStyles);
   const { colors } = useTheme();
   const { t } = useLanguage();
-  const finished = formatDay(item.finishedAt ?? item.updatedAt);
+  const { item, repeat } = entry;
+  const date = formatDay(entry.at);
   return (
     <Pressable
       onPress={() => onPress(item)}
@@ -198,12 +261,14 @@ function DiaryRow({
           {!!item.rating && <ScoreBadge value={item.rating} />}
           <View style={styles.when}>
             <Ionicons
-              name="calendar-outline"
+              name={repeat ? 'repeat' : 'calendar-outline'}
               size={12}
-              color={colors.textMuted}
+              color={repeat ? colors.primary : colors.textMuted}
             />
             <Text style={styles.whenText}>
-              {t('finishedOn', { date: finished })}
+              {repeat
+                ? t(repeatKey(item.kind, 'On'), { date })
+                : t('finishedOn', { date })}
             </Text>
           </View>
         </View>

@@ -11,7 +11,7 @@ Node 24 is the default in both PowerShell and Bash on this machine, so either
 tool works:
 
 ```powershell
-npm test                 # run everything once (155 tests in 25 files)
+npm test                 # run everything once (181 tests in 27 files)
 npx jest --watch         # watch mode
 npx jest path/to/file    # a single file
 npx jest -t "duplicate"  # tests matching a name
@@ -58,8 +58,11 @@ test output. That is normal, not a failure.
   to AuthError codes (duplicate email, wrong password, no connection).
 - `src/lib/__tests__/summary.test.ts`: the Diary cards' maths. Month and
   year ranges in local time (December rolls over), local midnight, counts
-  per kind for finished entries inside a range, the average of the scored
-  ones only, and that unfinished or undated entries are skipped.
+  per kind for finished entries inside a range (a rewatch or reread counts
+  in its own month), the average of the scored ones only, minutes and pages,
+  and that unfinished or undated entries are skipped.
+- `src/lib/__tests__/labels.test.ts`: runtime and page formatting in both
+  languages, and that every rewatch and reread key exists in both.
 - `src/lib/__tests__/sqliteStore.test.ts`: the device store against the
   in-memory expo-sqlite fake. Row mapping both ways (NULL for unset fields,
   tags as JSON), create/update/list/remove per owner, newest-updated-first
@@ -77,7 +80,9 @@ test output. That is normal, not a failure.
 - `src/context/__tests__/AuthContext.test.tsx`: signup, login, logout,
   duplicate email, short password, wrong password. Uses RNTL `renderHook`.
 - `src/context/__tests__/LibraryContext.test.tsx`: add, title validation,
-  field trimming and tag dedupe, finish date on status changes, remove, tag
+  field trimming and tag dedupe, finish date on status changes, rewatches
+  kept in order and dropped when the entry leaves "done", runtime, pages,
+  and quotes cleaned up, remove, tag
   ordering, per-user separation, and the one-off migration of old reviews
   (mounts Auth and Library together and signs a user in first).
 

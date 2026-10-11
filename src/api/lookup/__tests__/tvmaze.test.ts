@@ -57,15 +57,19 @@ describe('tvmaze', () => {
       summary:
         '<p><b>Breaking Bad</b> follows a teacher &amp; his partner.</p>',
       image: { medium: 'https://tvm/m.jpg', original: 'https://tvm/o.jpg' },
+      averageRuntime: 50,
       _embedded: {
         crew: [
           { type: 'Creator', person: { name: 'Vince Gilligan' } },
           { type: 'Executive Producer', person: { name: 'Mark Johnson' } },
         ],
+        episodes: [{ runtime: 58 }, { runtime: 48 }, { runtime: null }],
       },
     });
     const result = await tvmaze.details({ id: '169', title: 'x' }, 'series');
-    expect(requestedUrl()).toBe('https://api.tvmaze.com/shows/169?embed=crew');
+    expect(requestedUrl()).toBe(
+      'https://api.tvmaze.com/shows/169?embed[]=crew&embed[]=episodes',
+    );
     expect(result).toEqual({
       id: '169',
       title: 'Breaking Bad',
@@ -74,6 +78,8 @@ describe('tvmaze', () => {
       creator: 'Vince Gilligan',
       description: 'Breaking Bad follows a teacher & his partner.',
       tags: ['Drama', 'Crime'],
+      // The episode without a length counts as the average.
+      runtime: 156,
     });
   });
 });

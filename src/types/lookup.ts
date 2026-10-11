@@ -17,6 +17,10 @@ export interface LookupResult {
   poster?: string;
   /** Genres or subjects, offered as tags. */
   tags?: string[];
+  /** Minutes: a film's running time, or every episode of a series together. */
+  runtime?: number;
+  /** A book's page count. */
+  pages?: number;
 }
 
 export type LookupSourceId =

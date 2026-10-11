@@ -52,6 +52,20 @@ function sanitise(input: Partial<LibraryItemInput>): Partial<LibraryItemInput> {
   }
   if ('startedAt' in input) out.startedAt = validTime(input.startedAt);
   if ('finishedAt' in input) out.finishedAt = validTime(input.finishedAt);
+  if ('repeats' in input) {
+    const times = (input.repeats ?? [])
+      .map(validTime)
+      .filter((at): at is number => at !== undefined);
+    out.repeats = times.length ? times : undefined;
+  }
+  if ('runtime' in input) out.runtime = validCount(input.runtime);
+  if ('pages' in input) out.pages = validCount(input.pages);
+  if ('quotes' in input) {
+    const quotes = (input.quotes ?? [])
+      .map((q) => ({ ...q, text: q.text.trim(), page: validCount(q.page) }))
+      .filter((q) => q.text);
+    out.quotes = quotes.length ? quotes : undefined;
+  }
   return out;
 }
 
@@ -60,6 +74,29 @@ const validTime = (value: number | undefined): number | undefined =>
   typeof value === 'number' && Number.isFinite(value) && value > 0
     ? value
     : undefined;
+
+/** A whole positive number (minutes, pages), or nothing. */
+const validCount = (value: number | undefined): number | undefined =>
+  typeof value === 'number' && Number.isFinite(value) && value >= 1
+    ? Math.round(value)
+    : undefined;
+
+/**
+ * The first finish and the repeats after it, kept in step with the status:
+ * only a finished entry has them, one finished without a date is finished
+ * now, and the earliest date is always the first finish.
+ */
+function settleFinishes(
+  status: LibraryItem['status'],
+  first: number | undefined,
+  repeats: number[] | undefined,
+): Pick<LibraryItem, 'finishedAt' | 'repeats'> {
+  if (status !== 'done') return { finishedAt: undefined, repeats: undefined };
+  const [finishedAt, ...rest] = [first ?? Date.now(), ...(repeats ?? [])].sort(
+    (a, b) => a - b,
+  );
+  return { finishedAt, repeats: rest.length ? rest : undefined };
+}
 
 export function LibraryProvider({
   children,
@@ -152,8 +189,7 @@ export function LibraryProvider({
         updatedAt: now,
         // A backlogged entry carries the day it was really finished; a fresh
         // one is finished right now.
-        finishedAt:
-          input.status === 'done' ? (clean.finishedAt ?? now) : undefined,
+        ...settleFinishes(input.status, clean.finishedAt ?? now, clean.repeats),
       };
       const saved = await store.create(item);
       setAll((prev) => [saved, ...prev]);
@@ -173,17 +209,19 @@ export function LibraryProvider({
       const status = clean.status ?? existing.status;
       // The form sends a finish date (possibly cleared); a status chip on the
       // detail screen sends none, so the existing one is kept or stamped now.
-      let finishedAt =
-        'finishedAt' in clean ? clean.finishedAt : existing.finishedAt;
-      if (status === 'done' && !finishedAt) finishedAt = Date.now();
-      if (status !== 'done') finishedAt = undefined;
+      // Leaving "done" drops the rewatches and rereads with the finish date.
+      const finishes = settleFinishes(
+        status,
+        'finishedAt' in clean ? clean.finishedAt : existing.finishedAt,
+        'repeats' in clean ? clean.repeats : existing.repeats,
+      );
       const updated: LibraryItem = {
         ...existing,
         ...clean,
         title: clean.title ?? existing.title,
         tags: clean.tags ?? existing.tags,
         status,
-        finishedAt,
+        ...finishes,
         updatedAt: Date.now(),
       };
       const saved = await store.update(updated);
