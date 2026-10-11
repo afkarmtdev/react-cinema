@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, renderHook } from '@testing-library/react-native';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '../../context/ThemeContext';
 import {
@@ -90,6 +91,24 @@ describe('FloatingTabBar', () => {
       wrapper,
     });
     expect(queryByTestId('floating-tab-bar')).toBeNull();
+  });
+
+  it('puts the capsule back on the focused tab when it shows again', () => {
+    // Diary opens an entry: the bar hides on the library detail screen, then
+    // comes back on the library list.
+    const { getByTestId, rerender } = render(
+      <FloatingTabBar {...makeProps(1).props} />,
+      { wrapper },
+    );
+    const layout = { nativeEvent: { layout: { width: 300, height: 64 } } };
+    fireEvent(getByTestId('floating-tab-bar'), 'layout', layout);
+    rerender(<FloatingTabBar {...makeProps(0, 'none').props} />);
+    rerender(<FloatingTabBar {...makeProps(0, 'flex').props} />);
+    fireEvent(getByTestId('floating-tab-bar'), 'layout', layout);
+    const style = StyleSheet.flatten(
+      getByTestId('floating-tab-capsule').props.style,
+    );
+    expect(style.transform).toEqual([{ translateX: 0 }]);
   });
 
   it('reports the space a screen needs under its content', () => {

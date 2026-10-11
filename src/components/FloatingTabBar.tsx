@@ -59,9 +59,27 @@ export function FloatingTabBar({
   const styles = useThemedStyles(makeStyles);
   const { bottom } = useFloatingTabBarInset();
   const [pillWidth, setPillWidth] = useState(0);
-  const [position] = useState(() => new Animated.Value(state.index));
+
+  const focused = state.routes[state.index];
+  const focusedStyle = StyleSheet.flatten(
+    descriptors[focused.key].options.tabBarStyle,
+  ) as ViewStyle | undefined;
+  const hidden = focusedStyle?.display === 'none';
+
+  // The capsule unmounts while the pill is hidden, so a tab change made
+  // meanwhile (the Diary opening an entry in the library) never reaches it.
+  // Start a fresh value on the focused tab each time the pill shows again.
+  const [position, setPosition] = useState(
+    () => new Animated.Value(state.index),
+  );
+  const [wasHidden, setWasHidden] = useState(hidden);
+  if (hidden !== wasHidden) {
+    setWasHidden(hidden);
+    if (!hidden) setPosition(new Animated.Value(state.index));
+  }
 
   useEffect(() => {
+    if (hidden) return;
     const slide = Animated.timing(position, {
       toValue: state.index,
       duration: 220,
@@ -70,13 +88,9 @@ export function FloatingTabBar({
     });
     slide.start();
     return () => slide.stop();
-  }, [position, state.index]);
+  }, [hidden, position, state.index]);
 
-  const focused = state.routes[state.index];
-  const focusedStyle = StyleSheet.flatten(
-    descriptors[focused.key].options.tabBarStyle,
-  ) as ViewStyle | undefined;
-  if (focusedStyle?.display === 'none') return null;
+  if (hidden) return null;
 
   const count = state.routes.length;
   const slot = Math.max(
@@ -100,6 +114,7 @@ export function FloatingTabBar({
       {slot > 0 && (
         <Animated.View
           pointerEvents="none"
+          testID="floating-tab-capsule"
           style={[
             styles.capsule,
             {
