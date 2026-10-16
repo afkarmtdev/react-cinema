@@ -7,6 +7,7 @@ import { sourcesFor } from '../../api/lookup';
 import { DateField } from '../../components/DateField';
 import { KindPicker } from '../../components/KindPicker';
 import { LookupInline } from '../../components/LookupInline';
+import { MoodPicker } from '../../components/MoodPicker';
 import { StatusPicker } from '../../components/StatusPicker';
 import { TagInput } from '../../components/TagInput';
 import { ScoreInput } from '../../components/ScoreInput';
@@ -25,6 +26,7 @@ import {
   type ItemKind,
   type ItemStatus,
   type LibraryItem,
+  type Mood,
 } from '../../types/library';
 import type { LookupResult } from '../../types/lookup';
 import type { EntryStackParamList } from '../../navigation/types';
@@ -43,6 +45,7 @@ interface Draft {
   status: ItemStatus;
   rating: number;
   review: string;
+  moods: Mood[];
   startedAt?: number;
   finishedAt?: number;
   /** Rewatch or reread dates, each with a key that stays put on removal. */
@@ -73,6 +76,7 @@ function draftFrom(item: LibraryItem | undefined, kind?: ItemKind): Draft {
     status: item?.status ?? 'want',
     rating: item?.rating ?? 0,
     review: item?.review ?? '',
+    moods: item?.moods ?? [],
     startedAt: item?.startedAt,
     finishedAt: item?.finishedAt,
     repeats: (item?.repeats ?? []).map((at) => ({ key: newItemId(), at })),
@@ -177,6 +181,7 @@ export function ItemFormScreen({ navigation, route }: Props) {
       status: draft.status,
       rating: draft.rating || undefined,
       review: draft.review,
+      moods: draft.moods,
       startedAt,
       finishedAt,
       repeats:
@@ -388,6 +393,10 @@ export function ItemFormScreen({ navigation, route }: Props) {
 
         <Field label={t('yourRating')}>
           <ScoreInput value={draft.rating} onChange={(v) => set('rating', v)} />
+        </Field>
+
+        <Field label={t('moods')}>
+          <MoodPicker value={draft.moods} onChange={(v) => set('moods', v)} />
         </Field>
 
         <TextField

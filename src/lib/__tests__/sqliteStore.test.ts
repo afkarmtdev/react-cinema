@@ -60,6 +60,7 @@ const row = (overrides: Partial<EntryRow> = {}): EntryRow => ({
   runtime: null,
   pages: null,
   quotes: '[]',
+  moods: '[]',
   ...overrides,
 });
 
@@ -90,6 +91,7 @@ describe('sqlite mapping', () => {
       $runtime: null,
       $pages: null,
       $quotes: '[]',
+      $moods: '[]',
     });
     expect(toParams({ ...minimal, startedAt: 5 }).$startedAt).toBe(5);
   });
@@ -117,6 +119,17 @@ describe('sqlite mapping', () => {
       ),
     ).toEqual(full);
     expect(toItem(row({ runtime: 155, kind: 'film' })).runtime).toBe(155);
+  });
+
+  it('writes the moods as JSON and reads back only known ones', () => {
+    const params = toParams({ ...dune, moods: ['joy', 'cried'] });
+    expect(params.$moods).toBe('["joy","cried"]');
+    expect(toItem(row({ moods: params.$moods })).moods).toEqual([
+      'joy',
+      'cried',
+    ]);
+    expect(toItem(row({ moods: '["sleepy"]' }))).not.toHaveProperty('moods');
+    expect(toItem(row({ moods: 'nope' }))).not.toHaveProperty('moods');
   });
 
   it('leaves out empty or unreadable lists and rows from before the columns', () => {

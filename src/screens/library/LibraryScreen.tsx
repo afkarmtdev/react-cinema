@@ -111,12 +111,15 @@ export function LibraryScreen({ navigation }: Props) {
     updateProfile({ favourites: next }).catch(() => {});
   };
 
-  // Search, status, and tags apply to every page; the kind is the page.
+  // Search, status, tags, and moods apply to every page; the kind is the page.
   const filtered = useMemo(() => {
     const term = debouncedQuery.trim().toLowerCase();
     return items.filter((item) => {
       if (status && item.status !== status) return false;
       if (filters.tags.some((tag) => !hasTag(item.tags, tag))) return false;
+      if (filters.moods.some((mood) => !item.moods?.includes(mood))) {
+        return false;
+      }
       if (!term) return true;
       const haystack = [
         item.title,

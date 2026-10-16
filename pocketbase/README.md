@@ -23,7 +23,7 @@ PocketBase is a single binary with SQLite inside; nothing else to install.
    and set one up. The dashboard is at http://127.0.0.1:8090/_/ afterwards.
 4. The migrations in `pb_migrations/` run automatically: they create the
    `entries` collection, later add the rewatch dates, runtime, page count,
-   and quotes fields to it, and add a `favourites` list (the top four shelf)
+   quotes, and moods fields to it, and add a `favourites` list (the top four shelf)
    to `users`. The profile picture uses the `avatar` file field that every
    PocketBase auth collection already has. Check the dashboard: you should
    see `users` and `entries` under Collections. If `entries` is missing, run
@@ -65,6 +65,7 @@ PocketBase is a single binary with SQLite inside; nothing else to install.
 | `runtime`     | `runtime` (number of minutes, 0 = unset)              |
 | `pages`       | `pages` (number, 0 = unset)                           |
 | `quotes`      | `quotes` (json array of `{ id, text, page }`)         |
+| `moods`       | `moods` (json array of mood names)                    |
 | `createdAt`   | `created` (autodate)                                  |
 | `updatedAt`   | `updated` (autodate)                                  |
 

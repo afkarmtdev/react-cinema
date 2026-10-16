@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MoodPicker } from '../../components/MoodPicker';
 import { QuoteSheet } from '../../components/QuoteSheet';
 import { ScoreInput } from '../../components/ScoreInput';
 import { StatusPicker } from '../../components/StatusPicker';
@@ -194,6 +195,13 @@ export function ItemDetailScreen({ navigation, route }: Props) {
           <ScoreInput
             value={item.rating ?? 0}
             onChange={(rating) => updateItem(item.id, { rating })}
+          />
+          <MoodPicker
+            value={item.moods ?? []}
+            onChange={(moods) => {
+              haptics.tap();
+              updateItem(item.id, { moods }).catch(() => {});
+            }}
           />
           {item.review ? (
             <Text style={styles.paragraph}>{item.review}</Text>

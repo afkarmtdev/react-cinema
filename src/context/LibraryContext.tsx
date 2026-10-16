@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { newItemId, type LibraryStore } from '../lib/libraryStore';
+import { parseMoods } from '../lib/moods';
 import { clampScore } from '../lib/score';
 import { uniqueTags } from '../lib/tags';
 import type { LibraryItem, LibraryItemInput } from '../types/library';
@@ -65,6 +66,10 @@ function sanitise(input: Partial<LibraryItemInput>): Partial<LibraryItemInput> {
       .map((q) => ({ ...q, text: q.text.trim(), page: validCount(q.page) }))
       .filter((q) => q.text);
     out.quotes = quotes.length ? quotes : undefined;
+  }
+  if ('moods' in input) {
+    const moods = parseMoods(input.moods);
+    out.moods = moods.length ? moods : undefined;
   }
   return out;
 }

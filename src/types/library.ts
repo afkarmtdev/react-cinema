@@ -11,8 +11,19 @@ export type ItemKind = 'film' | 'series' | 'book';
  */
 export type ItemStatus = 'want' | 'inProgress' | 'done';
 
+/** How the entry made the user feel. An entry can carry several. */
+export type Mood = 'joy' | 'cried' | 'mad' | 'scared' | 'moved' | 'bored';
+
 export const ITEM_KINDS: ItemKind[] = ['film', 'series', 'book'];
 export const ITEM_STATUSES: ItemStatus[] = ['want', 'inProgress', 'done'];
+export const MOODS: Mood[] = [
+  'joy',
+  'cried',
+  'mad',
+  'scared',
+  'moved',
+  'bored',
+];
 
 export interface LibraryItem {
   id: string;
@@ -32,6 +43,8 @@ export interface LibraryItem {
   rating?: number;
   /** The user's own written notes or review. */
   review?: string;
+  /** How it made the user feel, in MOODS order. Unset when none is picked. */
+  moods?: Mood[];
   createdAt: number;
   updatedAt: number;
   /** When the user started it, if they recorded that. Optional for every kind. */

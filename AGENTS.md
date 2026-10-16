@@ -10,7 +10,8 @@ pocketJing3 is a small Letterboxd-style tracker built with Expo SDK 57 (managed
 workflow), React Native 0.86, React 19.2, TypeScript, and React Navigation 7.
 A signed-in user keeps a personal library of films, series, and books, typed
 in by hand (title, year, director or author, cover link, description, tags,
-status, a score from 1.0 to 10.0, notes, a runtime or page count, and a
+status, a score from 1.0 to 10.0, moods (how it felt: joy, cried, mad,
+scared, moved, bored, any number of them), notes, a runtime or page count, and a
 started and a finished date picked on the system calendar so old reads can be
 backlogged). Rewatches and rereads are extra finish dates on the same entry
 (`repeats`), and books can keep quotes. Finished entries appear in a diary,
@@ -107,7 +108,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (192 tests in 29 files)
+npm test            Jest, runs once (198 tests in 30 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 npm run export:web  Static web build (a PWA) in dist/, ready for any host
@@ -127,7 +128,8 @@ src/context      StorageContext, AuthContext, LibraryContext, LanguageContext,
                  ThemeContext, and their tests
 src/components   ItemCard (four sizes, one per zoom level), TimelineGrid (the
                  pinch-zoomed, month-sectioned library grid), KindPicker,
-                 StatusPicker, DateField, TagInput, FilterSheet (tags; the
+                 StatusPicker, MoodPicker, DateField, TagInput, FilterSheet
+                 (tags and moods; the
                  status is a chip row under the library tabs), QuoteSheet,
                  LookupInline,
                  EditProfileSheet (name and picture, expo-image-picker),
@@ -154,7 +156,8 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  zoom ladder, pinch steps, and month or year grouping behind
                  the library grid), favourites (the top four shelf, max four),
                  haptics (expo-haptics behind a no-throw wrapper), storage,
-                 score (1 to 10 scale, the 10 rule), tags, labels, validation
+                 score (1 to 10 scale, the 10 rule), tags, moods (the fixed
+                 mood list, icons, and parsing), labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
 public/          web only: index.html template, manifest.json, sw.js, and
                  the PWA icons. Copied verbatim into the web export.

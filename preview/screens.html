@@ -472,13 +472,20 @@
     <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
     <symbol id="i-addc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <!-- Moods, after the Ionicons the app uses: happy, water, flame, skull, sparkles, bed. -->
+    <symbol id="i-joy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.8 2.4 2.6 4 2.6s3-.8 4-2.6"/><path d="M9 9.5v.5M15 9.5v.5"/></symbol>
+    <symbol id="i-cried" viewBox="0 0 24 24"><path d="M12 3s6 6.8 6 11a6 6 0 0 1-12 0c0-4.2 6-11 6-11z"/></symbol>
+    <symbol id="i-mad" viewBox="0 0 24 24"><path d="M12 21a6 6 0 0 1-6-6c0-4 3-5.5 3.5-9.5C12 7 13 9 13.2 11c1-1 1.6-2.2 1.8-3.6C17 9 18 12 18 15a6 6 0 0 1-6 6z"/></symbol>
+    <symbol id="i-scared" viewBox="0 0 24 24"><path d="M5 11a7 7 0 0 1 14 0c0 2.5-1.2 4-3 5v3H8v-3c-1.8-1-3-2.5-3-5z"/><circle cx="9.5" cy="11" r="1.4"/><circle cx="14.5" cy="11" r="1.4"/><path d="M11 19v-2M13 19v-2"/></symbol>
+    <symbol id="i-moved" viewBox="0 0 24 24"><path d="M10 3l1.6 4.4L16 9l-4.4 1.6L10 15l-1.6-4.4L4 9l4.4-1.6z"/><path d="M17.5 13.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
+    <symbol id="i-bored" viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="2"/></symbol>
   </defs>
 </svg>
 
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v16 · mirrors the code as of 11 Oct 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v17 · mirrors the code as of 16 Oct 2026 · <a href="#changes">changes</a></p>
       <h1>pocketJing3, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -659,12 +666,14 @@
         <div class="sheet-bg"><div class="sheet">
           <div class="handle"></div>
           <p class="h2">Filters</p>
+          <p class="label" style="margin-top:6px">Mood</p>
+          <div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-joy"/></svg>Joy</span><span class="chip on"><svg style="font-size:12px"><use href="#i-cried"/></svg>Cried</span><span class="chip"><svg style="font-size:12px"><use href="#i-mad"/></svg>Mad</span><span class="chip"><svg style="font-size:12px"><use href="#i-scared"/></svg>Scared</span><span class="chip"><svg style="font-size:12px"><use href="#i-moved"/></svg>Moved</span><span class="chip"><svg style="font-size:12px"><use href="#i-bored"/></svg>Bored</span></div>
           <p class="label" style="margin-top:6px">Tags</p>
           <div class="chips"><span class="chip on">sci-fi</span><span class="chip">slow burn</span><span class="chip">comfort</span><span class="chip">rewatch</span><span class="chip">book club</span><span class="chip">malaysian</span><span class="chip">workplace</span></div>
           <div class="row" style="margin-top:14px"><div class="btn outline" style="flex:1;height:38px">Clear</div><div class="btn" style="flex:1;height:38px">Apply</div></div>
         </div></div>
       </div></div>
-      <figcaption><p class="name">Filters</p><p class="note">Bottom sheet from the filter button, now for tags only: the status moved out to the chips under the tabs, one tap away. Tags are your own, most-used first, and an entry must carry every selected tag.</p></figcaption>
+      <figcaption><p class="name">Filters</p><p class="note">Bottom sheet from the filter button, for moods and tags: the status moved out to the chips under the tabs, one tap away. The six moods are always offered; tags are your own, most-used first. An entry must carry every selected mood and tag, so Cried here shows only the ones that made you cry.</p></figcaption>
     </figure>
 
     <!-- 4. Add entry -->
@@ -713,12 +722,13 @@
                 </div>
               </div>
             </div>
+            <div><p class="label">How it felt</p><div class="chips"><span class="chip"><svg style="font-size:12px"><use href="#i-joy"/></svg>Joy</span><span class="chip"><svg style="font-size:12px"><use href="#i-cried"/></svg>Cried</span><span class="chip"><svg style="font-size:12px"><use href="#i-mad"/></svg>Mad</span><span class="chip on"><svg style="font-size:12px"><use href="#i-scared"/></svg>Scared</span><span class="chip on"><svg style="font-size:12px"><use href="#i-moved"/></svg>Moved</span><span class="chip"><svg style="font-size:12px"><use href="#i-bored"/></svg>Bored</span></div></div>
             <div><p class="label">Your notes</p><div class="field area"><span class="ph">What did you think?</span></div></div>
             <div class="btn">Save</div>
           </div>
         </div>
       </div></div>
-      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Year sits beside Pages for a book, or Runtime in minutes for a film or series (every episode together for a series); Fill from the web fills either one when the source has it. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Once it is done, Log a reread (Log a rewatch for films and series) adds a dated field under Finished for each time since, today by default, with an x to take it off. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Editing uses the same form plus a two-step Delete. While typing, the form scrolls the whole field you are in above the keyboard with room to spare, and a Done strip on top of the iPhone keyboard puts it away; dragging the form down or tapping empty space does too.</p></figcaption>
+      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Year sits beside Pages for a book, or Runtime in minutes for a film or series (every episode together for a series); Fill from the web fills either one when the source has it. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Once it is done, Log a reread (Log a rewatch for films and series) adds a dated field under Finished for each time since, today by default, with an x to take it off. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Under the score, How it felt takes any number of moods: joy, cried, mad, scared, moved, bored. Editing uses the same form plus a two-step Delete. While typing, the form scrolls the whole field you are in above the keyboard with room to spare, and a Done strip on top of the iPhone keyboard puts it away; dragging the form down or tapping empty space does too.</p></figcaption>
     </figure>
 
     <!-- 5. Lookup -->
@@ -776,6 +786,7 @@
               <div class="score-head"><span class="score-big">9.2 <small>/ 10</small></span><span class="tiny">Clear score</span></div>
               <div class="cells"><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell on">9</span><span class="cell ten">10</span></div>
               <div class="cells tenths"><span class="cell">.0</span><span class="cell">.1</span><span class="cell on">.2</span><span class="cell">.3</span><span class="cell">.4</span><span class="cell">.5</span><span class="cell">.6</span><span class="cell">.7</span><span class="cell">.8</span><span class="cell">.9</span></div>
+              <div class="chips"><span class="chip on"><svg style="font-size:12px"><use href="#i-joy"/></svg>Joy</span><span class="chip"><svg style="font-size:12px"><use href="#i-cried"/></svg>Cried</span><span class="chip"><svg style="font-size:12px"><use href="#i-mad"/></svg>Mad</span><span class="chip"><svg style="font-size:12px"><use href="#i-scared"/></svg>Scared</span><span class="chip on"><svg style="font-size:12px"><use href="#i-moved"/></svg>Moved</span><span class="chip"><svg style="font-size:12px"><use href="#i-bored"/></svg>Bored</span></div>
               <p class="p">Slow for the first hundred pages and then impossible to put down. The ecology chapters were the surprise favourite.</p>
               <div>
                 <p class="tiny" style="margin:0">Started 3 Mar 2019</p>
@@ -792,7 +803,7 @@
           </div>
         </div>
       </div></div>
-      <figcaption><p class="name">Entry detail</p><p class="note">Status and score change in place; the heart puts the entry on your top four (filled when it is there), the pencil opens the edit form. The hero uses a blurred cover when there is one. The start and finish dates sit under the score; marking something finished stamps today, and the form can move it or add when you started. The facts row adds the page count (or the runtime for a film or series) and, once it has been read again, how many times. Each reread or rewatch is listed under the first finish, and Log a reread stamps today with one tap. Books get a Quotes section: the plus adds one, tapping a quote edits it (next phone).</p></figcaption>
+      <figcaption><p class="name">Entry detail</p><p class="note">Status, score, and moods change in place (the mood chips under the score toggle with a tap, any number at once); the heart puts the entry on your top four (filled when it is there), the pencil opens the edit form. The hero uses a blurred cover when there is one. The start and finish dates sit under the score; marking something finished stamps today, and the form can move it or add when you started. The facts row adds the page count (or the runtime for a film or series) and, once it has been read again, how many times. Each reread or rewatch is listed under the first finish, and Log a reread stamps today with one tap. Books get a Quotes section: the plus adds one, tapping a quote edits it (next phone).</p></figcaption>
     </figure>
 
     <!-- 6b. Quote sheet -->
@@ -932,6 +943,12 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v17</b>16 Oct 2026</div>
+        <ul>
+          <li>Moods: any entry can say how it made you feel, from a fixed set of six (joy, cried, mad, scared, moved, bored), as many as fit. They are picked with a chip row under the score in the form, toggled in place on the entry's page, and offered as a Mood filter above Tags in the filter sheet. Redrawn: Add entry (How it felt), Entry detail (mood chips under the score), Filters (the Mood row).</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v16</b>11 Oct 2026</div>
         <ul>

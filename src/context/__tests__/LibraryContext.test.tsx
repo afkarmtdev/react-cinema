@@ -236,6 +236,24 @@ describe('LibraryContext', () => {
     expect(result.current.lib.getItem(id)!.quotes).toBeUndefined();
   });
 
+  it('keeps known moods in order and drops an empty list', async () => {
+    const { result } = await mountWithUser();
+    let id = '';
+    await act(async () => {
+      const item = await result.current.lib.addItem({
+        ...dune,
+        moods: ['mad', 'joy', 'mad'],
+      });
+      id = item.id;
+    });
+    expect(result.current.lib.getItem(id)!.moods).toEqual(['joy', 'mad']);
+
+    await act(async () => {
+      await result.current.lib.updateItem(id, { moods: [] });
+    });
+    expect(result.current.lib.getItem(id)!.moods).toBeUndefined();
+  });
+
   it('removes an entry', async () => {
     const { result } = await mountWithUser();
     let id = '';

@@ -60,6 +60,10 @@ all its episodes) and books a page count; the web lookup fills these in when
 the source has them. Books also keep quotes: a passage and, if you like, the
 page, added and edited from the book's page.
 
+**Moods.** Any entry can say how it made you feel: joy, cried, mad, scared,
+moved, or bored, as many as fit. Pick them in the form or tap them on the
+entry's page, and filter the library by them from the filter sheet.
+
 **Scores, not stars.** Ratings run from 1.0 to 10.0 in tenths, pizza-review
 style, picked from a whole-number row and a tenths row. Tapping 10 brings up a
 warning: a 10 means you have found the one, which is impossible, so the app
@@ -312,23 +316,24 @@ that server beyond your Wi-Fi.
 
 `npm test` runs 181 tests across 27 files, including:
 
-| File                     | What it checks                                                                         |
-| ------------------------ | -------------------------------------------------------------------------------------- |
-| `lib/validation`         | the email and password rules                                                           |
-| `lib/tags`               | trimming, case-insensitive dedupe, and splitting comma-separated input                 |
-| `lib/score`              | clamping to one decimal, formatting, splitting for the picker, stars to score          |
-| `api/http`               | the query string builder, year parsing, and HTML-to-text cleanup                       |
-| `api/lookup/*`           | each source's URLs and key handling, the mapping to form fields, empty and error cases |
-| `api/lookup/index`       | which sources each kind gets with and without keys, and the saved-source fallback      |
-| `components/LookupSheet` | source chips, searching again on a switch, remembering the source, picking a result    |
-| `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)      |
-| `lib/sqliteStore`        | row mapping both ways, per-owner list and order, and the one-off AsyncStorage import   |
-| `lib/summary`            | month and year ranges, counts per kind (rewatches too), average score, time and pages  |
-| `lib/labels`             | runtime and page formatting in both languages, rewatch and reread wording              |
-| `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password                 |
-| `context/LibraryContext` | add, validate, update, finish dates, rewatches, length, quotes, remove, migration      |
-| `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles      |
-| `context/StorageContext` | device default, switching to a server and persisting, bad saved values, health check   |
+| File                     | What it checks                                                                           |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| `lib/validation`         | the email and password rules                                                             |
+| `lib/tags`               | trimming, case-insensitive dedupe, and splitting comma-separated input                   |
+| `lib/moods`              | dropping unknown moods, the fixed order, toggling                                        |
+| `lib/score`              | clamping to one decimal, formatting, splitting for the picker, stars to score            |
+| `api/http`               | the query string builder, year parsing, and HTML-to-text cleanup                         |
+| `api/lookup/*`           | each source's URLs and key handling, the mapping to form fields, empty and error cases   |
+| `api/lookup/index`       | which sources each kind gets with and without keys, and the saved-source fallback        |
+| `components/LookupSheet` | source chips, searching again on a switch, remembering the source, picking a result      |
+| `lib/pocketbase`         | record mapping both ways, the store's calls, and auth error mapping (fake client)        |
+| `lib/sqliteStore`        | row mapping both ways, per-owner list and order, and the one-off AsyncStorage import     |
+| `lib/summary`            | month and year ranges, counts per kind (rewatches too), average score, time and pages    |
+| `lib/labels`             | runtime and page formatting in both languages, rewatch and reread wording                |
+| `context/AuthContext`    | signup, login, logout, duplicate email, short password, wrong password                   |
+| `context/LibraryContext` | add, validate, update, finish dates, rewatches, length, quotes, moods, remove, migration |
+| `context/ThemeContext`   | default theme, switching and persisting, restoring a saved theme, memoised styles        |
+| `context/StorageContext` | device default, switching to a server and persisting, bad saved values, health check     |
 
 One thing to know if you touch the test setup: `jest-expo@57` still targets the
 Jest 29 line, so `jest` is pinned to `29.7.0`; pulling in Jest 30 crashes the

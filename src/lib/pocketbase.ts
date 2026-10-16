@@ -7,8 +7,9 @@ import PocketBase, {
 } from 'pocketbase';
 import { AuthError, type AuthBackend, type User } from './auth';
 import type { LibraryStore } from './libraryStore';
+import { parseMoods } from './moods';
 import { StorageKeys } from './storage';
-import type { LibraryItem, Quote } from '../types/library';
+import type { LibraryItem, Mood, Quote } from '../types/library';
 
 /**
  * PocketBase backend: accounts live in the built-in `users` collection and
@@ -178,6 +179,11 @@ function toQuotes(value: unknown): Quote[] | undefined {
   return quotes.length ? quotes : undefined;
 }
 
+function toMoods(value: unknown): Mood[] | undefined {
+  const moods = parseMoods(value);
+  return moods.length ? moods : undefined;
+}
+
 /** PocketBase record to the app's entry shape. Empty strings and 0 mean unset. */
 export function toItem(r: RecordModel): LibraryItem {
   return {
@@ -201,6 +207,7 @@ export function toItem(r: RecordModel): LibraryItem {
     runtime: r.runtime || undefined,
     pages: r.pages || undefined,
     quotes: toQuotes(r.quotes),
+    moods: toMoods(r.moods),
   };
 }
 
@@ -224,6 +231,7 @@ export function toRecord(item: LibraryItem): Record<string, unknown> {
     runtime: item.runtime ?? 0,
     pages: item.pages ?? 0,
     quotes: item.quotes ?? [],
+    moods: item.moods ?? [],
   };
 }
 

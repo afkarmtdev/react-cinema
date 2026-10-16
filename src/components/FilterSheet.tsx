@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 import { hasTag } from '../lib/tags';
 import { spacing, typography, type ThemeColors } from '../theme';
+import type { Mood } from '../types/library';
+import { MoodPicker } from './MoodPicker';
 import { Button } from './ui/Button';
 import { Chip } from './ui/Chip';
 import { Sheet } from './ui/Sheet';
@@ -15,11 +17,14 @@ import { useThemedStyles } from '../context/ThemeContext';
 export interface LibraryFilters {
   /** An entry must carry every selected tag. */
   tags: string[];
+  /** An entry must carry every selected mood. */
+  moods: Mood[];
 }
 
-export const EMPTY_FILTERS: LibraryFilters = { tags: [] };
+export const EMPTY_FILTERS: LibraryFilters = { tags: [], moods: [] };
 
-export const hasActiveFilters = (f: LibraryFilters) => f.tags.length > 0;
+export const hasActiveFilters = (f: LibraryFilters) =>
+  f.tags.length > 0 || f.moods.length > 0;
 
 interface FilterSheetProps {
   visible: boolean;
@@ -30,7 +35,7 @@ interface FilterSheetProps {
   onClose: () => void;
 }
 
-/** Bottom sheet to narrow the library by tags. */
+/** Bottom sheet to narrow the library by tags and moods. */
 export function FilterSheet({
   visible,
   filters,
@@ -64,6 +69,12 @@ export function FilterSheet({
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
+        <Text style={styles.label}>{t('filterMoods')}</Text>
+        <MoodPicker
+          value={draft.moods}
+          onChange={(moods) => setDraft((d) => ({ ...d, moods }))}
+        />
+
         <Text style={styles.label}>{t('filterTags')}</Text>
         {availableTags.length === 0 ? (
           <Text style={styles.muted}>{t('noTagsYet')}</Text>

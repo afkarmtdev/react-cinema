@@ -107,6 +107,7 @@ describe('pocketbase mapping', () => {
       runtime: 0,
       pages: 0,
       quotes: [],
+      moods: [],
     });
   });
 
@@ -139,6 +140,17 @@ describe('pocketbase mapping', () => {
     expect(old.repeats).toBeUndefined();
     expect(old.quotes).toBeUndefined();
     expect(old.pages).toBeUndefined();
+  });
+
+  it('carries the moods both ways', () => {
+    const felt = { ...dune, moods: ['cried' as const, 'moved' as const] };
+    expect(toRecord(felt).moods).toEqual(['cried', 'moved']);
+    expect(toRecord(dune).moods).toEqual([]);
+    expect(toItem(record({ moods: ['moved', 'cried', 'sleepy'] }))).toEqual(
+      felt,
+    );
+    // A record from before the migration has no moods field.
+    expect(toItem(record({ moods: null })).moods).toBeUndefined();
   });
 
   it('carries the start date both ways', () => {

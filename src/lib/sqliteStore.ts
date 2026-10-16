@@ -4,6 +4,7 @@ import {
   type LegacyReview,
   type LibraryStore,
 } from './libraryStore';
+import { parseMoods } from './moods';
 import { storage, StorageKeys } from './storage';
 import type {
   ItemKind,
@@ -54,6 +55,8 @@ export interface EntryRow {
   pages: number | null;
   /** JSON-encoded array of quotes. */
   quotes: string;
+  /** JSON-encoded array of moods. */
+  moods: string;
 }
 
 const SCHEMA = `
@@ -78,7 +81,8 @@ const SCHEMA = `
     repeats TEXT NOT NULL DEFAULT '[]',
     runtime INTEGER,
     pages INTEGER,
-    quotes TEXT NOT NULL DEFAULT '[]'
+    quotes TEXT NOT NULL DEFAULT '[]',
+    moods TEXT NOT NULL DEFAULT '[]'
   );
   CREATE INDEX IF NOT EXISTS entries_owner_updated
     ON entries (owner_id, updated_at DESC);
@@ -95,16 +99,17 @@ const COLUMN_UPGRADES = [
   'ALTER TABLE entries ADD COLUMN runtime INTEGER',
   'ALTER TABLE entries ADD COLUMN pages INTEGER',
   "ALTER TABLE entries ADD COLUMN quotes TEXT NOT NULL DEFAULT '[]'",
+  "ALTER TABLE entries ADD COLUMN moods TEXT NOT NULL DEFAULT '[]'",
 ];
 
 const COLUMNS =
   'id, owner_id, kind, title, year, creator, description, poster, tags, ' +
   'status, rating, review, created_at, updated_at, started_at, finished_at, ' +
-  'repeats, runtime, pages, quotes';
+  'repeats, runtime, pages, quotes, moods';
 const VALUES =
   '$id, $ownerId, $kind, $title, $year, $creator, $description, $poster, ' +
   '$tags, $status, $rating, $review, $createdAt, $updatedAt, $startedAt, ' +
-  '$finishedAt, $repeats, $runtime, $pages, $quotes';
+  '$finishedAt, $repeats, $runtime, $pages, $quotes, $moods';
 
 const INSERT = `INSERT INTO entries (${COLUMNS}) VALUES (${VALUES})`;
 const INSERT_IF_MISSING = `INSERT OR IGNORE INTO entries (${COLUMNS}) VALUES (${VALUES})`;
@@ -114,7 +119,7 @@ const UPDATE = `UPDATE entries SET
   tags = $tags, status = $status, rating = $rating, review = $review,
   created_at = $createdAt, updated_at = $updatedAt, started_at = $startedAt,
   finished_at = $finishedAt, repeats = $repeats, runtime = $runtime,
-  pages = $pages, quotes = $quotes
+  pages = $pages, quotes = $quotes, moods = $moods
   WHERE id = $id`;
 const DELETE = 'DELETE FROM entries WHERE id = $id';
 const SELECT_BY_OWNER = `SELECT ${COLUMNS} FROM entries WHERE owner_id = $ownerId ORDER BY updated_at DESC`;
@@ -141,6 +146,7 @@ export type EntryParams = {
   $runtime: number | null;
   $pages: number | null;
   $quotes: string;
+  $moods: string;
 };
 
 export const toParams = (item: LibraryItem): EntryParams => ({
@@ -164,6 +170,7 @@ export const toParams = (item: LibraryItem): EntryParams => ({
   $runtime: item.runtime ?? null,
   $pages: item.pages ?? null,
   $quotes: JSON.stringify(item.quotes ?? []),
+  $moods: JSON.stringify(item.moods ?? []),
 });
 
 /** A JSON array column back into a list; anything unreadable is empty. */
@@ -217,6 +224,8 @@ export function toItem(row: EntryRow): LibraryItem {
   if (repeats.length) item.repeats = repeats;
   const quotes = parseQuotes(row.quotes);
   if (quotes.length) item.quotes = quotes;
+  const moods = parseMoods(parseList(row.moods));
+  if (moods.length) item.moods = moods;
   return item;
 }
 
