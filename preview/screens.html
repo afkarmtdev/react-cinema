@@ -341,13 +341,12 @@
   .quote .q { font-size: 12px; font-weight: 600; line-height: 1.5; color: var(--text); margin: 0; }
   .ptile { background: var(--primary); color: var(--on-primary); font-weight: 900; font-size: 9.5px; padding: 1px 6px; border-radius: 4px; transform: skewX(-8deg); }
   /* Mood tiles: the Cantonese character, its jyutping, the name. A picked one shows the logo's skewed yellow face. */
-  .htiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-  .htile { position: relative; height: 72px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--muted); }
-  .htile .c { font: 900 24px/1 "Noto Sans HK", sans-serif; }
-  .htile .j { font: normal 500 8px/1 "IBM Plex Mono", monospace; }
-  .htile .e { font-style: normal; font-size: 7.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-2); }
+  .htiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; }
+  .htile { position: relative; height: 46px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--muted); }
+  .htile .c { font: 900 17px/1 "Noto Sans HK", sans-serif; }
+  .htile .e { font-style: normal; font-size: 6.2px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-2); }
   .htile.on { border-color: transparent; background: var(--bg); }
-  .htile.on::before { content: ""; position: absolute; inset: 4px; background: var(--primary); border-radius: 6px; transform: skewX(-8deg); }
+  .htile.on::before { content: ""; position: absolute; inset: 3px; background: var(--primary); border-radius: 3px; transform: skewX(-8deg); }
   .htile.on > * { position: relative; color: var(--on-primary); }
   .sheet .htile:not(.on) { background: var(--bg); }
   .hmarks { display: inline-flex; gap: 4px; }
@@ -490,7 +489,7 @@
 <div class="wrap">
   <header class="intro">
     <div>
-      <p class="eyebrow">Design draft · v18 · mirrors the code as of 16 Oct 2026 · <a href="#changes">changes</a></p>
+      <p class="eyebrow">Design draft · v19 · mirrors the code as of 16 Oct 2026 · <a href="#changes">changes</a></p>
       <h1>pocketJing3, screen by screen</h1>
       <p>A hand-drawn mockup of every screen in the library version: films, series, and books, typed in by you, scored out of 10, synced through PocketBase. The data on the phones is example data. Each phone scrolls, so you can see the whole screen.</p>
     </div>
@@ -672,7 +671,7 @@
           <div class="handle"></div>
           <p class="h2">Filters</p>
           <p class="label" style="margin-top:6px">Mood</p>
-          <div class="htiles"><span class="htile"><b class="c">喜</b><i class="j">hei2</i><em class="e">Joy</em></span><span class="htile on"><b class="c">哭</b><i class="j">huk1</i><em class="e">Cried</em></span><span class="htile"><b class="c">嬲</b><i class="j">nau1</i><em class="e">Mad</em></span><span class="htile"><b class="c">驚</b><i class="j">geng1</i><em class="e">Scared</em></span><span class="htile"><b class="c">感</b><i class="j">gam2</i><em class="e">Moved</em></span><span class="htile"><b class="c">悶</b><i class="j">mun6</i><em class="e">Bored</em></span></div>
+          <div class="htiles"><span class="htile"><b class="c">喜</b><em class="e">Joy</em></span><span class="htile on"><b class="c">哭</b><em class="e">Cried</em></span><span class="htile"><b class="c">嬲</b><em class="e">Mad</em></span><span class="htile"><b class="c">驚</b><em class="e">Scared</em></span><span class="htile"><b class="c">感</b><em class="e">Moved</em></span><span class="htile"><b class="c">悶</b><em class="e">Bored</em></span></div>
           <p class="label" style="margin-top:6px">Tags</p>
           <div class="chips"><span class="chip on">sci-fi</span><span class="chip">slow burn</span><span class="chip">comfort</span><span class="chip">rewatch</span><span class="chip">book club</span><span class="chip">malaysian</span><span class="chip">workplace</span></div>
           <div class="row" style="margin-top:14px"><div class="btn outline" style="flex:1;height:38px">Clear</div><div class="btn" style="flex:1;height:38px">Apply</div></div>
@@ -727,13 +726,13 @@
                 </div>
               </div>
             </div>
-            <div><p class="label">How it felt</p><div class="htiles"><span class="htile"><b class="c">喜</b><i class="j">hei2</i><em class="e">Joy</em></span><span class="htile"><b class="c">哭</b><i class="j">huk1</i><em class="e">Cried</em></span><span class="htile"><b class="c">嬲</b><i class="j">nau1</i><em class="e">Mad</em></span><span class="htile on"><b class="c">驚</b><i class="j">geng1</i><em class="e">Scared</em></span><span class="htile on"><b class="c">感</b><i class="j">gam2</i><em class="e">Moved</em></span><span class="htile"><b class="c">悶</b><i class="j">mun6</i><em class="e">Bored</em></span></div></div>
+            <div><p class="label">How it felt</p><div class="htiles"><span class="htile"><b class="c">喜</b><em class="e">Joy</em></span><span class="htile"><b class="c">哭</b><em class="e">Cried</em></span><span class="htile"><b class="c">嬲</b><em class="e">Mad</em></span><span class="htile on"><b class="c">驚</b><em class="e">Scared</em></span><span class="htile on"><b class="c">感</b><em class="e">Moved</em></span><span class="htile"><b class="c">悶</b><em class="e">Bored</em></span></div></div>
             <div><p class="label">Your notes</p><div class="field area"><span class="ph">What did you think?</span></div></div>
             <div class="btn">Save</div>
           </div>
         </div>
       </div></div>
-      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Year sits beside Pages for a book, or Runtime in minutes for a film or series (every episode together for a series); Fill from the web fills either one when the source has it. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Once it is done, Log a reread (Log a rewatch for films and series) adds a dated field under Finished for each time since, today by default, with an x to take it off. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Under the score, How it felt takes any number of moods, each a tile with its Cantonese character (喜 joy, 哭 cried, 嬲 mad, 驚 scared, 感 moved, 悶 bored), its jyutping, and the name; a picked tile flips over, with a little overshoot, to the logo's skewed yellow face. Editing uses the same form plus a two-step Delete. While typing, the form scrolls the whole field you are in above the keyboard with room to spare, and a Done strip on top of the iPhone keyboard puts it away; dragging the form down or tapping empty space does too.</p></figcaption>
+      <figcaption><p class="name">Add entry</p><p class="note">Opens as a modal. The second field is Author for a book and Director otherwise, and the status wording follows the type. The cover preview updates from the pasted link. Year sits beside Pages for a book, or Runtime in minutes for a film or series (every episode together for a series); Fill from the web fills either one when the source has it. Started appears once the status is past the watchlist and Finished once it is done; Finished proposes today, both open the system calendar, and the x clears them, so an old read can be filed on the day it happened. Once it is done, Log a reread (Log a rewatch for films and series) adds a dated field under Finished for each time since, today by default, with an x to take it off. Scores are 1.0 to 10.0 in tenths; tapping 10 shows the warning drawn here. Under the score, How it felt takes any number of moods, each a tile with its Cantonese character (喜 joy, 哭 cried, 嬲 mad, 驚 scared, 感 moved, 悶 bored), and its name, in one row of six that lines up with the score cells (the jyutping is read out by the screen reader); a picked tile flips over, with a little overshoot, to the logo's skewed yellow face. Editing uses the same form plus a two-step Delete. While typing, the form scrolls the whole field you are in above the keyboard with room to spare, and a Done strip on top of the iPhone keyboard puts it away; dragging the form down or tapping empty space does too.</p></figcaption>
     </figure>
 
     <!-- 5. Lookup -->
@@ -791,7 +790,7 @@
               <div class="score-head"><span class="score-big">9.2 <small>/ 10</small></span><span class="tiny">Clear score</span></div>
               <div class="cells"><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell on">9</span><span class="cell ten">10</span></div>
               <div class="cells tenths"><span class="cell">.0</span><span class="cell">.1</span><span class="cell on">.2</span><span class="cell">.3</span><span class="cell">.4</span><span class="cell">.5</span><span class="cell">.6</span><span class="cell">.7</span><span class="cell">.8</span><span class="cell">.9</span></div>
-              <div class="htiles"><span class="htile on"><b class="c">喜</b><i class="j">hei2</i><em class="e">Joy</em></span><span class="htile"><b class="c">哭</b><i class="j">huk1</i><em class="e">Cried</em></span><span class="htile"><b class="c">嬲</b><i class="j">nau1</i><em class="e">Mad</em></span><span class="htile"><b class="c">驚</b><i class="j">geng1</i><em class="e">Scared</em></span><span class="htile on"><b class="c">感</b><i class="j">gam2</i><em class="e">Moved</em></span><span class="htile"><b class="c">悶</b><i class="j">mun6</i><em class="e">Bored</em></span></div>
+              <div class="htiles"><span class="htile on"><b class="c">喜</b><em class="e">Joy</em></span><span class="htile"><b class="c">哭</b><em class="e">Cried</em></span><span class="htile"><b class="c">嬲</b><em class="e">Mad</em></span><span class="htile"><b class="c">驚</b><em class="e">Scared</em></span><span class="htile on"><b class="c">感</b><em class="e">Moved</em></span><span class="htile"><b class="c">悶</b><em class="e">Bored</em></span></div>
               <p class="p">Slow for the first hundred pages and then impossible to put down. The ecology chapters were the surprise favourite.</p>
               <div>
                 <p class="tiny" style="margin:0">Started 3 Mar 2019</p>
@@ -948,6 +947,12 @@
     <h2>Changes to this mockup</h2>
     <p class="lead">Newest first. Each entry says what changed in the app and which phones above were redrawn. The source is <code>preview/screens.html</code> in the repo; the <code>screens-artifact</code> skill has the update steps.</p>
     <ol class="log">
+      <li>
+        <div class="ver"><b>v19</b>16 Oct 2026</div>
+        <ul>
+          <li>The mood tiles shrink to one row of six, about the height of the score cells above them, where two rows of tall tiles had been the loudest thing on the form. The character and the name stay on each tile; the jyutping is read out by the screen reader instead. A picked tile now comes to rest flat after its flip, which keeps its text sharp. Redrawn: Add entry, Entry detail, Filters.</li>
+        </ul>
+      </li>
       <li>
         <div class="ver"><b>v18</b>16 Oct 2026</div>
         <ul>
