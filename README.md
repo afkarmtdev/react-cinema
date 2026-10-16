@@ -62,7 +62,10 @@ page, added and edited from the book's page.
 
 **Moods.** Any entry can say how it made you feel: joy, cried, mad, scared,
 moved, or bored, as many as fit. Pick them in the form or tap them on the
-entry's page, and filter the library by them from the filter sheet.
+entry's page, and filter the library by them from the filter sheet. Each mood
+is a tile with its spoken-Cantonese character (喜 joy, 哭 cried, 嬲 mad, 驚
+scared, 感 moved, 悶 bored) that flips to the logo's yellow face when picked,
+and the Diary shows the picked characters as small yellow tiles.
 
 **Scores, not stars.** Ratings run from 1.0 to 10.0 in tenths, pizza-review
 style, picked from a whole-number row and a tenths row. Tapping 10 brings up a
@@ -321,6 +324,7 @@ that server beyond your Wi-Fi.
 | `lib/validation`         | the email and password rules                                                             |
 | `lib/tags`               | trimming, case-insensitive dedupe, and splitting comma-separated input                   |
 | `lib/moods`              | dropping unknown moods, the fixed order, toggling                                        |
+| `components/MoodPicker`  | a tile per mood with its selected state, toggling in order, the Diary marks              |
 | `lib/score`              | clamping to one decimal, formatting, splitting for the picker, stars to score            |
 | `api/http`               | the query string builder, year parsing, and HTML-to-text cleanup                         |
 | `api/lookup/*`           | each source's URLs and key handling, the mapping to form fields, empty and error cases   |

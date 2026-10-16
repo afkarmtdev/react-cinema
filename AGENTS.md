@@ -108,7 +108,7 @@ as the Shai-Hulud worm. The rules:
 ```
 npm run typecheck   TypeScript (tsc --noEmit)
 npm run lint        ESLint (flat config: expo, prettier, unused-imports)
-npm test            Jest, runs once (198 tests in 30 files)
+npm test            Jest, runs once (201 tests in 31 files)
 npm run format      Prettier across the project
 npm start           Metro dev server (Expo Go, emulator, or web)
 npm run export:web  Static web build (a PWA) in dist/, ready for any host
@@ -157,7 +157,8 @@ src/lib          backend (builds the PocketBase or local pair), auth
                  the library grid), favourites (the top four shelf, max four),
                  haptics (expo-haptics behind a no-throw wrapper), storage,
                  score (1 to 10 scale, the 10 rule), tags, moods (the fixed
-                 mood list, icons, and parsing), labels, validation
+                 mood list, its Cantonese characters, and
+                 parsing), labels, validation
 pocketbase/      pb_migrations (creates the entries collection), README
 public/          web only: index.html template, manifest.json, sw.js, and
                  the PWA icons. Copied verbatim into the web export.

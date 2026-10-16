@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useFloatingTabBarInset } from '../components/FloatingTabBar';
+import { MoodMarks } from '../components/MoodPicker';
 import { Screen } from '../components/ui/Screen';
 import { EmptyView } from '../components/ui/StateViews';
 import { ScoreBadge } from '../components/ui/ScoreBadge';
@@ -267,6 +268,7 @@ function DiaryRow({
                 : t('finishedOn', { date })}
             </Text>
           </View>
+          <MoodMarks moods={item.moods ?? []} />
         </View>
         {!!item.review && (
           <Text style={styles.snippet} numberOfLines={2}>
