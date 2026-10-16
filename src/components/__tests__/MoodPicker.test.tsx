@@ -16,10 +16,12 @@ describe('MoodPicker', () => {
       <MoodPicker value={['cried']} onChange={() => {}} />,
       { wrapper },
     );
-    const cried = await findByLabelText('Cried');
+    const cried = await findByLabelText('Cried, huk1');
     expect(getAllByRole('button')).toHaveLength(6);
     expect(cried.props.accessibilityState).toEqual({ selected: true });
-    expect((await findByLabelText('Joy')).props.accessibilityState).toEqual({
+    expect(
+      (await findByLabelText('Joy, hei2')).props.accessibilityState,
+    ).toEqual({
       selected: false,
     });
   });
@@ -30,9 +32,9 @@ describe('MoodPicker', () => {
       <MoodPicker value={['mad']} onChange={onChange} />,
       { wrapper },
     );
-    fireEvent.press(await findByLabelText('Joy'));
+    fireEvent.press(await findByLabelText('Joy, hei2'));
     expect(onChange).toHaveBeenLastCalledWith(['joy', 'mad']);
-    fireEvent.press(await findByLabelText('Mad'));
+    fireEvent.press(await findByLabelText('Mad, nau1'));
     expect(onChange).toHaveBeenLastCalledWith([]);
   });
 

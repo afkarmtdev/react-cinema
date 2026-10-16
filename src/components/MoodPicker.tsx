@@ -10,7 +10,7 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { useThemedStyles } from '../context/ThemeContext';
 import { MOOD_HANZI, moodKey, toggleMood } from '../lib/moods';
-import { motion, radius, spacing, type ThemeColors } from '../theme';
+import { motion, radius, type ThemeColors } from '../theme';
 import { MOODS, type Mood } from '../types/library';
 
 interface MoodPickerProps {
@@ -72,11 +72,14 @@ function MoodTile({
     return () => turn.stop();
   }, [flip, on, reduceMotion]);
 
-  // The faces swap at the edge-on midpoint, so neither relies on
-  // backface culling, which Android and the web do not agree on.
+  // A quarter turn to edge-on, the faces swap, then a quarter turn back, so
+  // either state comes to rest flat. A tile left at 180deg (with its face
+  // turned back another 180deg) looks the same but stays a 3D layer, and
+  // its text is drawn blurred. Swapping at edge-on also means neither face
+  // relies on backface culling, which Android and the web do not agree on.
   const rotateY = flip.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
+    inputRange: [0, 0.5, 0.501, 1],
+    outputRange: ['0deg', '90deg', '-90deg', '0deg'],
   });
   const frontOpacity = flip.interpolate({
     inputRange: [0.5, 0.501],
@@ -99,7 +102,8 @@ function MoodTile({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={label}
+      // The jyutping has no room on a tile this size; it is read out instead.
+      accessibilityLabel={`${label}, ${jyutping}`}
       accessibilityState={{ selected: on }}
       style={styles.tile}
     >
@@ -113,15 +117,17 @@ function MoodTile({
           style={[styles.face, styles.front, { opacity: frontOpacity }]}
         >
           <Text style={[styles.char, styles.charOff]}>{char}</Text>
-          <Text style={[styles.jyutping, styles.textOff]}>{jyutping}</Text>
-          <Text style={[styles.label, styles.labelOff]}>{label}</Text>
+          <Text
+            style={[styles.label, styles.labelOff]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            {label}
+          </Text>
         </Animated.View>
         <Animated.View
-          style={[
-            styles.face,
-            styles.back,
-            { opacity: backOpacity, transform: [{ rotateY: '180deg' }] },
-          ]}
+          style={[styles.face, styles.back, { opacity: backOpacity }]}
         >
           <View style={styles.yellow} />
           <Animated.Text
@@ -133,8 +139,14 @@ function MoodTile({
           >
             {char}
           </Animated.Text>
-          <Text style={[styles.jyutping, styles.textOn]}>{jyutping}</Text>
-          <Text style={[styles.label, styles.textOn]}>{label}</Text>
+          <Text
+            style={[styles.label, styles.textOn]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            {label}
+          </Text>
         </Animated.View>
       </Animated.View>
     </Pressable>
@@ -186,20 +198,17 @@ function useReduceMotion(): boolean {
 
 const makeStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    grid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      justifyContent: 'space-between',
-      rowGap: spacing.sm,
-    },
-    tile: { width: '31.5%', height: 104 },
+    // One row of six, the same rhythm as the score's row of cells above it.
+    grid: { flexDirection: 'row', gap: 6 },
+    tile: { flex: 1, height: 60 },
     card: { flex: 1 },
     face: {
       ...StyleSheet.absoluteFill,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 4,
-      borderRadius: radius.md,
+      gap: 3,
+      paddingHorizontal: 2,
+      borderRadius: radius.sm,
     },
     front: {
       backgroundColor: colors.surface,
@@ -210,22 +219,20 @@ const makeStyles = (colors: ThemeColors) =>
     // The 應 logo's tile: yellow, skewed.
     yellow: {
       ...StyleSheet.absoluteFill,
-      margin: 5,
+      margin: 4,
       backgroundColor: colors.primary,
-      borderRadius: radius.sm,
+      borderRadius: 4,
       transform: [{ skewX: '-8deg' }],
     },
-    char: { fontSize: 36, lineHeight: 42, fontWeight: '900' },
+    char: { fontSize: 22, lineHeight: 26, fontWeight: '900' },
     charOff: { color: colors.textMuted },
     charOn: { color: colors.onPrimary },
-    jyutping: { fontSize: 10, fontWeight: '500', letterSpacing: 0.4 },
     label: {
-      fontSize: 9.5,
+      fontSize: 8,
       fontWeight: '800',
-      letterSpacing: 1.3,
+      letterSpacing: 0.5,
       textTransform: 'uppercase',
     },
-    textOff: { color: colors.textMuted },
     labelOff: { color: colors.textSecondary },
     textOn: { color: colors.onPrimary },
     marks: { flexDirection: 'row', gap: 5 },
